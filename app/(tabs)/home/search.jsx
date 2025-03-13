@@ -9,7 +9,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { ALL_FLIGHTS } from "../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import ShimmerPlaceHolder, { createShimmerPlaceholder } from 'react-native-shimmer-placeholder'
-import LinearGradient from 'expo-linear-gradient';
+import {LinearGradient} from 'expo-linear-gradient';
 
 const search = () => {
   const insets = useSafeAreaInsets();
@@ -18,9 +18,25 @@ const search = () => {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true); // Track loading state
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
+  
+
+
+  <LinearGradient
+  colors={['#4c669f', '#3b5998', '#192f6a']}
+  start={{ x: 0, y: 0 }} // top-left corner
+  end={{ x: 1, y: 1 }} // bottom-right corner
+  style={{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  <Text style={{ color: 'white', fontSize: 20 }}>Gradient Background</Text>
+</LinearGradient>
+
 
   useEffect(() => {
-    fetchAllFlights();
+    fetchAllFlights(); 
   }, [departureDate, flightNumber]);
 
   const fetchAllFlights = async () => {
@@ -60,14 +76,14 @@ const search = () => {
         }}
         className="p-6 absolute w-full"
       >
-        <View className="flex-row items-center">
+        <View className="flex-row items-center mt-5">
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3" style={{ fontFamily: "CenturyGothic" }}>
+          <Text className="text-[18px] text-white ml-3 " style={{ fontFamily: "CenturyGothic" }}>
             Search Result
           </Text>
         </View>
@@ -82,6 +98,7 @@ const search = () => {
         </View>
 
         {/* Show shimmer if loading */}
+        
         {loading ? (
   <>
     {[1, 2, 3].map((_, index) => (
@@ -96,8 +113,6 @@ const search = () => {
           shadowOpacity: 0.1,
           shadowOffset: { width: 0, height: 2 },
           shadowRadius: 4,
-         
-         
         }}
       >
         {/* Flight Header */}

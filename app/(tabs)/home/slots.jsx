@@ -1,15 +1,72 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import * as Calendarpicker from 'expo-calendar';
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { TextInput } from "react-native";
 
 const slots = () => {
   const insets = useSafeAreaInsets();
+  const [showDatePicker, setShowDatePicker] = useState(false);  // For Date Picker visibility
+  const [selectedDate, setSelectedDate] = useState(""); 
+
+  useEffect(() => {
+      (async () => {
+        const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
+        if (status === "granted") {
+          const calendars = await Calendarpicker.getCalendarsAsync(Calendarpicker.EntityTypes.EVENT);
+          // console.log("Here are all your calendars:", calendars);
+        } else {
+          Alert.alert("Permission required", "Calendar access is needed.");
+        }
+      })();
+    }, []);
+  
+    const handleDateChange = (event, selectedDate) => {
+      setShowDatePicker(false);
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split('T')[0];
+        setSelectedDate(formattedDate);
+        // formik.setFieldValue("departureDate", formattedDate); // Update formik state
+      }
+    };
+    
+    
+  
+    const createNewCalendar = async () => {
+      try {
+        const defaultCalendarSource = Platform.OS === 'ios'
+          ? await Calendarpicker.getDefaultCalendarAsync()
+          : { isLocalAccount: true, name: "Expo Calendar" };
+  
+        const newCalendarID = await Calendarpicker.createCalendarAsync({
+          title: "Flight Schedules",
+          color: "#FFB800",
+          entityType: Calendarpicker.EntityTypes.EVENT,
+          sourceId: defaultCalendarSource.id,
+          source: defaultCalendarSource,
+          name: "Flight Schedules",
+          ownerAccount: "personal",
+          accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
+        });
+  
+        // console.log("New calendar ID:", newCalendarID);
+      } catch (error) {
+        console.log("Error creating calendar:", error);
+      }
+    };
+
+   
+
+
   return (
     <View className="flex-1"> 
       {/* Header Background Image */}
@@ -58,60 +115,65 @@ const slots = () => {
         <Text className="text-white text-center mt-4">Date : 05/05/2025</Text>
       </View>
 
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
-        <View className="flex-1">
-          <Text className="text-[16px] mb-4">05/05/2025</Text>
-          <View className="flex-row flex-wrap gap-3">
-            {[
-              { time: "09 : 00", period: "AM" },
-              { time: "11 : 30", period: "AM" },
-              { time: "02 : 15", period: "PM" },
-              { time: "04 : 45", period: "PM" },
-            ].map((slot, index) => (
-              <TouchableOpacity
-                key={index}
-                className="flex-row items-center gap-x-2 px-3 py-2 rounded-lg border border-[#A4A4A4] self-start"
-              >
-                <Text className="text-[#ADADAD] text-[16px]">{slot.time}</Text>
-                <Text className="text-[10px] text-[#ADADAD]">
-                  {slot.period}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <View className="mt-4">
-            <Text className="text-[16px] mb-4">05/05/2025</Text>
-            <View className="flex-row flex-wrap gap-3">
-              {[
-                { time: "09 : 00", period: "AM" },
-                { time: "11 : 30", period: "AM" },
-                { time: "02 : 15", period: "PM" },
-                { time: "04 : 45", period: "PM" },
-              ].map((slot, index) => (
-                <TouchableOpacity
-                  key={index}
-                  className="flex-row items-center gap-x-2 px-3 py-2 rounded-lg border border-[#A4A4A4] self-start"
-                >
-                  <Text className="text-[#ADADAD] text-[16px]">
-                    {slot.time}
-                  </Text>
-                  <Text className="text-[10px] text-[#ADADAD]">
-                    {slot.period}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
+       <View 
+              className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
+              style={{
+                maxHeight: "79%",
+              }}
+            >
+              <ScrollView className="" showsVerticalScrollIndicator={false}>
+              
+              <Text className="font-bold text-xl text-[#164F90]" style={{fontFamily: "CenturyGothic"}}>Select Date</Text>
+              <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
+                        <TextInput
+                          placeholder="Pick Up Date"
+                          className="flex-1 h-[30px]"
+                          placeholderTextColor="#2D2A29"
 
-        {/* Continue Button */}
-      </ScrollView>
-      <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4"
-                  onPress={() => router.push("/home/selectlocation")}
+                        />
+                        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+<AntDesign name="calendar"
+
+size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
+                        </TouchableOpacity>
+
+                        {showDatePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
+
+                        </View>
+
+                        <Text className="font-bold text-xl text-[#164F90] " style={{fontFamily: "CenturyGothic"}}>Select Time</Text>
+              <View className="flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
+                        <TextInput
+                          placeholder="Pick Up Time"
+                          className="flex-1 h-[30px]"
+                          placeholderTextColor="#2D2A29"
+                        />
+
+<MaterialCommunityIcons name="clock-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
+
+                        </View>
+      
+                {/* Continue Button */}
+      <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
+                  onPress={() => {router.push("/home/selectlocation");
+                    createNewCalendar();
+                  }}
     
       >
         <Text className="text-center text-black font-semibold">Continue</Text>
       </TouchableOpacity>
+               
+              </ScrollView>
+            </View>
+
+       
     </View>
   );
 };

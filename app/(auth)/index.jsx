@@ -114,8 +114,11 @@ const SignupHandler = async (values) => {
         console.log("verification code sent", res.data.message);
         router.push("/verifyotp");
         toast.show(res.data.message)
+        console.log("message response //////",res)
       } catch (error) {
         console.log("Error signing up:", error?.response?.data?.errors);
+        toast.show(error?.response?.data?.message)
+
       }
     };
 

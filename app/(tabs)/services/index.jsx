@@ -36,8 +36,8 @@ const Index = () => {
             <View>
                 <Image
                     source={images.HeaderImg}
-                    className="w-full h-48 object-cover"
-                />
+                    className="w-full h-auto object-cover"
+                /> 
             </View>
 
             {/* Header Title */}
@@ -48,9 +48,9 @@ const Index = () => {
                  }}
                  className="p-6 absolute w-full"
                >
-                 <View className="flex-row  items-center">
+                 <View className="flex-row  items-center  mt-5">
                   
-                   <Text className="text-[20px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Services</Text>
+                   <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Services</Text>
                  </View>
                 
                </View>

@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
@@ -8,10 +8,15 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
 import * as ImagePicker from 'expo-image-picker';
+import Feather from '@expo/vector-icons/Feather';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 
 
 const baggage = () => {
   const insets = useSafeAreaInsets();
+  const imagerefRBSheet = useRef();
   const { flightData } = useLocalSearchParams();
   const flight = JSON.parse(flightData);
   const [persons , setPersons] = useState(1)
@@ -79,9 +84,85 @@ const baggage = () => {
     }
   };
 
+  const handleImagePicker = () => {
+    return (
+      <RBSheet
+        ref={imagerefRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        draggable={false}
+        height={Dimensions.get("window").height / 3.2}
+        customStyles={{
+          wrapper: {
+            backgroundColor: "rgba(0,0,0,0.2)", 
+          },
+          container: {
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 20, 
+            borderTopRightRadius: 20,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -3, // Lift shadow upwards
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            elevation: 5, // For Android shadow
+          },
+          draggableIcon: {
+            backgroundColor: "#ccc",
+            width: 40,
+            height: 5,
+            borderRadius: 10,
+          },
+        }}
+      >
+        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+          <Text className="text-center text-2xl font-bold text-[#164F90]">
+            Upload Photo
+          </Text>
+
+          <View className="flex flex-row justify-evenly ">
+            <View className="flex-col">
+              <TouchableOpacity
+                className=" border-2 border-[#164F90] p-3 rounded-2xl "
+                onPress={takePhoto}
+              >
+                <Feather
+                  name="camera"
+                  size={50}
+                  color="#164F90"
+                  className="m-auto w-max"
+                />
+              </TouchableOpacity>
+
+              <Text className="mt-2 font-bold">Click From Camera</Text>
+            </View>
+
+            <View className="flex-col">
+              <TouchableOpacity
+                className=" border-2 border-[#164F90] p-3 rounded-2xl "
+                onPress={pickImage}
+              >
+                <FontAwesome
+                  name="photo"
+                  size={50}
+                  color="#164F90"
+                  className="m-auto w-max"
+                />
+              </TouchableOpacity>
+              <Text className="mt-2 font-bold">Select From Gallery</Text>
+            </View>
+          </View>
+        </View>
+      </RBSheet>
+    );
+  }
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+      {handleImagePicker()}
       <View>
         <Image
           source={images.HeaderImg2}
@@ -125,7 +206,7 @@ const baggage = () => {
           </View>
         </View>
       </View>
-      <View
+      <View 
         className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
         style={{
           maxHeight: "79%",
@@ -175,7 +256,11 @@ const baggage = () => {
           {/* Image Upload */}
           <View className="mb-6">
             <TouchableOpacity className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
-            onPress={pickImage}
+            onPress={()=>{
+              
+              imagerefRBSheet.current.open()
+            }
+          }
             >
               <Text className="text-[#515151] mb-1">Upload Image</Text>
             </TouchableOpacity>

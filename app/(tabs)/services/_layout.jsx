@@ -14,6 +14,6 @@ const _layout = () => {
         </Stack>
         <StatusBar style="light" backgroundColor="transparent" />
   </>;
-};
+}; 
 
 export default _layout;

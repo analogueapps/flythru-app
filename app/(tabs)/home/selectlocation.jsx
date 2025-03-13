@@ -188,7 +188,7 @@ const selectlocation = () => {
         <MaterialCommunityIcons name="clock-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
         </View>
 
-     
+      
         <TouchableOpacity
 
 onPress={() => locationrefRBSheet.current.open()}

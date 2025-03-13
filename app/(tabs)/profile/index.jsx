@@ -207,9 +207,9 @@ const index = () => {
       }}
       className="p-6 absolute w-full"
     >
-      <View className="flex-row  items-center">
+      <View className="flex-row  items-center  mt-5">
        
-        <Text className="text-[20px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Profile</Text>
+        <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Profile</Text>
       </View>
      
     </View>
