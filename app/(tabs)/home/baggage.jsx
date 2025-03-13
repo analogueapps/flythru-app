@@ -1,15 +1,84 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
+import * as ImagePicker from 'expo-image-picker';
+
 
 const baggage = () => {
   const insets = useSafeAreaInsets();
+  const { flightData } = useLocalSearchParams();
+  const flight = JSON.parse(flightData);
+  const [persons , setPersons] = useState(1)
+  const [bags , setBags] = useState(1)
+  const [image, setImage] = useState(null);
+
+
+  const numberOfPersons = (type) => {
+    if (type === 'increase') {
+      setPersons(persons + 1);
+    } else if (type === 'decrease' && persons > 1) {
+      setPersons(persons - 1);
+    }
+  };
+
+  
+  const numberOfBags = (type) => {
+    if (type === 'increasebags') {
+      setBags(bags + 1);
+    } else if (type === 'decreasebags' && bags > 1) {
+      setBags(bags - 1);
+    }
+  };
+
+
+  const requestPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access gallery is required!');
+    }
+  };
+
+  useEffect(()=>{
+    requestPermission()
+  },[])
+  
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access camera is required!');
+      return;
+    }
+  
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -34,12 +103,12 @@ const baggage = () => {
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3">Baggage Details</Text>
+          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Baggage Details</Text>
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">HYD</Text>
-            <Text className="text-white">Hyderabad</Text>
+            <Text className="text-white">{flight.startingFrom}</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -52,7 +121,7 @@ const baggage = () => {
           </View>
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">DUB</Text>
-            <Text className="text-white">Dubai</Text>
+            <Text className="text-white">{flight.ending}</Text>
           </View>
         </View>
       </View>
@@ -73,11 +142,11 @@ const baggage = () => {
                 Number of Persons
               </Text>
               <View className="flex-row items-center gap-x-2 bg-[#194f9027] px-3 py-2 rounded-lg">
-                <TouchableOpacity className="mr-2">
+                <TouchableOpacity className="mr-2" onPress={()=>numberOfPersons("decrease")}>
                   <Minus color={"#194F90"} size={13} />
                 </TouchableOpacity>
-                <Text className="text-[#194f90]">1</Text>
-                <TouchableOpacity className="ml-3">
+                <Text className="text-[#194f90]">{persons}</Text>
+                <TouchableOpacity className="ml-3" onPress={()=>numberOfPersons("increase")}>
                   <Plus color={"#194F90"} size={13} />
                 </TouchableOpacity>
               </View>
@@ -94,18 +163,20 @@ const baggage = () => {
               </Text>
               <View className="flex-row items-center gap-x-2 bg-[#194f9027] px-3 py-2 rounded-lg">
                 <TouchableOpacity className="mr-2">
-                  <Minus color={"#194F90"} size={13} />
+                  <Minus color={"#194F90"} size={13} onPress={()=> numberOfBags("decreasebags")}/>
                 </TouchableOpacity>
-                <Text className="text-[#194f90]">1</Text>
+                <Text className="text-[#194f90]">{bags}</Text>
                 <TouchableOpacity className="ml-3">
-                  <Plus color={"#194F90"} size={13} />
+                  <Plus color={"#194F90"} size={13} onPress={()=> numberOfBags("increasebags")}/>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
           {/* Image Upload */}
           <View className="mb-6">
-            <TouchableOpacity className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center">
+            <TouchableOpacity className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
+            onPress={pickImage}
+            >
               <Text className="text-[#515151] mb-1">Upload Image</Text>
             </TouchableOpacity>
             <Text className="text-[#2D2A29] text-sm">

@@ -11,7 +11,7 @@ import PlaneIcon from "../../../assets/svgs/PlaneSvg";
 const slots = () => {
   const insets = useSafeAreaInsets();
   return (
-    <View className="flex-1">
+    <View className="flex-1"> 
       {/* Header Background Image */}
       <View>
         <Image
@@ -34,7 +34,7 @@ const slots = () => {
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3">Select Slots</Text>
+          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Select Slots</Text>
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
@@ -106,7 +106,10 @@ const slots = () => {
 
         {/* Continue Button */}
       </ScrollView>
-      <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4">
+      <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4"
+                  onPress={() => router.push("/home/selectlocation")}
+    
+      >
         <Text className="text-center text-black font-semibold">Continue</Text>
       </TouchableOpacity>
     </View>
