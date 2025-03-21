@@ -54,7 +54,7 @@ const feedback = () => {
       try {
         const token = await AsyncStorage.getItem('authToken');
         if (!token) {
-          toast.show("No token found. Please log in.");
+          toast.show("No token found. Please log in."); 
           return;
         }
     
@@ -85,9 +85,9 @@ const feedback = () => {
         top: insets.top,
         zIndex: 1,
       }}
-      className="p-6 absolute w-full"
+      className="p-6 absolute w-full mt-5"
     >
-      <View className="flex-row  items-center">
+      <View className="flex-row  items-center ">
        
        <View className="flex-row  items-center">
                  <TouchableOpacity

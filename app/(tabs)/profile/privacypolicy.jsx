@@ -65,9 +65,9 @@ const PrivacyPolicy = () => {
           top: insets.top,
           zIndex: 1,
         }}
-        className="p-6 absolute w-full"
+        className="p-6 absolute w-full "
       >
-        <View className="flex-row items-center">
+        <View className="flex-row items-center mt-5">
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"

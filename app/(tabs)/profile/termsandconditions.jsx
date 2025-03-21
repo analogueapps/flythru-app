@@ -6,6 +6,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
 import { ALL_SETTINGS } from "../../network/apiCallers";
+import logo from '../../../assets/images/mainLogo.png'
 
 const TermsAndConditions = () => {
   const insets = useSafeAreaInsets();
@@ -59,7 +60,7 @@ const TermsAndConditions = () => {
           top: insets.top,
           zIndex: 1,
         }}
-        className="p-6 absolute w-full"
+        className="p-6 absolute w-full mt-5"
       >
         <View className="flex-row items-center">
           <TouchableOpacity
@@ -90,6 +91,17 @@ const TermsAndConditions = () => {
             Loading terms and conditions...
           </Text>
         )}
+
+<View className="flex justify-center ">
+
+        <Image
+          source={logo}
+          className="h-14 w-14 self-center"
+          resizeMode="contain"
+          
+          />
+          </View>
+
       </ScrollView>
     </View>
   );

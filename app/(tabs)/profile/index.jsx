@@ -42,12 +42,31 @@ const index = () => {
           closeOnDragDown={true}
           closeOnPressMask={true}
           height={Dimensions.get('window').height / 3}
+        
+        
           customStyles={{
             wrapper: {
-              backgroundColor: "transparent",
+              backgroundColor: "rgba(0,0,0,0.2)", 
+            },
+             
+            container: {
+              backgroundColor: "#fff",
+              borderTopLeftRadius: 20, 
+              borderTopRightRadius: 20,
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: -3, // Lift shadow upwards
+              },
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              elevation: 5, // For Android shadow
             },
             draggableIcon: {
-              backgroundColor: "#000",
+              backgroundColor: "#ccc",
+              width: 40,
+              height: 5,
+              borderRadius: 10,
             },
           }}
         >
@@ -69,7 +88,8 @@ const index = () => {
     
     <View className="flex flex-row justify-center">
    
-               <TouchableOpacity className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 ">
+               <TouchableOpacity className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 "
+               onPress={() => logoutrefRBSheet.current.close()}>
                        <Text className="text-center text-[#164F90] font-semibold">Now Now</Text>
                      </TouchableOpacity>
               
@@ -98,10 +118,27 @@ const index = () => {
               height={Dimensions.get('window').height / 1.4}
               customStyles={{
                 wrapper: {
-                  backgroundColor: "transparent",
+                  backgroundColor: "rgba(0,0,0,0.2)", 
+                },
+                 
+                container: {
+                  backgroundColor: "#fff",
+                  borderTopLeftRadius: 20, 
+                  borderTopRightRadius: 20,
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: -3, // Lift shadow upwards
+                  },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 4,
+                  elevation: 5, // For Android shadow
                 },
                 draggableIcon: {
-                  backgroundColor: "#000",
+                  backgroundColor: "#ccc",
+                  width: 40,
+                  height: 5,
+                  borderRadius: 10,
                 },
               }}
             >
@@ -218,7 +255,7 @@ const index = () => {
       <View className="px-4">
 
 
-      {/* <TouchableOpacity className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+      <TouchableOpacity className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
         onPress={() => router.push("/profile/editprofile")}
       >
         <View className="flex-row gap-3 items-center">
@@ -226,10 +263,10 @@ const index = () => {
         <Text className="text-[#515151] text-xl">Edit Profile</Text>
         </View>
         <Rightarrow/>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
 
       <TouchableOpacity className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
-        onPress={() => router.push("/profile/addaddress")}
+        onPress={() => router.push("/profile/address")}
 
       >
         <View className="flex-row gap-3 items-center">

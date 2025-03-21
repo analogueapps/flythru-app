@@ -8,7 +8,7 @@ import {
   Linking,
   Platform,
 } from "react-native";
-import * as Calendarpicker from 'expo-calendar';
+import * as Calendarpicker from "expo-calendar";
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -17,9 +17,9 @@ import {
 import images from "../../../constants/images";
 import { StatusBar } from "expo-status-bar";
 import { Bell } from "lucide-react-native";
-import ad from '../../../assets/images/adbanner.png'
+import ad from "../../../assets/images/adbanner.png";
 import { Calendar } from "lucide-react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";  // Import DateTimePicker
+import DateTimePicker from "@react-native-community/datetimepicker"; // Import DateTimePicker
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
@@ -28,20 +28,20 @@ import { useFormik } from "formik";
 import AllflightSchema from "../../yupschema/allFlightSchema";
 import { useToast } from "react-native-toast-notifications";
 
-
-
 const Index = () => {
   const insets = useSafeAreaInsets();
-  const [showDatePicker, setShowDatePicker] = useState(false);  // For Date Picker visibility
-  const [selectedDate, setSelectedDate] = useState(""); 
-  const [banners , setBanners] = useState([])
-  const toast = useToast()
+  const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
+  const [selectedDate, setSelectedDate] = useState("");
+  const [banners, setBanners] = useState([]);
+  const toast = useToast();
 
   useEffect(() => {
     (async () => {
       const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
       if (status === "granted") {
-        const calendars = await Calendarpicker.getCalendarsAsync(Calendarpicker.EntityTypes.EVENT);
+        const calendars = await Calendarpicker.getCalendarsAsync(
+          Calendarpicker.EntityTypes.EVENT
+        );
         // console.log("Here are all your calendars:", calendars);
       } else {
         Alert.alert("Permission required", "Calendar access is needed.");
@@ -52,25 +52,24 @@ const Index = () => {
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      const formattedDate = selectedDate.toISOString().split('T')[0];
+      const formattedDate = selectedDate.toISOString().split("T")[0];
       setSelectedDate(formattedDate);
       formik.setFieldValue("departureDate", formattedDate); // Update formik state
     }
   };
-  
-  
 
   const createNewCalendar = async () => {
     try {
-      const defaultCalendarSource = Platform.OS === 'ios'
-        ? await Calendarpicker.getDefaultCalendarAsync()
-        : { isLocalAccount: true, name: "Expo Calendar" };
+      const defaultCalendarSource =
+        Platform.OS === "ios"
+          ? await Calendarpicker.getDefaultCalendarAsync()
+          : { isLocalAccount: true, name: "Expo Calendar" };
 
       const newCalendarID = await Calendarpicker.createCalendarAsync({
         title: "Flight Schedules",
         color: "#FFB800",
         entityType: Calendarpicker.EntityTypes.EVENT,
-        sourceId: defaultCalendarSource.id,  
+        sourceId: defaultCalendarSource.id,
         source: defaultCalendarSource,
         name: "Flight Schedules",
         ownerAccount: "personal",
@@ -92,41 +91,39 @@ const Index = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("values" , values)
+      console.log("values", values);
       router.push({
-        pathname:"/home/search",
-        params:{
-          departureDate:values.departureDate,
-          flightNumber:values.flightNumber
-        }
-      })
+        pathname: "/home/search",
+        params: {
+          departureDate: values.departureDate,
+          flightNumber: values.flightNumber,
+        },
+      });
     },
   });
-
- 
-  
 
   const allbanners = async () => {
     try {
       const res = await ALL_BANNERS();
-      console.log("API Response:", res);  
-  
+      console.log("API Response:", res);
+
       if (res?.data?.allBanners && Array.isArray(res.data.allBanners)) {
-        setBanners(res.data.allBanners);  
+        setBanners(res.data.allBanners);
       } else {
         console.log("Unexpected response format:", res.data);
-        setBanners([]);  
+        setBanners([]);
       }
     } catch (error) {
       console.log("Error fetching banners:", error);
-      setBanners([]);  
+      setBanners([]);
     }
   };
-  
-  useEffect(()=>{
-    allbanners()
-  },[])
 
+  useEffect(() => {
+    allbanners();
+  }, []);
+
+  
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -148,12 +145,13 @@ const Index = () => {
         className="flex-row justify-between items-center p-6 absolute w-full"
       >
         <Image
-          source={images.whiteLogo} 
+          source={images.whiteLogo}
           className="w-[100px] h-[30px]"
           resizeMode="contain"
         />
-        <TouchableOpacity className="bg-white rounded-full p-2"
-                  onPress={() => router.push("/home/notification")}
+        <TouchableOpacity
+          className="bg-white rounded-full p-2"
+          onPress={() => router.push("/home/notification")}
         >
           <Bell color="black" size={18} />
         </TouchableOpacity>
@@ -169,8 +167,11 @@ const Index = () => {
             className="flex-1 h-[30px]"
             placeholderTextColor="#2D2A29"
           />
-          <TouchableOpacity className="" onPress={() => setShowDatePicker(true)}>
-          <Calendar size={20} color="#6B7280" />
+          <TouchableOpacity
+            className=""
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Calendar size={20} color="#6B7280" />
           </TouchableOpacity>
         </View>
 
@@ -183,8 +184,6 @@ const Index = () => {
           />
         )}
 
-
-
         <TextInput
           placeholder="Enter Flight Number"
           onChangeText={formik.handleChange("flightNumber")}
@@ -195,13 +194,11 @@ const Index = () => {
           placeholderTextColor="#2D2A29"
         />
         <TouchableOpacity
-       onPress={ () => {
-         formik.handleSubmit();
-        // router.push("/home/search"); 
-        createNewCalendar();
-      }}
-      
-        
+          onPress={() => {
+            formik.handleSubmit();
+            // router.push("/home/search");
+            createNewCalendar();
+          }}
           className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
         >
           <Text className="text-center text-black font-semibold text-base">
@@ -218,26 +215,27 @@ const Index = () => {
           </Text>
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">
-
-
-  {Array.isArray(banners) && banners.length > 0 ? (
-    banners.map((banner, index) => (
-      <TouchableOpacity
-        key={index}
-        onPress={() => banner.link && Linking.openURL(banner.link)}  // Open link if exists
-      >
-        <Image
-          source={{ uri: `http://192.168.29.235:2001/${banner?.bannerPicture}` }}  // Use full URL
-          className="h-[100px] w-full mb-3 rounded-xl"
-          resizeMode="cover"
-        />
-      </TouchableOpacity>
-    ))
-  ) : (
-    <Text className="text-center text-gray-500">No banners available</Text>  // Placeholder if empty
-  )}
-</View>
-
+            {Array.isArray(banners) && banners.length > 0 ? (
+              banners.map((banner, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => banner.link && Linking.openURL(banner.link)} // Open link if exists
+                >
+                  <Image
+                    source={{
+                      uri: `http://192.168.29.236:2001/${banner?.bannerPicture}`,
+                    }} // Use full URL
+                    className="h-[100px] w-full mb-3 rounded-xl"
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text className="text-center text-gray-500">
+                No banners available
+              </Text> // Placeholder if empty
+            )}
+          </View>
 
           {/* <Text className="text-[#164F90] my-4 font-bold text-[16px] self-start">
             Today Active Flights

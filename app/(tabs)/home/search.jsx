@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView , Animated} from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,7 +18,27 @@ const search = () => {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true); // Track loading state
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
-  
+  const [animatedValues, setAnimatedValues] = useState([]);
+
+useEffect(() => {
+  if (flights.length > 0) {
+    // Create animated values for each flight item
+    const values = flights.map(() => new Animated.Value(500)); // Start from off-screen (500px down)
+    setAnimatedValues(values);
+
+    values.forEach((animatedValue, index) => {
+      setTimeout(() => {
+        Animated.timing(animatedValue, {
+          toValue: 0, // Slide to the original position
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      }, index * 150); // Staggered effect
+    });
+  }
+}, [flights]);
+
+
 
 
   <LinearGradient
@@ -27,7 +47,7 @@ const search = () => {
   end={{ x: 1, y: 1 }} // bottom-right corner
   style={{
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'center', 
     alignItems: 'center',
   }}
 >
@@ -101,7 +121,7 @@ const search = () => {
         
         {loading ? (
   <>
-    {[1, 2, 3].map((_, index) => (
+    {[1, 2, 3, 4].map((_, index) => (
       <View
         key={index}
         style={{

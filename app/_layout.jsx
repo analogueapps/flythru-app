@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import { ActivityIndicator } from "react-native";
 import { ToastProvider } from "react-native-toast-notifications";
+import { AuthProvider } from "../UseContext/AuthContext";
 
 
 const _layout = () => {
@@ -17,6 +18,8 @@ const _layout = () => {
     return <ActivityIndicator size="large" color="#000" />;
   }
   return (
+    <AuthProvider>
+
      <ToastProvider
         
         placement="bottom"
@@ -29,6 +32,7 @@ const _layout = () => {
       <Stack.Screen name="index" />
     </Stack>
     </ToastProvider>
+          </AuthProvider>
     // <StatusBar style="light" backgroundColor="transparent" />
   );
 };

@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -24,13 +24,18 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import verticalline from "../../../assets/images/verticalline.png"
-import { router } from "expo-router";
-import dp from "../../../assets/images/dpfluthru.jpg"
+import { router, useLocalSearchParams } from "expo-router";
+import dp from "../../../assets/images/dp2flythru.jpeg"
 import MapView, { Marker, Polyline } from "react-native-maps";
 import useExpoLocation from "../../customhooks/useExpolocation";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Swiperarrow from "../../../assets/svgs/swiperarrow";
 import mapimg from "../../../assets/images/mapimg.jpg"
+import { PAYEMNT_API } from "../../network/apiCallers";
+import { useToast } from "react-native-toast-notifications";
+import { useFormik } from "formik";
+import selectlocationSchema from "../../yupschema/selectLocationSchema";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
@@ -38,6 +43,80 @@ const selectlocation = () => {
   const insets = useSafeAreaInsets();
     const locationrefRBSheet = useRef();
   const { longitude, latitude } = useExpoLocation();
+  const { date , time , personsCount, baggageCount, baggagePictures } = useLocalSearchParams()
+ const toast = useToast()
+  const [apiErr, setApiErr] = useState("");
+
+ 
+ const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
+ const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
+ const parsedBaggagePictures = baggagePictures
+   ? JSON.parse(decodeURIComponent(baggagePictures))
+   : [];
+
+
+ useEffect(()=>{
+    console.log("slotssssssss" , "date :", date)
+    console.log("slotssssssss" , "time :", time)
+    console.log("baggage details" , parsedPersonsCount , parsedBaggageCount , parsedBaggagePictures)
+  },[])
+
+ const formik = useFormik({
+  initialValues: {
+    pickUpLocation:"chennai",
+    dropOffLocation: "hyderabad", 
+    pickUpTimings:time
+  },
+  validationSchema: selectlocationSchema,
+  validateOnChange: true,
+  validateOnBlur: true,
+  onSubmit: async (values) => {console.log("values CREATE ORDER", values);
+
+  // Include additional data for the API call
+  const requestData = {
+    ...values,
+    date,
+    time,
+    personsCount: parsedPersonsCount,
+    baggageCount: parsedBaggageCount,
+    baggagePictures: parsedBaggagePictures,
+  };
+
+  await paymentApi(requestData);
+
+  router.push({
+    pathname: "/activities/bookingdetails",
+  });
+},
+});
+
+  // pament api handler
+
+  const paymentApi = async (values) => {
+
+    const token = await AsyncStorage.getItem('authToken');
+  
+        if (!token) {
+          toast.show("No token found. Please log in.");
+          return;
+        }
+
+    try {
+      const res = await PAYEMNT_API(values , token); 
+      console.log(res.data.message);
+      toast.show(res.data.message)
+      
+    } catch (error) {
+      console.log("Error sending code:", error?.response);
+      setApiErr(error?.response?.data?.message || "error occured");
+    }
+  };
+
+
+
+  useEffect(()=>{
+      console.log(date, time)
+  },[date , time])
 
   const handlelocation = () => {
     return (
@@ -66,7 +145,7 @@ const selectlocation = () => {
               />
 
               <View>
-                <Text className=" text-3xl font-thin">Bat Man</Text>
+                <Text className=" text-3xl font-thin">Shin Chan</Text>
                 <Text>Dubai</Text>
               </View>
             </View>
@@ -125,10 +204,7 @@ const selectlocation = () => {
               }}
               onSwipeSuccess={() => {
                 // router.push("/activities/bookingdetails")
-                router.push({
-                    pathname: "/activities/bookingdetails",
-                    params: { fromSelectLocation: true },  // Pass param here
-                  });
+                formik.handleSubmit()
                 console.log("Booking Confirmed!");
                 // Add any action on success here
               }}
@@ -173,10 +249,26 @@ const selectlocation = () => {
           <TextInput
             placeholder="Pick Up Location"
             className="flex-1 h-[30px]"
+            onChangeText={formik.handleChange("pickUpLocation")}
+            onBlur={formik.handleBlur("pickUpLocation")}
+            value={formik.values.pickUpLocation}
             placeholderTextColor="#2D2A29"
           />
 <Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
         </View>
+
+        {/* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+          <TextInput
+            placeholder="Drop Off Location"
+            className="flex-1 h-[30px]"
+            onChangeText={formik.handleChange("dropOffLocation")}
+            onBlur={formik.handleBlur("dropOffLocation")}
+            value={formik.values.dropOffLocation}
+            placeholderTextColor="#2D2A29"
+          />
+<Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
+        </View> */}
+        
         
 
         <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
@@ -184,6 +276,8 @@ const selectlocation = () => {
             placeholder="Pick Up Time"
             className="flex-1 h-[30px]"
             placeholderTextColor="#2D2A29"
+            value={time}
+            editable={false}
           />
         <MaterialCommunityIcons name="clock-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
         </View>
@@ -208,16 +302,16 @@ className="bg-[#FFB800] rounded-lg py-4 mt-2"
 
         </ScrollView> */}
       <View style={styles.mapContainer}>
-        {/* <MapView
+        <MapView
           style={styles.map}
       
         >
           {latitude && longitude && (
             <Marker coordinate={{ longitude: longitude, latitude: latitude }} />
           )}
-        </MapView> */}
+        </MapView>
 
-        <Image source={mapimg} className="h-full " />
+        {/* <Image source={mapimg} className="h-full " /> */}
       </View>
 
     </View>

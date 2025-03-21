@@ -11,6 +11,8 @@ import * as ImagePicker from 'expo-image-picker';
 import Feather from '@expo/vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useFormik } from "formik";
+import baggageSchema from "../../yupschema/baggageSchema";
 
 
 
@@ -21,26 +23,51 @@ const baggage = () => {
   const flight = JSON.parse(flightData);
   const [persons , setPersons] = useState(1)
   const [bags , setBags] = useState(1)
-  const [image, setImage] = useState(null);
+  const [bagimages, setBagimages] = useState([]);
+
 
 
   const numberOfPersons = (type) => {
-    if (type === 'increase') {
-      setPersons(persons + 1);
+    if (type === 'increase' && persons < 5) {
+      setPersons((prev) => {
+        const newValue = prev + 1;
+        formik.setFieldValue('personsCount', newValue);
+        return newValue;
+      });
     } else if (type === 'decrease' && persons > 1) {
-      setPersons(persons - 1);
+      setPersons((prev) => {
+        const newValue = prev - 1;
+        formik.setFieldValue('personsCount', newValue);
+        return newValue;
+      });
     }
   };
-
   
   const numberOfBags = (type) => {
-    if (type === 'increasebags') {
-      setBags(bags + 1);
+    if (type === 'increasebags' && bags < 10) {
+      setBags((prev) => {
+        const newValue = prev + 1;
+        formik.setFieldValue('baggageCount', newValue);
+        return newValue;
+      });
     } else if (type === 'decreasebags' && bags > 1) {
-      setBags(bags - 1);
+      setBags((prev) => {
+        const newValue = prev - 1;
+        formik.setFieldValue('baggageCount', newValue);
+        return newValue;
+      });
     }
   };
 
+  const removeImage = (index) => {
+    setBagimages((prev) => {
+      const updatedImages = prev.filter((_, i) => i !== index);
+      formik.setFieldValue('baggagePictures', updatedImages);
+      return updatedImages;
+    });
+  };
+  
+  
 
   const requestPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -52,6 +79,14 @@ const baggage = () => {
   useEffect(()=>{
     requestPermission()
   },[])
+
+  useEffect(() => {
+    formik.setValues({
+      personsCount: persons,
+      baggageCount: bags,
+      baggagePictures: bagimages
+    });
+  }, [persons, bags, bagimages]);
   
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -62,10 +97,15 @@ const baggage = () => {
     });
   
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const newImage = result.assets[0].uri;
+      setBagimages((prev) => {
+        const updatedImages = [...prev, newImage];
+        formik.setFieldValue('baggagePictures', updatedImages);
+        return updatedImages;
+      });
     }
   };
-
+  
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
@@ -80,9 +120,40 @@ const baggage = () => {
     });
   
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const newImage = result.assets[0].uri;
+      setBagimages((prev) => {
+        const updatedImages = [...prev, newImage];
+        formik.setFieldValue('baggagePictures', updatedImages);
+        return updatedImages;
+      });
     }
   };
+  
+  
+  const formik = useFormik({
+    initialValues: {
+      personsCount: persons,
+      baggageCount: bags,
+      baggagePictures:[]
+    },
+    validationSchema: baggageSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log("values", values);
+      router.push({
+        pathname: "/home/slots",
+        params: {
+          personsCount: String(values.personsCount),
+          baggageCount: String(values.baggageCount),
+          baggagePictures: encodeURIComponent(JSON.stringify(values.baggagePictures)), 
+        },
+      });
+      
+    },
+  });
+
+  console.log("Formik errors:", formik.errors);
 
   const handleImagePicker = () => {
     return (
@@ -91,7 +162,7 @@ const baggage = () => {
         closeOnDragDown={true}
         closeOnPressMask={true}
         draggable={false}
-        height={Dimensions.get("window").height / 3.2}
+        height={Dimensions.get("window").height / 3.5}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)", 
@@ -118,40 +189,40 @@ const baggage = () => {
         }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <Text className="text-center text-2xl font-bold text-[#164F90]">
+          <Text className="text-center mb-4 pb-4 border-b-[1px] border-[#E0E0E0] text-2xl font-bold text-[#164F90]">
             Upload Photo
           </Text>
 
           <View className="flex flex-row justify-evenly ">
-            <View className="flex-col">
+            <View className="">
               <TouchableOpacity
-                className=" border-2 border-[#164F90] p-3 rounded-2xl "
+                className=" border-2 border-[#164F90] p-3 rounded-2xl border-dashed"
                 onPress={takePhoto}
               >
                 <Feather
                   name="camera"
                   size={50}
                   color="#164F90"
-                  className="m-auto w-max"
+                  className="m-auto w-max "
                 />
+              <Text className="mt-2 font-bold">Click From Camera</Text>
               </TouchableOpacity>
 
-              <Text className="mt-2 font-bold">Click From Camera</Text>
             </View>
 
-            <View className="flex-col">
+            <View className="">
               <TouchableOpacity
-                className=" border-2 border-[#164F90] p-3 rounded-2xl "
+                className=" border-2 border-[#164F90] p-3 rounded-2xl  border-dashed"
                 onPress={pickImage}
               >
                 <FontAwesome
                   name="photo"
                   size={50}
                   color="#164F90"
-                  className="m-auto w-max"
+                  className="m-auto "
                 />
-              </TouchableOpacity>
               <Text className="mt-2 font-bold">Select From Gallery</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -268,26 +339,40 @@ const baggage = () => {
               Max 5MB - JPG, PNG allowed
             </Text>
             <View className="flex-row flex-wrap mt-3">
-              {["img1", "img2", "img3", "img4", "img5", "img6"].map(
-                (img, index) => (
-                  <View
-                    key={index}
-                    className="bg-gray-100 rounded-md px-3 py-1 mr-2 mb-2 flex-row items-center"
-                  >
-                    <Text className="text-gray-600 mr-2">{img}</Text>
-                    <TouchableOpacity>
-                      <Text className="text-gray-400">×</Text>
-                    </TouchableOpacity>
-                  </View>
-                )
-              )}
-            </View>
+  {bagimages.map((img, index) => (
+    <View
+      key={index}
+      className="bg-gray-100 rounded-md px-3 py-1 mr-2 mb-2 flex-row items-center"
+    >
+      <Image
+        source={{ uri: img }}
+        className="w-16 h-16 rounded-md mr-2"
+        style={{ resizeMode: "cover" }}
+      />
+      <TouchableOpacity onPress={() => removeImage(index)}>
+        <Text className="text-gray-400">×</Text>
+      </TouchableOpacity>
+    </View>
+  ))}
+</View>
+
           </View>
 
           {/* Continue Button */}
           <TouchableOpacity
-            onPress={() => router.push("/home/slots")}
-            className="bg-[#FFB800] rounded-xl py-4"
+            // onPress={()=>formik.handleSubmit()}
+            onPress={() => {
+            
+                console.log("Continue button pressed");
+                formik.handleSubmit(); // Call formik submission
+                
+                router.push({
+                  pathname: "/home/slots",
+                  params: { flightData: JSON.stringify(flight) }
+                });
+              }}
+              className="bg-[#FFB800] rounded-xl py-4"
+              
           >
             <Text className="text-center text-black font-semibold">
               Continue
@@ -300,3 +385,4 @@ const baggage = () => {
 };
 
 export default baggage;
+

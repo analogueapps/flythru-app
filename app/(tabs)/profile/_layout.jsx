@@ -23,7 +23,7 @@ const _layout = () => {
               />
 
 <Stack.Screen
-                 name="addaddress"
+                 name="address"
                  options={{ gestureEnabled: true, animation: "slide_from_right" }}
               />
 
@@ -36,8 +36,40 @@ const _layout = () => {
                  name="faq"
                  options={{ gestureEnabled: true, animation: "slide_from_right" }}
               />
+
+              
+<Stack.Screen
+                 name="feedback"
+                 options={{ gestureEnabled: true, animation: "slide_from_right" }}
+              />
+
+              
+<Stack.Screen
+                 name="termsandconditions"
+                 options={{ gestureEnabled: true, animation: "slide_from_right" }}
+              />
+
+              
+<Stack.Screen
+                 name="privacypolicy"
+                 options={{ gestureEnabled: true, animation: "slide_from_right" }}
+              />
+
+              
+<Stack.Screen
+                 name="cancellationpolicy"
+                 options={{ gestureEnabled: true, animation: "slide_from_right" }}
+              />
+
+              
+<Stack.Screen
+                 name="refundpolicy"
+                 options={{ gestureEnabled: true, animation: "slide_from_right" }}
+              />
             
     </Stack>
+
+    
   );
 };
 

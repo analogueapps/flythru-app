@@ -5,70 +5,153 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import * as Calendarpicker from 'expo-calendar';
+import * as Calendarpicker from "expo-calendar";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { TextInput } from "react-native";
+import { useFormik } from "formik";
+import slotsSchema from "../../yupschema/slotsSchema";
+import { SelectList } from 'react-native-dropdown-select-list'
+import { ALL_TIME_SLOTS } from "../../network/apiCallers";
+
 
 const slots = () => {
   const insets = useSafeAreaInsets();
-  const [showDatePicker, setShowDatePicker] = useState(false);  // For Date Picker visibility
-  const [selectedDate, setSelectedDate] = useState(""); 
+  const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selected, setSelected] = React.useState("");
+  const [timeslot , setTimeslots] = useState([])
+  const { flightData } = useLocalSearchParams();
+    const flight = JSON.parse(flightData);
+
+  const { personsCount, baggageCount, baggagePictures } = useLocalSearchParams();
+
+const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
+const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
+const parsedBaggagePictures = baggagePictures
+  ? JSON.parse(decodeURIComponent(baggagePictures))
+  : [];
+
+
+
+const alltimeslots = async () => {
+  try {
+    const res = await ALL_TIME_SLOTS();
+    console.log("API Response:", res);
+
+    if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
+      // Map to key-value pairs, using timeSlot as value
+      const formattedSlots = res.data.allTimeSlots.map((slot, index) => ({
+        key: slot._id, // Use unique ID as key
+        value: slot.timeSlot, // ✅ Use timeSlot as the value
+      }));
+      setTimeslots(formattedSlots); // ✅ Set state properly
+    } else {
+      console.log("Unexpected response format:", res.data);
+      setTimeslots([]); // ✅ Set empty state if no data
+    }
+  } catch (error) {
+    console.log("Error fetching timeslots:", error);
+    setTimeslots([]); // ✅ Handle error state
+  }
+};
+
+
+
 
   useEffect(() => {
-      (async () => {
-        const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
-        if (status === "granted") {
-          const calendars = await Calendarpicker.getCalendarsAsync(Calendarpicker.EntityTypes.EVENT);
-          // console.log("Here are all your calendars:", calendars);
-        } else {
-          Alert.alert("Permission required", "Calendar access is needed.");
-        }
-      })();
-    }, []);
-  
-    const handleDateChange = (event, selectedDate) => {
-      setShowDatePicker(false);
-      if (selectedDate) {
-        const formattedDate = selectedDate.toISOString().split('T')[0];
-        setSelectedDate(formattedDate);
-        // formik.setFieldValue("departureDate", formattedDate); // Update formik state
+    alltimeslots();
+  }, []);
+
+
+  const baggaevalues = { personsCount, baggagePictures, baggageCount }
+
+  const formik = useFormik({
+    initialValues: {
+      date: "",
+      time: "",
+    },
+    validationSchema: slotsSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log("values", values);
+      console.log("baggssaaaaa" , baggaevalues)
+      router.push({
+        pathname: "/home/selectlocation",
+        params: {
+          date: values.date,
+          time: values.time,
+          personsCount:personsCount,
+          baggagePictures:baggagePictures,
+          baggageCount:baggageCount
+        },
+      });
+    },
+  });
+
+  useEffect(() => {
+    console.log(
+      "baggage details valuessaaaaaaa",
+      parsedBaggagePictures,
+      parsedBaggageCount,
+      parsedPersonsCount
+    );
+  }, [parsedBaggagePictures, parsedBaggageCount, parsedPersonsCount]);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
+      if (status === "granted") {
+        const calendars = await Calendarpicker.getCalendarsAsync(
+          Calendarpicker.EntityTypes.EVENT
+        );
+        // console.log("Here are all your calendars:", calendars);
+      } else {
+        Alert.alert("Permission required", "Calendar access is needed.");
       }
-    };
-    
-    
-  
-    const createNewCalendar = async () => {
-      try {
-        const defaultCalendarSource = Platform.OS === 'ios'
+    })();
+  }, []);
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split("T")[0];
+      setSelectedDate(formattedDate);
+      formik.setFieldValue("date", formattedDate); // Update formik state
+      // Update formik state
+    }
+  };
+
+  const createNewCalendar = async () => {
+    try {
+      const defaultCalendarSource =
+        Platform.OS === "ios"
           ? await Calendarpicker.getDefaultCalendarAsync()
           : { isLocalAccount: true, name: "Expo Calendar" };
-  
-        const newCalendarID = await Calendarpicker.createCalendarAsync({
-          title: "Flight Schedules",
-          color: "#FFB800",
-          entityType: Calendarpicker.EntityTypes.EVENT,
-          sourceId: defaultCalendarSource.id,
-          source: defaultCalendarSource,
-          name: "Flight Schedules",
-          ownerAccount: "personal",
-          accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
-        });
-  
-        // console.log("New calendar ID:", newCalendarID);
-      } catch (error) {
-        console.log("Error creating calendar:", error);
-      }
-    };
 
-   
+      const newCalendarID = await Calendarpicker.createCalendarAsync({
+        title: "Flight Schedules",
+        color: "#FFB800",
+        entityType: Calendarpicker.EntityTypes.EVENT,
+        sourceId: defaultCalendarSource.id,
+        source: defaultCalendarSource,
+        name: "Flight Schedules",
+        ownerAccount: "personal",
+        accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
+      });
 
+      // console.log("New calendar ID:", newCalendarID);
+    } catch (error) {
+      console.log("Error creating calendar:", error);
+    }
+  };
 
   return (
-    <View className="flex-1"> 
+    <View className="flex-1">
       {/* Header Background Image */}
       <View>
         <Image
@@ -91,12 +174,17 @@ const slots = () => {
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Select Slots</Text>
+          <Text
+            className="text-[18px] text-white ml-3"
+            style={{ fontFamily: "CenturyGothic" }}
+          >
+            Select Slots
+          </Text>
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">HYD</Text>
-            <Text className="text-white">Hyderabad</Text>
+            <Text className="text-white">{flight.startingFrom}</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -109,71 +197,112 @@ const slots = () => {
           </View>
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">DUB</Text>
-            <Text className="text-white">Dubai</Text>
+            <Text className="text-white">{flight.ending}</Text>
           </View>
         </View>
         <Text className="text-white text-center mt-4">Date : 05/05/2025</Text>
       </View>
 
-       <View 
-              className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
-              style={{
-                maxHeight: "79%",
-              }}
-            >
-              <ScrollView className="" showsVerticalScrollIndicator={false}>
-              
-              <Text className="font-bold text-xl text-[#164F90]" style={{fontFamily: "CenturyGothic"}}>Select Date</Text>
-              <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
-                        <TextInput
-                          placeholder="Pick Up Date"
-                          className="flex-1 h-[30px]"
-                          placeholderTextColor="#2D2A29"
-
-                        />
-                        <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-<AntDesign name="calendar"
-
-size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
-                        </TouchableOpacity>
-
-                        {showDatePicker && (
-          <DateTimePicker
-            value={new Date()}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
-          />
-        )}
-
-                        </View>
-
-                        <Text className="font-bold text-xl text-[#164F90] " style={{fontFamily: "CenturyGothic"}}>Select Time</Text>
-              <View className="flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
-                        <TextInput
-                          placeholder="Pick Up Time"
-                          className="flex-1 h-[30px]"
-                          placeholderTextColor="#2D2A29"
-                        />
-
-<MaterialCommunityIcons name="clock-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
-
-                        </View>
-      
-                {/* Continue Button */}
-      <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
-                  onPress={() => {router.push("/home/selectlocation");
-                    createNewCalendar();
-                  }}
-    
+      <View
+        className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
+        style={{
+          maxHeight: "79%",
+        }}
       >
-        <Text className="text-center text-black font-semibold">Continue</Text>
-      </TouchableOpacity>
-               
-              </ScrollView>
-            </View>
+        <ScrollView className="" showsVerticalScrollIndicator={false}>
+          <Text
+            className="font-bold text-xl text-[#164F90]"
+            style={{ fontFamily: "CenturyGothic" }}
+          >
+            Select Date
+          </Text>
+          <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
+            <TextInput
+              placeholder="Pick Up Date"
+              className="flex-1 h-[30px]"
+              placeholderTextColor="#2D2A29"
+              onChangeText={formik.handleChange("date")}
+              onBlur={formik.handleBlur("date")}
+              value={formik.values.date}
+              name="date"
+            />
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <AntDesign
+                name="calendar"
+                size={26}
+                color="#194F90"
+                className="bg-[#194F901A] p-2 rounded-xl"
+              />
+            </TouchableOpacity>
 
-       
+            {showDatePicker && (
+              <DateTimePicker
+                value={new Date()}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+          </View>
+          <Text
+            className="font-bold text-xl text-[#164F90]"
+            style={{ fontFamily: "CenturyGothic" }}
+          >
+            Select Time
+          </Text>
+
+
+          <SelectList
+            setSelected={(val) => formik.setFieldValue("time", val)} // ✅ Bind to formik state
+            value={formik.values.time} 
+      data={timeslot}
+      save="value"
+      boxStyles={{
+        flexDirection: 'row', 
+        marginVertical: 16, 
+        alignItems: 'center', 
+        borderWidth: 1, 
+        borderColor: '#F2F2F2', 
+        borderRadius: 12, 
+        paddingHorizontal: 16, 
+        paddingVertical: 12, 
+        backgroundColor: '#FBFBFB'
+      }}
+      dropdownStyles={{
+        borderColor: '#F2F2F2',
+        borderWidth: 1,
+        borderRadius: 12,
+        backgroundColor: '#FBFBFB',
+      }}
+      inputStyles={{
+        fontSize: 16,
+        color: '#333',
+      }}
+      dropdownTextStyles={{
+        fontSize: 16,
+        color: '#333',
+      }}
+      />
+
+
+
+
+         
+
+          {/* Continue Button */}
+          <TouchableOpacity
+            className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
+            onPress={() => {
+              createNewCalendar();
+              formik.handleSubmit();
+            }}
+          >
+            <Text className="text-center text-black font-semibold">
+              Continue
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
     </View>
   );
 };

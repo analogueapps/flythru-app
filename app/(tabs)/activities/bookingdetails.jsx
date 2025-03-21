@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
@@ -10,10 +10,43 @@ import { router, useLocalSearchParams } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import call from "../../../assets/images/call.png"
 import hash from "../../../assets/images/hash.png"
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BOOKING_DETAILS } from "../../network/apiCallers";
+import { useToast } from "react-native-toast-notifications";
 
 const bookingdetails = () => {
   const insets = useSafeAreaInsets();
-  const { fromSelectLocation = false } = useLocalSearchParams();
+  const { fromSelectLocation = "false" } = useLocalSearchParams();
+  const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
+    const [bookingData , setBookingData] = useState() 
+  const { bookingId } = useLocalSearchParams(); 
+  const toast = useToast()
+
+  const fetchBookingDetails = async () => {
+    const token = await AsyncStorage.getItem('authToken');
+    if (!token) {
+      toast.show("No token found. Please log in.");
+      return;
+    }
+  
+    try {
+      console.log("Fetching details for bookingId:", bookingId);
+      const res = await BOOKING_DETAILS(bookingId, token);
+      console.log("API Response:", res.data);
+      setBookingData(res.data); 
+    } catch (error) {
+      // console.error("Error fetching booking details:", error?.response?.data || error);
+      toast.show(error?.response?.data?.message || "Failed to fetch booking details");
+    }
+  };
+  
+  
+  useEffect(() => {
+    if (bookingId) {
+      fetchBookingDetails(); 
+    }
+  }, [bookingId]);
+  
 
   return (
     <View className="flex-1">
@@ -30,9 +63,9 @@ const bookingdetails = () => {
           top: insets.top,
           zIndex: 1,
         }}
-        className="p-6 absolute w-full"
+        className="p-6 absolute w-full mt-5"
       >
-        <View className="flex-row  items-center">
+        <View className="flex-row  items-center mt-5">
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
@@ -58,15 +91,17 @@ const bookingdetails = () => {
 
             <View className="flex-row justify-between">
               <Text className="text-[#164F90] text-xl">Checked in Bag</Text>
-              <Text className="text-[#164F90] text-xl font-bold">14</Text>
+              <Text className="text-[#164F90] text-xl font-bold">{bookingData?.booking?.baggageCount || "-"}</Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-[#164F90] text-xl">Date</Text>
-              <Text className="text-[#164F90] text-xl font-bold">15 May</Text>
+              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleDateString()}
+              </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-[#164F90] text-xl">Time</Text>
-              <Text className="text-[#164F90] text-xl font-bold">05:15 pm</Text>
+              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
             </View>
 
             {fromSelectLocation && (
@@ -90,13 +125,13 @@ const bookingdetails = () => {
             />
 
             <View>
-              <Text className="text-[#164F90] text-3xl font-thin">Bat Man</Text>
+              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.user?.name || "-"}</Text>
               <Text>Dubai</Text>
               </View>
 
             </View>
             <View>
-              <Text className="bg-[#FFB648] p-2 rounded-md px-6">Status : In Transist</Text>
+              <Text className="bg-[#FFB648] p-2 rounded-md px-6">Status : {bookingData?.booking?.bookingStatus}</Text>
 
             </View>
           </View>
@@ -104,12 +139,12 @@ const bookingdetails = () => {
           <View className="flex-col gap-5">
             <View className="flex-col gap-3">
             <Text className="text-[#164F90] text-xl font-bold">Pick Up</Text>
-            <Text className="text-lg">4372 Romano Street, Bedford, 01730</Text>
+            <Text className="text-lg">{bookingData?.booking?.pickUpLocation || "-"}</Text>
             </View>
 
             <View className="flex-col gap-3">
             <Text className="text-[#164F90] text-xl font-bold">Drop Off</Text>
-            <Text className="text-lg">4372 Romano Street, Bedford, 01730</Text>
+            <Text className="text-lg">{bookingData?.booking?.dropOffLocation || "-"}</Text>
             </View>
           </View>
 
@@ -131,7 +166,7 @@ const bookingdetails = () => {
               className="h-10 w-10 rounded-full mr-4"
               resizeMode="cover"
             />
-          <Text className="text-xl">Booking no : #123456</Text>
+          <Text className="text-xl">Booking no : {bookingData?.booking?.bookingNo || "-"}</Text>
           </View>
         </View>
 
@@ -151,8 +186,12 @@ const bookingdetails = () => {
 ) : (
     // Show "Modify Slot" button if not coming from select location
     <TouchableOpacity
-        onPress={() => router.push("/activities/cancellation")}
-        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
+onPress={() => // Example navigation code
+                        router.push({
+                          pathname: "/activities/cancellation",
+                          params: { bookingId: "67da5e952e0cda3877b69a24" }, // ✅ Pass bookingId correctly
+                        })
+                        }        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
     >
         <Text className="text-center text-black font-semibold">
             Modify Slot

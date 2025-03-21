@@ -20,6 +20,7 @@ import { LOGIN_API, SIGN_UP_API } from "../network/apiCallers";
 import signupSchema from "../yupschema/signupSchema";
 import loginSchema from "../yupschema/loginSchema";
 import { useToast } from "react-native-toast-notifications";
+import { useAuth } from "../../UseContext/AuthContext";
 
 
 
@@ -104,7 +105,10 @@ const formik = useFormik({
   validateOnChange: true,
   validateOnBlur: true,
   onSubmit: async (values) => {
-    await SignupHandler(values);
+    const modifiedValues = {
+      ...values , email: values.email.toLowerCase(), 
+    };
+    await SignupHandler(modifiedValues);
   },
 });
 
@@ -112,7 +116,7 @@ const SignupHandler = async (values) => {
   try {
     const res = await SIGN_UP_API(values);
         console.log("verification code sent", res.data.message);
-        router.push("/verifyotp");
+        router.push("/verifyotp"); 
         toast.show(res.data.message)
         console.log("message response //////",res)
       } catch (error) {
@@ -129,16 +133,24 @@ const SignupHandler = async (values) => {
         // email: "",
         // password: "",
 
-        email: "twinkle@gmail.com",
-        password: "Twinkle@123.",
+        email: "Thanooj12@gmail.com",
+        password: "Lahari@123.",
       },
       validationSchema: loginSchema,
       validateOnChange: true,
       validateOnBlur: true,
       onSubmit: async (values) => {
-        await LoginHandler(values);
+        const modifiedValues = {
+          ...values,
+          email: values.email.toLowerCase(), 
+        };
+        console.log("login values", modifiedValues)
+        await LoginHandler(modifiedValues);
+        setUserEmail(modifiedValues)
+        
       },
     });
+    const { setUserEmail } = useAuth();
     
     const LoginHandler = async (values) => {
       try {
@@ -148,8 +160,18 @@ const SignupHandler = async (values) => {
         toast.show(res.data.message)
       } catch (error) {
         console.log("Error logging in:", error);
-        toast.show(error?.res?.data?.errors)
-
+        
+        if (error.response){
+          if(error.response.status === 400 && error?.response?.data?.isAuthenticated === false){
+            toast.show(error?.response?.data?.errors)
+            router.push("/verifyotp")
+          }
+          else {
+            
+            toast.show(error?.response?.data?.errors)
+          }
+        }
+      
       }
     };
     
@@ -245,7 +267,7 @@ const SignupHandler = async (values) => {
                 />
 
 {loginFormik.touched.email && loginFormik.errors.email && (
-                  <Text className="text-red-500">{loginFormik.errors.email}</Text>
+                  <Text className="text-red-500 w-[90%] mx-auto">{loginFormik.errors.email}</Text>
                 )}
 
                 <TextInput
@@ -258,7 +280,7 @@ const SignupHandler = async (values) => {
                 />
 
 {loginFormik.touched.password && loginFormik.errors.password && (
-                  <Text className="text-red-500">{loginFormik.errors.password}</Text>
+                  <Text className="text-red-500 w-[90%] mx-auto">{loginFormik.errors.password}</Text>
                 )}
 
 
@@ -285,7 +307,8 @@ const SignupHandler = async (values) => {
                     <SvgApple />
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity className="self-center">
+                <TouchableOpacity className="self-center"
+                onPress={() => router.push("/home")}>
                   <Text className="text-[#0F7BE6] text-lg">
                     Skip & Continue as a Guest
                   </Text>
@@ -310,7 +333,7 @@ const SignupHandler = async (values) => {
                   placeholder="Enter email Id"
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <Text className="text-red-500">{formik.errors.email}</Text>
+                  <Text className="text-red-500 w-[90%] mx-auto">{formik.errors.email}</Text>
                 )}
                 {/* <TextInput
                   className={`bg-[#f2f2f2] border h-14 px-2 my-4 py-2 rounded-lg border-[#8B8B8B] w-full`}
@@ -326,7 +349,7 @@ const SignupHandler = async (values) => {
                   placeholder="Enter Password"
                 />
                 {formik.touched.password && formik.errors.password && (
-                  <Text className="text-red-500">{formik.errors.password}</Text>
+                  <Text className="text-red-500 w-[90%] mx-auto">{formik.errors.password}</Text>
                 )}
 
                 <TouchableOpacity

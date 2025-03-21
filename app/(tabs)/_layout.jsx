@@ -24,6 +24,7 @@ const _layout = () => {
     "/profile/notification",
     "/profile/chat",
     "/profile/editprofile",
+    "/profile/address",
     "/profile/addaddress",
     "/profile/faq",
     "/profile/language",

@@ -32,9 +32,9 @@ const language = () => {
         top: insets.top,
         zIndex: 1,
       }}
-      className="p-6 absolute w-full"
+      className="p-6 absolute w-full mt-5"
     >
-      <View className="flex-row  items-center">
+      <View className="flex-row  items-center ">
        
        <View className="flex-row  items-center">
                  <TouchableOpacity

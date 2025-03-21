@@ -70,7 +70,12 @@ const index = () => {
            
 
              <TouchableOpacity
-                       onPress={() => router.push("/activities/bookingdetails")}
+                       onPress={() => // Example navigation code
+                        router.push({
+                          pathname: "/activities/bookingdetails",
+                          params: { bookingId: "67da5e952e0cda3877b69a24" }, // ✅ Pass bookingId correctly
+                        })
+                        }
              className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg">
                     <Text className="text-center text-black font-semibold">View Details</Text>
                   </TouchableOpacity>

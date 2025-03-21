@@ -44,7 +44,7 @@ const FAQ = () => {
       <View>
         <Image
           source={images.HeaderImg}
-          className="w-full h-auto relative"
+          className="w-full h-auto relative" 
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -55,9 +55,9 @@ const FAQ = () => {
           top: insets.top,
           zIndex: 1,
         }}
-        className="p-6 absolute w-full"
+        className="p-6 absolute w-full "
       >
-        <View className="flex-row items-center">
+        <View className="flex-row items-center mt-5">
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
