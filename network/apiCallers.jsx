@@ -1,6 +1,29 @@
 import axios from "axios";
-import { BASE_URL, LOCAL_URL } from "./environment";
+import { BASE_URL, LOCAL_URL , AVIATION_URL , API_KEY} from "./environment";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const aviationApi = axios.create({
+  baseURL: BASE_URL,
+  params: {
+    access_key: API_KEY
+  }
+});
+
+export const getFutureFlights = async (iataCode, flightType, date) => {
+  try {
+    const response = await aviationApi.get('/flightsFuture', {
+      params: {
+        iataCode,
+        type: flightType,
+        date
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching future flights:', error);
+    throw error;
+  }
+};
 
 const saveToken = async (token) => {
   try {
@@ -46,6 +69,17 @@ export const LOGIN_API = async (data) => {
 export const VERIFY_OTP = async (data,token) => {
   console.log()
   return await axios.post(`${LOCAL_URL}/user/verifyotp`,data,{
+
+      headers: {
+          'Authorization': `Bearer ${token}`,
+      }
+  })
+
+}
+
+export const RESEND_OTP = async (token) => {
+  console.log()
+  return await axios.post(`${LOCAL_URL}/user/resendotp`,{
 
       headers: {
           'Authorization': `Bearer ${token}`,
@@ -120,9 +154,22 @@ export const PAYEMNT_API = async (data,token) => {
 }
 
 
+
+export const PAYMENT_VERIFICATION_API = async (data) => {
+  console.log("PAYMENT API FETCHED")
+  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`,data)
+
+}
+
+
   export const ALL_FLIGHTS = async (data) => {
     console.log("Fetched All flights")
     return await axios.post(`${LOCAL_URL}/allflights`,data) 
+  }
+
+  export const ALL_FLIGHTS_CLIENT = async (data) => {
+    console.log("Fetched client's All flights")
+    return await axios.get(`${LOCAL_URL}/flights/allfights`,data) 
   }
 
   export const ALL_BANNERS = async () => {

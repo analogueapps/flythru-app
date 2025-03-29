@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -8,11 +8,42 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import { BOOKING_DETAILS } from "../../../network/apiCallers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const index = () => {
-
+ 
     const insets = useSafeAreaInsets(); 
+    const { applanguage } = langaugeContext()
+
+    const fetchBookingDetails = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        toast.show("No token found. Please log in.");
+        return;
+      }
+    
+      try {
+        console.log("Fetching details for bookingId:", bookingId);
+        const res = await BOOKING_DETAILS(bookingId, token);
+        console.log("API Response:", res.data);
+        setBookingData(res.data); 
+      } catch (error) {
+        // console.error("Error fetching booking details:", error?.response?.data || error);
+        toast.show(error?.response?.data?.message || "Failed to fetch booking details");
+      }
+    };
+    
+    
+    useEffect(() => {
+      if (bookingId) {
+        fetchBookingDetails(); 
+      }
+    }, [bookingId]);
+
   
   return (
     <View className="flex-1">
@@ -33,13 +64,17 @@ const index = () => {
     >
       <View className="flex-row  items-center  mt-5">
        
-        <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Activities</Text>
+        <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{
+                applanguage==="eng"?Translations.eng.activities:Translations.arb.activities
+              }  </Text>
       </View>
      
     </View>
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
 
-      <Text className="text-xl mb-4">Active Bookings</Text>
+      <Text className="text-xl mb-4">{
+                applanguage==="eng"?Translations.eng.active_bookings:Translations.arb.active_bookings
+              }</Text>
       {Array.from({ length: 5 }).map((_, index) => (
         <View
           onPress={() => router.push("/activities/bookingdetails")}
@@ -61,11 +96,15 @@ const index = () => {
 
             <Text className="font-extrabold text-xl">8:00 AM,  08 Oct</Text>
             <Text className="text-[#383F47] text-lg">Checked in Baggages</Text>
-            <Text className="text-[#383F47] text-lg">You can cancel 1hr before the service time</Text>
+            <Text className="text-[#383F47] text-lg">{
+                applanguage==="eng"?Translations.eng.cancel_policy:Translations.arb.cancel_policy
+              }</Text>
             <View className="flex flex-row justify-center">
 
             <TouchableOpacity className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 ">
-                    <Text className="text-center text-[#164F90] font-semibold">Cancel</Text>
+                    <Text className="text-center text-[#164F90] font-semibold">{
+                applanguage==="eng"?Translations.eng.cancel:Translations.arb.cancel
+              }</Text>
                   </TouchableOpacity>
            
 
@@ -73,11 +112,13 @@ const index = () => {
                        onPress={() => // Example navigation code
                         router.push({
                           pathname: "/activities/bookingdetails",
-                          params: { bookingId: "67da5e952e0cda3877b69a24" }, // ✅ Pass bookingId correctly
+                          params: { bookingId: "67e68847e3932ba583f44567" }, // ✅ Pass bookingId correctly
                         })
                         }
              className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg">
-                    <Text className="text-center text-black font-semibold">View Details</Text>
+                    <Text className="text-center text-black font-semibold">{
+                applanguage==="eng"?Translations.eng.view_details:Translations.arb.view_details
+              }</Text>
                   </TouchableOpacity>
             </View>
             </View>

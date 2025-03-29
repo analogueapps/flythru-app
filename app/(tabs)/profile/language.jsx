@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -9,12 +9,36 @@ import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
-
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+// import {tra}
 
 const language = () => {
 
     const insets = useSafeAreaInsets();
     const [current, setCurrent] = useState("1");
+
+    const { applanguage, ToogleLanguage } = langaugeContext();
+    useEffect(() => {
+      async function Check() {
+        if (applanguage === "eng") {
+          setCurrent("1");
+        } else {
+          setCurrent("2");
+        }
+      }
+      Check();
+    }, [applanguage]);
+    const handleSave = async () => {
+      console.log(current);
+      if (current === "1") {
+        await ToogleLanguage("eng");
+      } else {
+        await ToogleLanguage("arb");
+      }
+      router.push("/profile");
+    };
+  
 
   
   return (
@@ -43,7 +67,13 @@ const language = () => {
                  >
                    <ChevronLeft color="black" size={18} />
                  </TouchableOpacity>
-                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Language</Text>
+                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>
+                 {applanguage === "eng" || current === "1"
+                      ? Translations.eng.language
+                      : Translations.arb.language}
+
+
+                 </Text>
                </View>
       </View>
      
@@ -59,10 +89,14 @@ const language = () => {
         radioBackground="#4E4848"
       >
         <RadioButtonItem
-               
           value="1"
           label={
-            <Text style={{ color: "#181716" , fontSize:20 }}>English</Text>
+            <Text style={{ color: "#181716" , fontSize:20 }}>     
+            {applanguage === "eng" || current === "1"
+              ? Translations.eng.english
+              : Translations.arb.english}
+
+</Text>
           }
         />
 
@@ -71,7 +105,12 @@ const language = () => {
 <RadioButtonItem
           value="2"
           label={
-            <Text style={{ color: "#181716"  , fontSize:20 }}>Arabic</Text>
+            <Text style={{ color: "#181716"  , fontSize:20 }}>
+               {applanguage === "eng" || current === "1"
+                      ? Translations.eng.arabic
+                      : Translations.arb.arabic}
+
+            </Text>
           }
         />
       </RadioButtonGroup>
@@ -83,9 +122,14 @@ const language = () => {
     </ScrollView>
 
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg"
-    onPress={() => router.push("/profile")}
+    onPress={handleSave}
     >
-                <Text className="font-bold text-center text-black ">Save</Text>
+                <Text className="font-bold text-center text-black ">
+                {applanguage === "eng" || current === "1"
+                ? Translations.eng.save
+                : Translations.arb.save}
+
+                </Text>
               </TouchableOpacity>
   </View>
   );

@@ -4,11 +4,14 @@ import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
-import { ALL_FAQS } from "../../network/apiCallers";
+import { ALL_FAQS } from "../../../network/apiCallers";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
 const FAQ = () => {
+    const { applanguage } = langaugeContext()
   const insets = useSafeAreaInsets();
   const [faqs, setFaqs] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
@@ -68,8 +71,8 @@ const FAQ = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            FAQ
-          </Text>
+{applanguage==="eng"?Translations.eng.faq:Translations.arb.faq
+              }          </Text>
         </View>
       </View>
 

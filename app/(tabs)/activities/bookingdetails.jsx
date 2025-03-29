@@ -11,8 +11,10 @@ import dp from "../../../assets/images/dpfluthru.jpg"
 import call from "../../../assets/images/call.png"
 import hash from "../../../assets/images/hash.png"
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BOOKING_DETAILS } from "../../network/apiCallers";
+import { BOOKING_DETAILS } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
 const bookingdetails = () => {
   const insets = useSafeAreaInsets();
@@ -21,6 +23,8 @@ const bookingdetails = () => {
     const [bookingData , setBookingData] = useState() 
   const { bookingId } = useLocalSearchParams(); 
   const toast = useToast()
+    const { applanguage } = langaugeContext()
+
 
   const fetchBookingDetails = async () => {
     const token = await AsyncStorage.getItem('authToken');
@@ -72,7 +76,9 @@ const bookingdetails = () => {
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Booking Details</Text>
+          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{
+                applanguage==="eng"?Translations.eng.booking_details:Translations.arb.booking_details
+              }</Text>
         </View>
       </View>
       
@@ -85,21 +91,29 @@ const bookingdetails = () => {
         <ScrollView className="" showsVerticalScrollIndicator={false}>
           <View className="p-5 bg-[#164F901A] border-[#00000026] rounded-2xl border-[1px] flex-col gap-5">
             <Text className="text-[#164F90] text-2xl font-bold">
-              Baggage Collecting
+            {
+                applanguage==="eng"?Translations.eng.baggage_collection:Translations.arb.baggage_collection
+              }
             </Text>
             <View className="flex-1 h-[1px] border-t  border-[#00000026] relative" />
 
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">Checked in Bag</Text>
+              <Text className="text-[#164F90] text-xl">{
+                applanguage==="eng"?Translations.eng.baggage_count:Translations.arb.baggage_count
+              }</Text>
               <Text className="text-[#164F90] text-xl font-bold">{bookingData?.booking?.baggageCount || "-"}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">Date</Text>
+              <Text className="text-[#164F90] text-xl">{
+                applanguage==="eng"?Translations.eng.date:Translations.arb.date
+              }</Text>
               <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleDateString()}
               </Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">Time</Text>
+              <Text className="text-[#164F90] text-xl">{
+                applanguage==="eng"?Translations.eng.time:Translations.arb.time
+              }</Text>
               <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
             </View>
@@ -108,7 +122,9 @@ const bookingdetails = () => {
               <>
                 <View className="flex-1 h-[1px] border-t border-dashed border-[#00000026] relative" />
                 <View className="flex-row justify-between">
-                  <Text className="text-[#164F90] text-xl">Total Paid</Text>
+                  <Text className="text-[#164F90] text-xl">{
+                applanguage==="eng"?Translations.eng.total_paid:Translations.arb.total_paid
+              }</Text>
                   <Text className="text-[#164F90] text-xl font-bold">₹500</Text>
                 </View>
               </>
@@ -131,19 +147,25 @@ const bookingdetails = () => {
 
             </View>
             <View>
-              <Text className="bg-[#FFB648] p-2 rounded-md px-6">Status : {bookingData?.booking?.bookingStatus}</Text>
+              <Text className="bg-[#FFB648] p-2 rounded-md px-6">{
+                applanguage==="eng"?Translations.eng.status:Translations.arb.status
+              } : {bookingData?.booking?.bookingStatus}</Text>
 
             </View>
           </View>
 
           <View className="flex-col gap-5">
             <View className="flex-col gap-3">
-            <Text className="text-[#164F90] text-xl font-bold">Pick Up</Text>
+            <Text className="text-[#164F90] text-xl font-bold">{
+                applanguage==="eng"?Translations.eng.pick_up:Translations.arb.pick_up
+              }</Text>
             <Text className="text-lg">{bookingData?.booking?.pickUpLocation || "-"}</Text>
             </View>
 
             <View className="flex-col gap-3">
-            <Text className="text-[#164F90] text-xl font-bold">Drop Off</Text>
+            <Text className="text-[#164F90] text-xl font-bold">{
+                applanguage==="eng"?Translations.eng.drop_off:Translations.arb.drop_off
+              }</Text>
             <Text className="text-lg">{bookingData?.booking?.dropOffLocation || "-"}</Text>
             </View>
           </View>
@@ -157,7 +179,9 @@ const bookingdetails = () => {
               className="h-10 w-10 rounded-full mr-4"
               resizeMode="cover"
             />
-          <Text className="text-xl">Contact info : +965 51234567 </Text>
+          <Text className="text-xl">{
+                applanguage==="eng"?Translations.eng.contact_info:Translations.arb.contact_info
+              } : +965 51234567 </Text>
           </View>
 
           <View className="flex-row">
@@ -166,7 +190,9 @@ const bookingdetails = () => {
               className="h-10 w-10 rounded-full mr-4"
               resizeMode="cover"
             />
-          <Text className="text-xl">Booking no : {bookingData?.booking?.bookingNo || "-"}</Text>
+          <Text className="text-xl">{
+                applanguage==="eng"?Translations.eng.booking_no:Translations.arb.booking_no
+              } : {bookingData?.booking?.bookingNo || "-"}</Text>
           </View>
         </View>
 
@@ -180,7 +206,9 @@ const bookingdetails = () => {
         className="border-2 border-[#164F90] rounded-xl py-4 my-5"
     >
         <Text className="text-center text-black font-semibold">
-            Go Back
+        {
+                applanguage==="eng"?Translations.eng.go_back:Translations.arb.go_back
+              }
         </Text>
     </TouchableOpacity>
 ) : (
@@ -194,8 +222,9 @@ onPress={() => // Example navigation code
                         }        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
     >
         <Text className="text-center text-black font-semibold">
-            Modify Slot
-        </Text>
+        {
+                applanguage==="eng"?Translations.eng.modify_slot:Translations.arb.modify_slot
+              }        </Text>
     </TouchableOpacity>
 )}
 

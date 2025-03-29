@@ -23,10 +23,13 @@ import DateTimePicker from "@react-native-community/datetimepicker"; // Import D
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
-import { ALL_BANNERS, ALL_FLIGHTS } from "../../network/apiCallers";
+import { ALL_BANNERS, ALL_FLIGHTS } from "../../../network/apiCallers";
 import { useFormik } from "formik";
-import AllflightSchema from "../../yupschema/allFlightSchema";
 import { useToast } from "react-native-toast-notifications";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import { AllflightSchema } from "../../../yupschema/allFlightSchema";
+
 
 const Index = () => {
   const insets = useSafeAreaInsets();
@@ -34,6 +37,8 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [banners, setBanners] = useState([]);
   const toast = useToast();
+  const { applanguage } = langaugeContext()
+
 
   useEffect(() => {
     (async () => {
@@ -81,17 +86,17 @@ const Index = () => {
       console.log("Error creating calendar:", error);
     }
   };
-
+ 
   const formik = useFormik({
     initialValues: {
-      departureDate: "2025-03-22",
-      flightNumber: "5820417",
+      departureDate: "2025-03-29",
+      flightNumber: "",
     },
-    validationSchema: AllflightSchema,
-    validateOnChange: true,
-    validateOnBlur: true,
+    validationSchema: AllflightSchema(applanguage),
+    validateOnChange: false, // Disable auto-validation on change
+    validateOnBlur: false,   // Disable auto-validation on blur
     onSubmit: async (values) => {
-      console.log("values", values);
+      console.log("Submitting values:", values);
       router.push({
         pathname: "/home/search",
         params: {
@@ -101,6 +106,7 @@ const Index = () => {
       });
     },
   });
+  
 
   const allbanners = async () => {
     try {
@@ -159,7 +165,11 @@ const Index = () => {
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
         <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
           <TextInput
-            placeholder="Select Date"
+          placeholder={
+            applanguage === "eng"
+              ? Translations.eng.select_date
+              : Translations.arb.select_date
+          }   
             onChangeText={formik.handleChange("departureDate")}
             onBlur={formik.handleBlur("departureDate")}
             value={formik.values.departureDate}
@@ -169,23 +179,29 @@ const Index = () => {
           />
           <TouchableOpacity
             className=""
-            onPress={() => setShowDatePicker(true)}
-          >
+            onPress={() => {setShowDatePicker(true);
+              console.log("calender pressed")
+            }}
+          > 
             <Calendar size={20} color="#6B7280" />
           </TouchableOpacity>
         </View>
 
         {showDatePicker && (
           <DateTimePicker
-            value={new Date()}
-            mode="date"
+          value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
+          mode="date"
             display="default"
             onChange={handleDateChange}
           />
         )}
 
         <TextInput
-          placeholder="Enter Flight Number"
+          placeholder={
+            applanguage === "eng"
+              ? Translations.eng.enter_flight_number
+              : Translations.arb.enter_flight_number
+          }   
           onChangeText={formik.handleChange("flightNumber")}
           onBlur={formik.handleBlur("flightNumber")}
           value={formik.values.flightNumber}
@@ -194,15 +210,26 @@ const Index = () => {
           placeholderTextColor="#2D2A29"
         />
         <TouchableOpacity
-          onPress={() => {
-            formik.handleSubmit();
-            // router.push("/home/search");
-            createNewCalendar();
-          }}
+       onPress={async () => {
+        await formik.validateForm(); // Validate form
+        const { departureDate, flightNumber } = formik.values;
+    
+        if (!departureDate && !flightNumber) {
+          formik.setErrors({
+            departureDate: "Please fill at least one field",
+            flightNumber: "Please fill at least one field",
+          });
+          toast.show("Please fill in at least one field");
+        } else {
+          formik.handleSubmit();
+          createNewCalendar();
+        }
+      }}
           className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
         >
           <Text className="text-center text-black font-semibold text-base">
-            Search
+          {  applanguage==="eng"?Translations.eng.search:Translations.arb.search
+                          }
           </Text>
         </TouchableOpacity>
       </View>
@@ -211,7 +238,8 @@ const Index = () => {
         <View className="flex-1 items-center justify-center mt-28 mx-6">
           {/* Ad Card */}
           <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
-            Ad
+             {  applanguage==="eng"?Translations.eng.ad:Translations.arb.ad
+                          }
           </Text>
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">
@@ -223,7 +251,7 @@ const Index = () => {
                 >
                   <Image
                     source={{
-                      uri: `http://192.168.29.236:2001/${banner?.bannerPicture}`,
+                      uri: `http://192.168.29.75:2001/${banner?.bannerPicture}`,
                     }} // Use full URL
                     className="h-[100px] w-full mb-3 rounded-xl"
                     resizeMode="cover"

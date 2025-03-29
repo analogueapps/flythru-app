@@ -1,4 +1,11 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,53 +14,53 @@ import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
-import * as ImagePicker from 'expo-image-picker';
-import Feather from '@expo/vector-icons/Feather';
-import RBSheet from 'react-native-raw-bottom-sheet';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import * as ImagePicker from "expo-image-picker";
+import Feather from "@expo/vector-icons/Feather";
+import RBSheet from "react-native-raw-bottom-sheet";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFormik } from "formik";
-import baggageSchema from "../../yupschema/baggageSchema";
-
-
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import { baggageSchema } from "../../../yupschema/baggageSchema";
 
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
   const { flightData } = useLocalSearchParams();
   const flight = JSON.parse(flightData);
-  const [persons , setPersons] = useState(1)
-  const [bags , setBags] = useState(1)
+  const [persons, setPersons] = useState(1);
+  const [bags, setBags] = useState(1);
   const [bagimages, setBagimages] = useState([]);
-
-
+  const { applanguage } = langaugeContext();
 
   const numberOfPersons = (type) => {
-    if (type === 'increase' && persons < 5) {
+    if (type === "increase" && persons < 5) {
       setPersons((prev) => {
         const newValue = prev + 1;
-        formik.setFieldValue('personsCount', newValue);
+        console.log("new values,=",newValue)
+        formik.setFieldValue("personsCount", newValue);
         return newValue;
       });
-    } else if (type === 'decrease' && persons > 1) {
+    } else if (type === "decrease" && persons > 1) {
       setPersons((prev) => {
         const newValue = prev - 1;
-        formik.setFieldValue('personsCount', newValue);
+        formik.setFieldValue("personsCount", newValue);
         return newValue;
       });
     }
   };
-  
+
   const numberOfBags = (type) => {
-    if (type === 'increasebags' && bags < 10) {
+    if (type === "increasebags" && bags < 10) {
       setBags((prev) => {
         const newValue = prev + 1;
-        formik.setFieldValue('baggageCount', newValue);
+        formik.setFieldValue("baggageCount", newValue);
         return newValue;
       });
-    } else if (type === 'decreasebags' && bags > 1) {
+    } else if (type === "decreasebags" && bags > 1) {
       setBags((prev) => {
         const newValue = prev - 1;
-        formik.setFieldValue('baggageCount', newValue);
+        formik.setFieldValue("baggageCount", newValue);
         return newValue;
       });
     }
@@ -62,32 +69,30 @@ const baggage = () => {
   const removeImage = (index) => {
     setBagimages((prev) => {
       const updatedImages = prev.filter((_, i) => i !== index);
-      formik.setFieldValue('baggagePictures', updatedImages);
+      formik.setFieldValue("baggagePictures", updatedImages);
       return updatedImages;
     });
   };
-  
-  
 
   const requestPermission = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permission to access gallery is required!');
+    if (status !== "granted") {
+      alert("Permission to access gallery is required!");
     }
   };
 
-  useEffect(()=>{
-    requestPermission()
-  },[])
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   useEffect(() => {
     formik.setValues({
       personsCount: persons,
       baggageCount: bags,
-      baggagePictures: bagimages
+      baggagePictures: bagimages,
     });
   }, [persons, bags, bagimages]);
-  
+
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -95,65 +100,66 @@ const baggage = () => {
       aspect: [4, 3],
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const newImage = result.assets[0].uri;
       setBagimages((prev) => {
         const updatedImages = [...prev, newImage];
-        formik.setFieldValue('baggagePictures', updatedImages);
+        formik.setFieldValue("baggagePictures", updatedImages);
         return updatedImages;
       });
     }
   };
-  
+
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permission to access camera is required!');
+    if (status !== "granted") {
+      alert("Permission to access camera is required!");
       return;
     }
-  
+
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const newImage = result.assets[0].uri;
       setBagimages((prev) => {
         const updatedImages = [...prev, newImage];
-        formik.setFieldValue('baggagePictures', updatedImages);
+        formik.setFieldValue("baggagePictures", updatedImages);
         return updatedImages;
       });
     }
   };
-  
-  
+
   const formik = useFormik({
     initialValues: {
       personsCount: persons,
       baggageCount: bags,
-      baggagePictures:[]
+      baggagePictures: [],
     },
-    validationSchema: baggageSchema,
+    validationSchema: baggageSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values", values);
-      router.push({
-        pathname: "/home/slots",
-        params: {
-          personsCount: String(values.personsCount),
-          baggageCount: String(values.baggageCount),
-          baggagePictures: encodeURIComponent(JSON.stringify(values.baggagePictures)), 
-        },
-      });
-      
+        router.push({
+          pathname: "/home/slots",
+          params: {
+            personsCount: String(values.personsCount),
+            baggageCount: String(values.baggageCount),
+            baggagePictures: 
+              JSON.stringify(values.baggagePictures)
+            ,
+          },
+        });
     },
   });
 
   console.log("Formik errors:", formik.errors);
+  console.log("flight apiiiiiiiiiiii", flight);
 
   const handleImagePicker = () => {
     return (
@@ -165,11 +171,11 @@ const baggage = () => {
         height={Dimensions.get("window").height / 3.5}
         customStyles={{
           wrapper: {
-            backgroundColor: "rgba(0,0,0,0.2)", 
+            backgroundColor: "rgba(0,0,0,0.2)",
           },
           container: {
             backgroundColor: "#fff",
-            borderTopLeftRadius: 20, 
+            borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
             shadowColor: "#000",
             shadowOffset: {
@@ -205,9 +211,8 @@ const baggage = () => {
                   color="#164F90"
                   className="m-auto w-max "
                 />
-              <Text className="mt-2 font-bold">Click From Camera</Text>
+                <Text className="mt-2 font-bold">Click From Camera</Text>
               </TouchableOpacity>
-
             </View>
 
             <View className="">
@@ -221,14 +226,14 @@ const baggage = () => {
                   color="#164F90"
                   className="m-auto "
                 />
-              <Text className="mt-2 font-bold">Select From Gallery</Text>
+                <Text className="mt-2 font-bold">Select From Gallery</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </RBSheet>
     );
-  }
+  };
 
   return (
     <View className="flex-1">
@@ -255,7 +260,14 @@ const baggage = () => {
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
-          <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Baggage Details</Text>
+          <Text
+            className="text-[18px] text-white ml-3"
+            style={{ fontFamily: "CenturyGothic" }}
+          >
+            {applanguage === "eng"
+              ? Translations.eng.baggage_details
+              : Translations.arb.baggage_details}
+          </Text>
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
@@ -277,7 +289,7 @@ const baggage = () => {
           </View>
         </View>
       </View>
-      <View 
+      <View
         className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
         style={{
           maxHeight: "79%",
@@ -287,18 +299,28 @@ const baggage = () => {
           {/* Number of Persons */}
           <View className="mb-6">
             <Text className="text-[#164F90] font-bold text-lg mb-3">
-              Number of Persons
+              {applanguage === "eng"
+                ? Translations.eng.number_of_persons
+                : Translations.arb.number_of_persons}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-3 rounded-xl">
               <Text className="text-[#164F90] font-semibold text-lg">
-                Number of Persons
+                {applanguage === "eng"
+                  ? Translations.eng.number_of_persons
+                  : Translations.arb.number_of_persons}{" "}
               </Text>
               <View className="flex-row items-center gap-x-2 bg-[#194f9027] px-3 py-2 rounded-lg">
-                <TouchableOpacity className="mr-2" onPress={()=>numberOfPersons("decrease")}>
+                <TouchableOpacity
+                  className="mr-2"
+                  onPress={() => numberOfPersons("decrease")}
+                >
                   <Minus color={"#194F90"} size={13} />
                 </TouchableOpacity>
                 <Text className="text-[#194f90]">{persons}</Text>
-                <TouchableOpacity className="ml-3" onPress={()=>numberOfPersons("increase")}>
+                <TouchableOpacity
+                  className="ml-3"
+                  onPress={() => numberOfPersons("increase")}
+                >
                   <Plus color={"#194F90"} size={13} />
                 </TouchableOpacity>
               </View>
@@ -307,75 +329,91 @@ const baggage = () => {
           {/* Baggage */}
           <View className="mb-6">
             <Text className="text-[#164F90] font-bold text-lg mb-3">
-              Baggage
+              {applanguage === "eng"
+                ? Translations.eng.baggage
+                : Translations.arb.baggage}{" "}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-3 rounded-xl">
               <Text className="text-[#164F90] font-semibold text-lg">
-                Checked in Bags
+                {applanguage === "eng"
+                  ? Translations.eng.checked_in_bags
+                  : Translations.arb.checked_in_bags}
               </Text>
               <View className="flex-row items-center gap-x-2 bg-[#194f9027] px-3 py-2 rounded-lg">
                 <TouchableOpacity className="mr-2">
-                  <Minus color={"#194F90"} size={13} onPress={()=> numberOfBags("decreasebags")}/>
+                  <Minus
+                    color={"#194F90"}
+                    size={13}
+                    onPress={() => numberOfBags("decreasebags")}
+                  />
                 </TouchableOpacity>
                 <Text className="text-[#194f90]">{bags}</Text>
                 <TouchableOpacity className="ml-3">
-                  <Plus color={"#194F90"} size={13} onPress={()=> numberOfBags("increasebags")}/>
+                  <Plus
+                    color={"#194F90"}
+                    size={13}
+                    onPress={() => numberOfBags("increasebags")}
+                  />
                 </TouchableOpacity>
               </View>
             </View>
           </View>
           {/* Image Upload */}
           <View className="mb-6">
-            <TouchableOpacity className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
-            onPress={()=>{
-              
-              imagerefRBSheet.current.open()
-            }
-          }
+            <TouchableOpacity
+              className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
+              onPress={() => {
+                imagerefRBSheet.current.open();
+              }}
             >
-              <Text className="text-[#515151] mb-1">Upload Image</Text>
+              <Text className="text-[#515151] mb-1">
+                {applanguage === "eng"
+                  ? Translations.eng.upload_image
+                  : Translations.arb.upload_image}
+              </Text>
             </TouchableOpacity>
             <Text className="text-[#2D2A29] text-sm">
-              Max 5MB - JPG, PNG allowed
+              {applanguage === "eng"
+                ? Translations.eng.max_file_size
+                : Translations.arb.max_file_size}
             </Text>
             <View className="flex-row flex-wrap mt-3">
-  {bagimages.map((img, index) => (
-    <View
-      key={index}
-      className="bg-gray-100 rounded-md px-3 py-1 mr-2 mb-2 flex-row items-center"
-    >
-      <Image
-        source={{ uri: img }}
-        className="w-16 h-16 rounded-md mr-2"
-        style={{ resizeMode: "cover" }}
-      />
-      <TouchableOpacity onPress={() => removeImage(index)}>
-        <Text className="text-gray-400">×</Text>
-      </TouchableOpacity>
-    </View>
-  ))}
-</View>
-
+              {bagimages.map((img, index) => (
+                <View
+                  key={index}
+                  className="bg-gray-100 rounded-md px-3 py-1 mr-2 mb-2 flex-row items-center"
+                >
+                  <Image
+                    source={{ uri: img }}
+                    className="w-16 h-16 rounded-md mr-2"
+                    style={{ resizeMode: "cover" }}
+                  />
+                  <TouchableOpacity onPress={() => removeImage(index)}>
+                    <Text className="text-gray-400">×</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
           </View>
 
           {/* Continue Button */}
           <TouchableOpacity
             // onPress={()=>formik.handleSubmit()}
             onPress={() => {
-            
-                console.log("Continue button pressed");
-                formik.handleSubmit(); // Call formik submission
-                
-                router.push({
-                  pathname: "/home/slots",
-                  params: { flightData: JSON.stringify(flight) }
-                });
-              }}
-              className="bg-[#FFB800] rounded-xl py-4"
-              
+              console.log("Continue button pressed");
+              formik.handleSubmit(); // Call formik submission
+
+              // router.push({
+              //   pathname: "/home/slots",
+              //   params: { flightData: JSON.stringify(flight) },
+              // });
+            }}
+            className="bg-[#FFB800] rounded-xl py-4"
           >
             <Text className="text-center text-black font-semibold">
-              Continue
+              {applanguage === "eng"
+                ? Translations.eng.continue
+                : Translations.arb.continue}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -385,4 +423,3 @@ const baggage = () => {
 };
 
 export default baggage;
-

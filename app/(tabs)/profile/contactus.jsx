@@ -8,13 +8,17 @@ import mail from "../../../assets/images/mail.png";
 import call from "../../../assets/images/callicon2.png";
 import whatsapp from "../../../assets/images/whatsapp.png";
 import Rightarrow from "../../../assets/svgs/rightarrow";
-import { CONTACT_US } from "../../network/apiCallers";
+import { CONTACT_US } from "../../../network/apiCallers";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
 
 const ContactUs = () => {
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [contactNumber, setContactNumber] = useState("");
+  const { applanguage } = langaugeContext()
+
 
   const fetchContacts = async () => {
     try {
@@ -92,7 +96,8 @@ const ContactUs = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Contact Us
+           {applanguage==="eng"?Translations.eng.contact_us:Translations.arb.contact_us
+              }
           </Text>
         </View>
       </View>
@@ -106,7 +111,8 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             <Image source={mail} className="h-8 w-8" resizeMode="contain" />
-            <Text className="text-[#515151] text-xl">Send Mail</Text>
+            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.send_mail:Translations.arb.send_mail
+              }</Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>
@@ -118,7 +124,8 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" />
-            <Text className="text-[#515151] text-xl">Chat in WhatsApp</Text>
+            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
+              }</Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>
@@ -130,7 +137,8 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             <Image source={call} className="h-8 w-8" resizeMode="contain" />
-            <Text className="text-[#515151] text-xl">Call</Text>
+            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.call:Translations.arb.call
+              }</Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>

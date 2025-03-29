@@ -9,16 +9,20 @@ import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import { useAuth } from "../../../UseContext/AuthContext";
-import { EDIT_PROFILE } from "../../network/apiCallers";
+import { EDIT_PROFILE } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
-import editprofileSchema from "../../yupschema/editProfileSchema";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import editprofileSchema from "../../../yupschema/editProfileSchema";
 
 
 const editprofile = () => {
 
     const insets = useSafeAreaInsets();
     const toast = useToast()
+    const { applanguage } = langaugeContext()
+
 
     const { userEmail } = useAuth();
     console.log("userEmailaaaaaaaaaa" , userEmail)
@@ -30,7 +34,7 @@ const editprofile = () => {
         phoneNumber: "",
       },
       enableReinitialize: true, // ✅ Ensure reinitialization when values change
-      validationSchema: editprofileSchema,
+      validationSchema: editprofileSchema(applanguage),
       validateOnChange: true,
       validateOnBlur: true,
       onSubmit: async (values) => {
@@ -43,7 +47,7 @@ const editprofile = () => {
     useEffect(() => {
       if (userEmail) {
         console.log("userEmail:", userEmail);
-        formik.setFieldValue("email", userEmail.email); // ✅ Set email value after userEmail is available
+        formik.setFieldValue("email", userEmail); // ✅ Set email value after userEmail is available
       }
     }, [userEmail]);
     
@@ -96,7 +100,9 @@ const editprofile = () => {
                  >
                    <ChevronLeft color="black" size={18} />
                  </TouchableOpacity>
-                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Edit Profile</Text>
+                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}> {
+                applanguage==="eng"?Translations.eng.edit_profile:Translations.arb.edit_profile
+              }</Text>
                </View>
       </View>
      
@@ -107,10 +113,16 @@ const editprofile = () => {
 
         <View className="mb-2">
 
-        <Text className="text-[#40464C] text-lg font-bold">Name</Text>
+        <Text className="text-[#40464C] text-lg font-bold"> {
+                applanguage==="eng"?Translations.eng.name:Translations.arb.name
+              }</Text>
         <TextInput
     className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-    placeholder="Enter Name"
+    placeholder={
+      applanguage === "eng"
+        ? Translations.eng.name_placeholder
+        : Translations.arb.name_placeholder
+    }
     onChangeText={formik.handleChange("name")}
     onBlur={formik.handleBlur("name")}
     value={formik.values.name.trimStart()}
@@ -125,11 +137,16 @@ const editprofile = () => {
 
     <View className="mb-2">
 
-<Text className="text-[#40464C] text-lg font-bold">Email Id</Text>
+<Text className="text-[#40464C] text-lg font-bold"> {
+                applanguage==="eng"?Translations.eng.email_id:Translations.arb.email_id
+              }</Text>
         <TextInput
     className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-    placeholder="Enter Email Id"
-    onChangeText={formik.handleChange("email")}
+    placeholder={
+      applanguage === "eng"
+        ? Translations.eng.email_placeholder
+        : Translations.arb.email_placeholder
+    }    onChangeText={formik.handleChange("email")}
     onBlur={formik.handleBlur("email")}
     placeholderTextColor={"#1A1C1E"}
     value={formik.values.email}
@@ -142,10 +159,16 @@ const editprofile = () => {
 
     <View className="mb-2">
 
-<Text className="text-[#40464C] text-lg font-bold">Phone Number</Text>
+<Text className="text-[#40464C] text-lg font-bold"> {
+                applanguage==="eng"?Translations.eng.phone_number:Translations.arb.phone_number
+              }</Text>
         <TextInput
     className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-    placeholder="Enter Phone Number"
+    placeholder={
+      applanguage === "eng"
+        ? Translations.eng.phone_placeholder
+        : Translations.arb.phone_placeholder
+    }
     onChangeText={formik.handleChange("phoneNumber")}
     onBlur={formik.handleBlur("phoneNumber")}
     value={formik.values.phoneNumber}
@@ -162,7 +185,9 @@ const editprofile = () => {
 
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
     onPress={() => formik.handleSubmit()}>
-            <Text className="font-bold text-center text-black ">Save</Text>
+            <Text className="font-bold text-center text-black "> {
+                applanguage==="eng"?Translations.eng.save:Translations.arb.save
+              }</Text>
           </TouchableOpacity>
   </View>
   );

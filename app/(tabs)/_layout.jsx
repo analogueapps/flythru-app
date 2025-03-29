@@ -5,6 +5,8 @@ import SvgHome from "../../assets/svgs/bottomTabs/Home";
 import SvgServices from "../../assets/svgs/bottomTabs/Services";
 import SvgActivities from "../../assets/svgs/bottomTabs/Activities";
 import SvgProfile from "../../assets/svgs/bottomTabs/Profile";
+import { langaugeContext } from "../../customhooks/languageContext";
+import Translations from "../../language";
 
 
 const _layout = () => {
@@ -38,6 +40,8 @@ const _layout = () => {
 
   // Check if current path is in the hideTabsRoutes list
   const shouldHideTabs = hideTabsRoutes.includes(pathname);
+  const { applanguage } = langaugeContext()
+
 
   return (
     <Tabs
@@ -61,7 +65,10 @@ const _layout = () => {
              name="home"
              options={{
                headerShown: false,
-               tabBarLabel: "Home",
+               tabBarLabel:
+            applanguage === "eng"
+              ? Translations.eng.home
+              : Translations.arb.home,
                tabBarIcon: ({ color }) => <SvgHome color={color} height={30} width={30}/>,
              }}
            />
@@ -70,7 +77,10 @@ const _layout = () => {
         name="services"
         options={{
           headerShown: false,
-          tabBarLabel: "Services",
+          tabBarLabel:
+          applanguage === "eng"
+            ? Translations.eng.services
+            : Translations.arb.services,
           tabBarIcon: ({ color }) => <SvgServices color={color} />,
         }}
       />
@@ -83,7 +93,10 @@ const _layout = () => {
         name="activities"
         options={{
           headerShown: false,
-          tabBarLabel: "Activities",
+          tabBarLabel:
+          applanguage === "eng"
+            ? Translations.eng.activities
+            : Translations.arb.activities,
           tabBarIcon: ({ color }) => <SvgActivities color={color} />,
         }}
       />
@@ -93,7 +106,10 @@ const _layout = () => {
         name="profile"
         options={{
           headerShown: false,
-          tabBarLabel: "Profile",
+          tabBarLabel:
+          applanguage === "eng"
+            ? Translations.eng.profile
+            : Translations.arb.profile,
           tabBarIcon: ({ color }) => <SvgProfile color={color} />,
         }}
       />

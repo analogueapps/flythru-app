@@ -24,6 +24,8 @@ import Logout from "../../../assets/svgs/logout";
 import DeleteIcon from "../../../assets/svgs/delete";
 import RBSheet from 'react-native-raw-bottom-sheet';
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
 
 
 
@@ -34,6 +36,8 @@ const index = () => {
     const drefRBSheet = useRef();
     const logoutrefRBSheet = useRef();
     const [current, setCurrent] = useState("1");
+    const { applanguage } = langaugeContext()
+
     
     const handleLogout = () => {
       return (
@@ -72,17 +76,22 @@ const index = () => {
         >
           <View className="p-3 rounded-2xl flex-col gap-y-6">
             <Text className="text-center border-b-[1px] border-[#E0E0E0] py-3 text-2xl font-bold">
-              Logout
-            </Text>
+            {
+                applanguage==="eng"?Translations.eng.logout:Translations.arb.logout
+              }            </Text>
     
             <Text className="text-center text-xl font-bold">
-            Are you sure you want to Logout ?
+            {
+                applanguage==="eng"?Translations.eng.confirm_logout:Translations.arb.confirm_logout
+              }
                         </Text>
     
     
     
             <View className="mx-6 flex flex-col gap-3">
-              <Text className="text-[#40464C] text-center">Lorem ipsum is a placeholder text commonly used to demonstrate the visual.</Text>
+              <Text className="text-[#40464C] text-center">{
+                applanguage==="eng"?Translations.eng.logging_out_message:Translations.arb.logging_out_message
+              }</Text>
     
             </View>
     
@@ -90,7 +99,11 @@ const index = () => {
    
                <TouchableOpacity className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 "
                onPress={() => logoutrefRBSheet.current.close()}>
-                       <Text className="text-center text-[#164F90] font-semibold">Now Now</Text>
+                       <Text className="text-center text-[#164F90] font-semibold">
+                       {
+                applanguage==="eng"?Translations.eng.not_now:Translations.arb.not_now
+              }
+                       </Text>
                      </TouchableOpacity>
               
    
@@ -99,7 +112,9 @@ const index = () => {
                         onPress={() => router.push("/(auth)")}
                 
                 >
-                       <Text className="text-center text-black font-semibold">Yes Logout</Text>
+                       <Text className="text-center text-black font-semibold">{
+                applanguage==="eng"?Translations.eng.yes_logout:Translations.arb.yes_logout
+              }</Text>
                      </TouchableOpacity>
                </View>
           </View>
@@ -144,11 +159,15 @@ const index = () => {
             >
               <View className="p-3 rounded-2xl flex-col gap-y-6">
                 <Text className="text-center border-b-[1px] border-[#E0E0E0] py-3 text-2xl font-bold">
-                  Delete Account
+                {
+                applanguage==="eng"?Translations.eng.delete_account:Translations.arb.delete_account
+              }
                 </Text>
         
                 <Text className="text-center text-xl font-bold">
-                  Give Reason to Delete your Account.
+                {
+                applanguage==="eng"?Translations.eng.delete_account_reason:Translations.arb.delete_account_reason
+              }
                 </Text>
         
                 {/* Centering the RadioButtonGroup */}
@@ -163,7 +182,9 @@ const index = () => {
                       value="1"
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
-                          Service is Not Good
+                            {
+                applanguage==="eng"?Translations.eng.reason_service_not_good:Translations.arb.reason_service_not_good
+              }
                         </Text>
                       }
                     />
@@ -171,13 +192,18 @@ const index = () => {
                     <View className="h-3"></View>
         
                     <RadioButtonItem
-                      value="2"
-                      label={
-                        <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
-                          No Proper Customer Care
-                        </Text>
-                      }
-                    />
+  value="2"
+  label={
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100", textAlign: "left" }}>
+        {applanguage === "eng"
+          ? Translations.eng.reason_no_proper_customer_care
+          : Translations.arb.reason_no_proper_customer_care}
+      </Text>
+    </View>
+  }
+/>
+
         
                     <View className="h-3"></View>
         
@@ -185,7 +211,9 @@ const index = () => {
                       value="3"
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
-                          Driver is Rude
+                            {
+                applanguage==="eng"?Translations.eng.reason_driver_rude:Translations.arb.reason_driver_rude
+              }
                         </Text>
                       }
                     />
@@ -196,7 +224,9 @@ const index = () => {
                       value="4"
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
-                          Poor user experience
+                           {
+                applanguage==="eng"?Translations.eng.reason_poor_experience:Translations.arb.reason_poor_experience
+              }
                         </Text>
                       }
                     />
@@ -204,19 +234,26 @@ const index = () => {
                 </View>
         
                 <View className="mx-6 flex flex-col gap-3">
-                  <Text className="text-[#40464C]">Other reason (Please specify)</Text>
+                  <Text className="text-[#40464C]">  {
+                applanguage==="eng"?Translations.eng.reason_other:Translations.arb.reason_other
+              }</Text>
         
                   <TextInput
                     numberOfLines={7}
                     className="bg-white rounded-lg p-3 border-[#EDF1F3] border-[1px]"
-                    placeholder="Type here..."
-                    textAlignVertical="top"
+                    placeholder={
+                      applanguage === "eng"
+                        ? Translations.eng.type_here
+                        : Translations.arb.type_here
+                    }                    textAlignVertical="top"
                     placeholderTextColor={"#1A1C1E"}
                   />
                 </View>
         
                 <TouchableOpacity className="my-4 mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg">
-                  <Text className="font-bold text-center text-black">Delete Account</Text>
+                  <Text className="font-bold text-center text-black">  {
+                applanguage==="eng"?Translations.eng.delete_account:Translations.arb.delete_account
+              }</Text>
                 </TouchableOpacity>
               </View>
             </RBSheet>
@@ -246,7 +283,9 @@ const index = () => {
     >
       <View className="flex-row  items-center  mt-5">
        
-        <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Profile</Text>
+        <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{
+                applanguage==="eng"?Translations.eng.profile:Translations.arb.profile
+              }</Text>
       </View>
      
     </View>
@@ -260,7 +299,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Editprofile/>
-        <Text className="text-[#515151] text-xl">Edit Profile</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.edit_profile:Translations.arb.edit_profile
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -271,7 +312,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Addaddress/>
-        <Text className="text-[#515151] text-xl">Add Address</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.add_address:Translations.arb.add_address
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -281,7 +324,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Language/>
-        <Text className="text-[#515151] text-xl">Language</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.language:Translations.arb.language
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -291,7 +336,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Contactus/>
-        <Text className="text-[#515151] text-xl">Contact Us</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.contact_us:Translations.arb.contact_us
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -302,7 +349,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Chat/>
-        <Text className="text-[#515151] text-xl">Chat With Support Team</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.chat_with_support:Translations.arb.chat_with_support
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -313,7 +362,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Faq/>
-        <Text className="text-[#515151] text-xl">FAQ</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.faq:Translations.arb.faq
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -324,7 +375,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Feedback/>
-        <Text className="text-[#515151] text-xl">Feedback</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.feedback:Translations.arb.feedback
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -334,7 +387,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Terms/>
-        <Text className="text-[#515151] text-xl">Terms And Conditions</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.terms_and_conditions:Translations.arb.terms_and_conditions
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -345,7 +400,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Privacy/>
-        <Text className="text-[#515151] text-xl">Privacy Policy</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.privacy_policy:Translations.arb.privacy_policy
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -356,7 +413,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Cancel/>
-        <Text className="text-[#515151] text-xl">Cancellation Policy</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.cancellation_policy:Translations.arb.cancellation_policy
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -366,7 +425,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <Refund/>
-        <Text className="text-[#515151] text-xl">Refund Policy</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.refund_policy:Translations.arb.refund_policy
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -376,7 +437,9 @@ const index = () => {
       >
         <View className="flex-row gap-3 items-center">
         <DeleteIcon/>
-        <Text className="text-[#515151] text-xl">Delete Account</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.delete_account:Translations.arb.delete_account
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>
@@ -386,7 +449,9 @@ const index = () => {
 >
         <View className="flex-row gap-3 items-center">
         <Logout/>
-        <Text className="text-[#515151] text-xl">Logout</Text>
+        <Text className="text-[#515151] text-xl">{
+                applanguage==="eng"?Translations.eng.logout:Translations.arb.logout
+              }</Text>
         </View>
         <Rightarrow/>
       </TouchableOpacity>

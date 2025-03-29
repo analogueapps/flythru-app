@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
@@ -7,87 +7,124 @@ import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import * as Calendarpicker from "expo-calendar";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import PlaneIcon from "../../../assets/svgs/PlaneSvg";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { TextInput } from "react-native";
 import { useFormik } from "formik";
-import slotsSchema from "../../yupschema/slotsSchema";
-import { SelectList } from 'react-native-dropdown-select-list'
-import { ALL_TIME_SLOTS } from "../../network/apiCallers";
-
+import { SelectList } from "react-native-dropdown-select-list";
+import { ALL_TIME_SLOTS } from "../../../network/apiCallers";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import slotsSchema from "../../../yupschema/slotsSchema";
 
 const slots = () => {
   const insets = useSafeAreaInsets();
   const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
   const [selectedDate, setSelectedDate] = useState("");
   const [selected, setSelected] = React.useState("");
-  const [timeslot , setTimeslots] = useState([])
+  const [timeslot, setTimeslots] = useState([]);
   const { flightData } = useLocalSearchParams();
-    const flight = JSON.parse(flightData);
+  const flight = flightData;
+  const [depDate, setdepDate] = useState("");
+  const { applanguage } = langaugeContext();
 
-  const { personsCount, baggageCount, baggagePictures } = useLocalSearchParams();
+  const { personsCount, baggageCount, baggagePictures } =
+    useLocalSearchParams();
 
-const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
-const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
-const parsedBaggagePictures = baggagePictures
-  ? JSON.parse(decodeURIComponent(baggagePictures))
-  : [];
+  const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
+  const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
+  const parsedBaggagePictures = baggagePictures
+    ? JSON.parse(decodeURIComponent(baggagePictures))
+    : [];
 
+  // useEffect(() => {
+  //   if (flight?.departure?.scheduled) {
+  //     const extractedDate = new Date(flight.departure.scheduled.split("T")[0]); // Ensure it's a Date object
 
+  //     setdepDate((prevDepDate) => {
+  //       if (
+  //         !prevDepDate ||
+  //         !(prevDepDate instanceof Date) ||
+  //         prevDepDate.toISOString().split("T")[0] !==
+  //           extractedDate.toISOString().split("T")[0]
+  //       ) {
+  //         return extractedDate;
+  //       }
+  //       return prevDepDate;
+  //     });
+  //   }
+  // }, [flight?.departure?.scheduled]);
 
-const alltimeslots = async () => {
-  try {
-    const res = await ALL_TIME_SLOTS();
-    console.log("API Response:", res);
-
-    if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
-      // Map to key-value pairs, using timeSlot as value
-      const formattedSlots = res.data.allTimeSlots.map((slot, index) => ({
-        key: slot._id, // Use unique ID as key
-        value: slot.timeSlot, // ✅ Use timeSlot as the value
-      }));
-      setTimeslots(formattedSlots); // ✅ Set state properly
-    } else {
-      console.log("Unexpected response format:", res.data);
-      setTimeslots([]); // ✅ Set empty state if no data
+  useEffect(() => {
+    if (flight?.departure?.scheduled) {
+      const extractedDate = new Date(flight.departure.scheduled);
+      
+      if (!isNaN(extractedDate.getTime())) { // ✅ Ensure it's a valid date
+        setdepDate(extractedDate);
+      } else {
+        console.error("Invalid departure date:", flight.departure.scheduled);
+      }
     }
-  } catch (error) {
-    console.log("Error fetching timeslots:", error);
-    setTimeslots([]); // ✅ Handle error state
-  }
-};
+  }, [flight?.departure?.scheduled]);
+  
 
+  console.log("///////////////////", flight?.departure?.scheduled.split("T")[0]);
 
+  const alltimeslots = async () => {
+    try {
+      const res = await ALL_TIME_SLOTS();
+      console.log("API Response:", res);
 
+      if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
+        // Map to key-value pairs, using timeSlot as value
+        const formattedSlots = res.data.allTimeSlots.map((slot, index) => ({
+          key: slot._id, // Use unique ID as key
+          value: slot.timeSlot, // ✅ Use timeSlot as the value
+        }));
+        setTimeslots(formattedSlots); // ✅ Set state properly
+      } else {
+        console.log("Unexpected response format:", res.data);
+        setTimeslots([]); // ✅ Set empty state if no data
+      }
+    } catch (error) {
+      console.log("Error fetching timeslots:", error);
+      setTimeslots([]); // ✅ Handle error state
+    }
+  };
 
   useEffect(() => {
     alltimeslots();
+    // console.log("flightsaaaaaa////////////",flight)
   }, []);
 
+  useFocusEffect(useCallback(()=>
+  {
+    alltimeslots();
+  },[]))
 
-  const baggaevalues = { personsCount, baggagePictures, baggageCount }
+  const baggaevalues = { personsCount, baggagePictures, baggageCount };
 
   const formik = useFormik({
     initialValues: {
-      date: "",
+      date: "2025-03-29",
       time: "",
     },
-    validationSchema: slotsSchema,
+    validationSchema: slotsSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values", values);
-      console.log("baggssaaaaa" , baggaevalues)
+      console.log("baggssaaaaa", baggaevalues);
       router.push({
         pathname: "/home/selectlocation",
         params: {
           date: values.date,
           time: values.time,
-          personsCount:personsCount,
-          baggagePictures:baggagePictures,
-          baggageCount:baggageCount
+          personsCount: personsCount,
+          baggagePictures: baggagePictures,
+          baggageCount: baggageCount,
         },
       });
     },
@@ -178,13 +215,15 @@ const alltimeslots = async () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Select Slots
+            {applanguage === "eng"
+              ? Translations.eng.select_slots
+              : Translations.arb.select_slots}
           </Text>
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">HYD</Text>
-            <Text className="text-white">{flight.startingFrom}</Text>
+            <Text className="text-white">{flight?.startingFrom}</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -197,7 +236,7 @@ const alltimeslots = async () => {
           </View>
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white">DUB</Text>
-            <Text className="text-white">{flight.ending}</Text>
+            <Text className="text-white">{flight?.ending}</Text>
           </View>
         </View>
         <Text className="text-white text-center mt-4">Date : 05/05/2025</Text>
@@ -214,11 +253,17 @@ const alltimeslots = async () => {
             className="font-bold text-xl text-[#164F90]"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Select Date
+            {applanguage === "eng"
+              ? Translations.eng.select_date
+              : Translations.arb.select_date}
           </Text>
           <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
             <TextInput
-              placeholder="Pick Up Date"
+              placeholder={
+                applanguage === "eng"
+                  ? Translations.eng.select_date
+                  : Translations.arb.select_date
+              }
               className="flex-1 h-[30px]"
               placeholderTextColor="#2D2A29"
               onChangeText={formik.handleChange("date")}
@@ -235,59 +280,58 @@ const alltimeslots = async () => {
               />
             </TouchableOpacity>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={new Date()}
-                mode="date"
-                display="default"
-                onChange={handleDateChange}
-              />
-            )}
+            {showDatePicker && depDate instanceof Date && !isNaN(depDate) && (
+  <DateTimePicker
+    value={depDate}
+    mode="date"
+    minimumDate={depDate}
+    maximumDate={depDate}
+    display="default"
+    onChange={handleDateChange}
+  />
+)}
+
           </View>
           <Text
             className="font-bold text-xl text-[#164F90]"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Select Time
+            {applanguage === "eng"
+              ? Translations.eng.select_time
+              : Translations.arb.select_time}
           </Text>
-
 
           <SelectList
             setSelected={(val) => formik.setFieldValue("time", val)} // ✅ Bind to formik state
-            value={formik.values.time} 
-      data={timeslot}
-      save="value"
-      boxStyles={{
-        flexDirection: 'row', 
-        marginVertical: 16, 
-        alignItems: 'center', 
-        borderWidth: 1, 
-        borderColor: '#F2F2F2', 
-        borderRadius: 12, 
-        paddingHorizontal: 16, 
-        paddingVertical: 12, 
-        backgroundColor: '#FBFBFB'
-      }}
-      dropdownStyles={{
-        borderColor: '#F2F2F2',
-        borderWidth: 1,
-        borderRadius: 12,
-        backgroundColor: '#FBFBFB',
-      }}
-      inputStyles={{
-        fontSize: 16,
-        color: '#333',
-      }}
-      dropdownTextStyles={{
-        fontSize: 16,
-        color: '#333',
-      }}
-      />
-
-
-
-
-         
+            value={formik.values.time}
+            data={timeslot}
+            save="value"
+            boxStyles={{
+              flexDirection: "row",
+              marginVertical: 16,
+              alignItems: "center",
+              borderWidth: 1,
+              borderColor: "#F2F2F2",
+              borderRadius: 12,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              backgroundColor: "#FBFBFB",
+            }}
+            dropdownStyles={{
+              borderColor: "#F2F2F2",
+              borderWidth: 1,
+              borderRadius: 12,
+              backgroundColor: "#FBFBFB",
+            }}
+            inputStyles={{
+              fontSize: 16,
+              color: "#333",
+            }}
+            dropdownTextStyles={{
+              fontSize: 16,
+              color: "#333",
+            }}
+          />
 
           {/* Continue Button */}
           <TouchableOpacity
@@ -298,7 +342,9 @@ const alltimeslots = async () => {
             }}
           >
             <Text className="text-center text-black font-semibold">
-              Continue
+              {applanguage === "eng"
+                ? Translations.eng.continue
+                : Translations.arb.continue}
             </Text>
           </TouchableOpacity>
         </ScrollView>

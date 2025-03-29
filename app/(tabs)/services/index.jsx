@@ -3,11 +3,15 @@ import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import miniplane from "../../../assets/images/miniplane.png";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ALL_SERVICES } from "../../network/apiCallers";
+import { ALL_SERVICES } from "../../../network/apiCallers";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
 
 const Index = () => {
     const insets = useSafeAreaInsets();
     const [services, setServices] = useState([]);
+    const { applanguage } = langaugeContext()
+
 
     const fetchServices = async () => {
         try {
@@ -50,7 +54,9 @@ const Index = () => {
                >
                  <View className="flex-row  items-center  mt-5">
                   
-                   <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Services</Text>
+                   <Text className="text-[20px] font-bold text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{
+                applanguage==="eng"?Translations.eng.services:Translations.arb.services
+              }  </Text>
                  </View>
                 
                </View>
@@ -92,7 +98,9 @@ const Index = () => {
                                 activeOpacity={0.8}
                             >
                                 <Text className="text-center text-black font-semibold text-lg">
-                                    Book Now
+                                {
+                applanguage==="eng"?Translations.eng.book_now:Translations.arb.book_now
+              }  
                                 </Text>
                             </TouchableOpacity>
                         </View>

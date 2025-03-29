@@ -16,6 +16,11 @@
       "supportsTablet": true
     },
     "android": {
+      "config": {
+    "googleMaps": {
+      "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
+    }
+  },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -33,11 +38,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router","expo-localization",
+      "expo-router",
+      "expo-localization",
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Allow Flythru to use your location."
         }
       ],
       [
@@ -61,7 +67,14 @@
         }
       ],
       "expo-font",
-      "expo-localization"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26 
+          }
+        }
+      ]
     ],
     "extra": {
       "router": {
@@ -71,5 +84,7 @@
         "projectId": "f3880355-abde-4484-82e7-59d99ba456b0"
       }
     }
+
+    
   }
 }

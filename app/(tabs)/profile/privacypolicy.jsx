@@ -5,11 +5,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
-import { ALL_SETTINGS } from "../../network/apiCallers";
+import logo from '../../../assets/images/mainLogo.png'
+
+import { ALL_SETTINGS } from "../../../network/apiCallers";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
 
 const PrivacyPolicy = () => {
   const insets = useSafeAreaInsets();
   const [privacyContent, setPrivacyContent] = useState("");
+  const { applanguage } = langaugeContext()
+
 
   const fetchedSettings = async () => {
     try {
@@ -78,7 +84,8 @@ const PrivacyPolicy = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Privacy & Policy
+            {applanguage==="eng"?Translations.eng.privacy_policy:Translations.arb.privacy_policy
+              }
           </Text>
         </View>
       </View>
@@ -93,9 +100,19 @@ const PrivacyPolicy = () => {
           />
         ) : (
           <Text className="text-[15px] font-thin">
-            Loading privacy policy...
-          </Text>
+{applanguage==="eng"?Translations.eng.loading_privacy_policy:Translations.arb.loading_privacy_policy
+              }          </Text>
         )}
+
+        <View className="flex justify-center ">
+        
+                <Image
+                  source={logo}
+                  className="h-52 w-52 self-center"
+                  resizeMode="contain"
+                  
+                  />
+                  </View>
       </ScrollView>
     </View>
   );

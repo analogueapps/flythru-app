@@ -8,11 +8,15 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
 
 
 const notification = () => {
 
     const insets = useSafeAreaInsets();
+    const { applanguage } = langaugeContext()
+
   
   return (
     <View className="flex-1">
@@ -40,7 +44,8 @@ const notification = () => {
                  >
                    <ChevronLeft color="black" size={18} />
                  </TouchableOpacity>
-                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Notification</Text>
+                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}> {applanguage==="eng"?Translations.eng.notification:Translations.arb.notification
+              }</Text>
                </View>
       </View>
      
