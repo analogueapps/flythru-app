@@ -50,6 +50,12 @@ const selectlocation = () => {
   const longitude = Number(useExpoLocation().longitude);
   const latitude = Number(useExpoLocation().latitude);
   const { applanguage } = langaugeContext();
+    const [userName, setUserName] = useState('');
+    const [price, setPrice] = useState([]);
+    const [pickupdate, setPickupdate] = useState([]);
+    const [pickuploaction, setPickuploaction] = useState([]);
+
+
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
@@ -102,13 +108,17 @@ const selectlocation = () => {
     const token = await AsyncStorage.getItem("authToken");
 
     if (!token) {
-      toast.show("No token found. Please log in.");
+      toast.show("No token found. Please log in."); 
       return;
     }
 
     try {
       const res = await PAYEMNT_API(values, token);
       console.log(res.data.message);
+      console.log(res);    
+      setPrice(res.data.price)  
+      setPickupdate(res.data.date)  
+      setPickuploaction(res.data.baggage.pickUpLocation)
       toast.show(res.data.message);
     } catch (error) {
       console.log("Error sending code:", error?.response);
@@ -119,6 +129,30 @@ const selectlocation = () => {
   useEffect(() => {
     console.log(date, time);
   }, [date, time]);
+
+    
+  const getUserName = async () => {
+    try {
+      const name = await AsyncStorage.getItem('user_name');
+      if (name !== null) {
+        console.log('Retrieved user name:', name);
+        return name;
+      } else {
+        console.log('No user name found.');
+        return '';
+      }
+    } catch (error) {
+      console.error('Failed to retrieve the user name:', error);
+      return '';
+    }
+  };
+  useEffect(() => {
+    const fetchUserName = async () => {
+        const name = await getUserName();
+        setUserName(name);
+    };
+    fetchUserName();
+}, []);
 
   const handlelocation = () => {
     return (
@@ -147,8 +181,8 @@ const selectlocation = () => {
               /> */}
 
               <View>
-                <Text className=" text-3xl font-thin">Shin Chan</Text>
-                <Text>Dubai</Text>
+                <Text className=" text-3xl font-thin">{userName}</Text>
+                {/* <Text>Dubai</Text> */}
               </View>
             </View>
 
@@ -157,9 +191,9 @@ const selectlocation = () => {
                 {applanguage === "eng"
                   ? Translations.eng.total
                   : Translations.arb.total}{" "}
-                : ₹500
+                : {price}
               </Text>
-              <Text>05 May 2025 05:15 PM </Text>
+              <Text>{pickupdate} {time} </Text>
             </View>
           </View>
 
@@ -178,7 +212,7 @@ const selectlocation = () => {
                     : Translations.arb.pick_up}{" "}
                 </Text>
                 <Text className="text-lg">
-                  4372 Romano Street, Bedford, 01730
+                  {pickuploaction}
                 </Text>
               </View>
 
@@ -189,7 +223,7 @@ const selectlocation = () => {
                     : Translations.arb.drop_off}{" "}
                 </Text>
                 <Text className="text-lg">
-                  4372 Romano Street, Bedford, 01730
+                  4372 Romano Street, Bedford, 01730 
                 </Text>
               </View>
             </View>

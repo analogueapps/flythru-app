@@ -23,6 +23,8 @@ import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext, } from "../../customhooks/languageContext";
 import Translations from "../../language";
 import signupSchema from "../../yupschema/signupSchema";
+import GoogleAuth from "../../googleAuth";
+
 
 
 
@@ -127,6 +129,8 @@ const SignupHandler = async (values) => {
         console.log("verification code sent", res.data.message);
         router.push("/verifyotp"); 
         toast.show(res.data.message)
+        router.push({ pathname: "/verifyotp", params: { token: res.data.token } });
+
         console.log("message response //////",res)
       } catch (error) {
         console.log("Error signing up:", error?.response?.data?.errors);
@@ -142,8 +146,8 @@ const SignupHandler = async (values) => {
         // email: "",
         // password: "",
 
-        email: "lovely@gmail.com",
-        password: "Lahari@123.",
+        email: "kuldeepgautam52@gmail.com",
+        password: "Password@123",
       },
       validationSchema: loginSchema(applanguage),
       validateOnChange: true,
@@ -413,6 +417,7 @@ const SignupHandler = async (values) => {
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
                   <TouchableOpacity>
+                    <GoogleAuth/>
                     <SvgGoogle />
                   </TouchableOpacity>
                   <TouchableOpacity>

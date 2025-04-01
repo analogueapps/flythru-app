@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1027382214254",
+    "project_id": "analogue-flythru-335b9",
+    "storage_bucket": "analogue-flythru-335b9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027382214254:android:161d4d1162824a4d72707f",
+        "android_client_info": {
+          "package_name": "com.aits.flythru"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1027382214254-oa2nu20ddhkdhj5npi6rftge123ftqjf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aits.flythru",
+            "certificate_hash": "6c004c6856b87f59b5b1a19786285f1e59dc01be"
+          }
+        },
+        {
+          "client_id": "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJBNihcSOc_6N3zWSeekuX7ybfcaKGvNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

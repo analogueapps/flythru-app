@@ -139,7 +139,18 @@ export const BOOKING_DETAILS = async (bookingId, token) => {
   );
 };
 
+export const ACTIVITIES = async (token) => {
+  console.log("FETCHING ACTIVITIES:");
 
+  return await axios.get(
+    `${LOCAL_URL}/payment/activebookings`, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
 
 
 export const PAYEMNT_API = async (data,token) => {

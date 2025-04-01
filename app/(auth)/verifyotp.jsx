@@ -11,6 +11,8 @@ import { useToast } from "react-native-toast-notifications";
 import { langaugeContext, } from "../../customhooks/languageContext";
 import Translations from "../../language";
 import { otpValidationSchema } from "../../yupschema/otpSchema";
+import { useLocalSearchParams } from 'expo-router';
+
 
 
 const verifyotp = () => {
@@ -21,6 +23,12 @@ const verifyotp = () => {
   const [resentOtpMsg, setResentOtpMsg] = useState(false);
   const toast = useToast()
   const { applanguage } = langaugeContext()
+
+
+const params = useLocalSearchParams();
+const restoken = params.token;
+console.log("Received Token:", restoken);
+
 
 
   const formik = useFormik({
@@ -57,7 +65,7 @@ const verifyotp = () => {
 
     const token = await AsyncStorage.getItem('authToken');
         if (!token) {
-          toast.show("No token found. Please log in.");
+          toast.show("No token found. Please log in."); 
           return;
         }
 
@@ -72,25 +80,28 @@ const verifyotp = () => {
     }
   };
 
-  const resendOtpHandler = async () => {
-    const token = await AsyncStorage.getItem("authToken");
+  const resendOtpHandler = async (restoken) => {
+    if (!restoken) {
+      toast.show("Token is missing. Please try again.");
+      return;
+    }
   
+    const token = await AsyncStorage.getItem('authToken');
     if (!token) {
       toast.show("No token found. Please log in.");
       return;
     }
   
     try {
-      const res = await RESEND_OTP(token); 
+      const res = await RESEND_OTP(restoken, token); // Pass token to API caller
       console.log(res);
       toast.show(res.data.message);
-      setResentOtpMsg(true); 
+      setResentOtpMsg(true);
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Failed to resend OTP");
     }
   };
-  
 
   return (
     <SafeAreaView className="flex-1 bg-white p-6">
@@ -151,7 +162,7 @@ const verifyotp = () => {
 
             {/* Resend OTP */}
             <TouchableOpacity className="self-end mt-4"
-            onPress={()=>resendOtpHandler()}>
+            onPress={()=>resendOtpHandler(restoken)}>
               <Text className="text-[#575757] text-[12px] relative right-14">
               {
                 applanguage==="eng"?Translations.eng.resend_otp:Translations.arb.resend_otp

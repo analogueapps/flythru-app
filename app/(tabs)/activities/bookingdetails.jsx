@@ -107,14 +107,14 @@ const bookingdetails = () => {
               <Text className="text-[#164F90] text-xl">{
                 applanguage==="eng"?Translations.eng.date:Translations.arb.date
               }</Text>
-              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleDateString()}
+              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.booking?.date).toLocaleDateString()}
               </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-[#164F90] text-xl">{
                 applanguage==="eng"?Translations.eng.time:Translations.arb.time
               }</Text>
-              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.dateAndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <Text className="text-[#164F90] text-xl font-bold">{bookingData?.time}
               </Text>
             </View>
 
@@ -141,8 +141,8 @@ const bookingdetails = () => {
             />
 
             <View>
-              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.user?.name || "-"}</Text>
-              <Text>Dubai</Text>
+              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.driver?.driverName || "-"}</Text>
+              <Text>{bookingData?.driver?.driverAddress}</Text>
               </View>
 
             </View>
@@ -181,7 +181,7 @@ const bookingdetails = () => {
             />
           <Text className="text-xl">{
                 applanguage==="eng"?Translations.eng.contact_info:Translations.arb.contact_info
-              } : +965 51234567 </Text>
+              } : {bookingData?.driver?.phoneNumber} </Text>
           </View>
 
           <View className="flex-row">
@@ -192,7 +192,7 @@ const bookingdetails = () => {
             />
           <Text className="text-xl">{
                 applanguage==="eng"?Translations.eng.booking_no:Translations.arb.booking_no
-              } : {bookingData?.booking?.bookingNo || "-"}</Text>
+              } : {bookingData?.booking?.orderId || "-"}</Text>
           </View>
         </View>
 
@@ -217,7 +217,7 @@ const bookingdetails = () => {
 onPress={() => // Example navigation code
                         router.push({
                           pathname: "/activities/cancellation",
-                          params: { bookingId: "67da5e952e0cda3877b69a24" }, // ✅ Pass bookingId correctly
+                          params: { bookingId: "booking_id" }, // ✅ Pass bookingId correctly
                         })
                         }        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
     >

@@ -10,7 +10,7 @@ export const LanguageContext = ({ children }) => {
   useEffect(() => {
     const loadLanguage = async () => {
       const storedLang = await AsyncStorage.getItem("appLanguage");
-      if (storedLang) {
+      if (storedLang) { 
         setLanguage(storedLang);
       }
     };

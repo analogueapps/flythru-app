@@ -13,13 +13,22 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"]
+          }
+        ]
+      }
     },
     "android": {
       "config": {
     "googleMaps": {
       "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
-    }
+    },
+  
+      "googleServicesFile": "./google-services.json"
   },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -31,7 +40,7 @@
         "android.permission.READ_CALENDAR",
         "android.permission.WRITE_CALENDAR"
       ],
-      "package": "com.twinkle589.Flythru"
+      "package": "com.aits.flythru"
     },
     "web": {
       "bundler": "metro",

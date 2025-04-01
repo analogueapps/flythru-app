@@ -46,7 +46,7 @@ const _layout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#000000",
+        tabBarActiveTintColor: "#164F90",
         tabBarInactiveTintColor: "#9B9E9F",
         tabBarHideOnKeyboard: true,
         tabBarStyle: shouldHideTabs

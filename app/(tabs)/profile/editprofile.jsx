@@ -15,6 +15,7 @@ import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import editprofileSchema from "../../../yupschema/editProfileSchema";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const editprofile = () => {
@@ -43,6 +44,20 @@ const editprofile = () => {
         router.push("/profile");
       },
     });
+
+    const saveUserName = async (name) => {
+      if (name) { // Check if name is not null or undefined
+        try {
+          await AsyncStorage.setItem('user_name', name);
+          console.log('User name saved successfully');
+        } catch (error) {
+          console.error('Error saving user name:', error);
+        }
+      } else {
+        console.error('Invalid name: Cannot save null or undefined value');
+      }
+    };
+    
     
     useEffect(() => {
       if (userEmail) {
@@ -68,6 +83,7 @@ const editprofile = () => {
         console.log("Error sending code:", error?.response);
       }
     };
+    
 
     useEffect(()=>{
       
@@ -184,7 +200,7 @@ const editprofile = () => {
     </ScrollView>
 
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
-    onPress={() => formik.handleSubmit()}>
+    onPress={() =>{saveUserName(formik.values.name); formik.handleSubmit()}}>
             <Text className="font-bold text-center text-black "> {
                 applanguage==="eng"?Translations.eng.save:Translations.arb.save
               }</Text>

@@ -183,7 +183,7 @@ const search = () => {
                 applanguage==="eng"?Translations.eng.date:Translations.arb.date
               } {departureDate}</Text>
         </View>
-
+ 
         {/* Show shimmer if loading */}
 
         {loading ? (
