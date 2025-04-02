@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SvgGoogle from "../../assets/svgs/GoogleIcon";
 import SvgApple from "../../assets/svgs/AppleIcon";
@@ -23,9 +23,9 @@ import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext, } from "../../customhooks/languageContext";
 import Translations from "../../language";
 import signupSchema from "../../yupschema/signupSchema";
-import GoogleAuth from "../../googleAuth";
-
-
+import {GoogleSignin} from '@react-native-google-signin/google-signin'
+// import GoogleAuth from "../../googleAuth";
+import auth from '@react-native-firebase/auth';
 
 
 const Index = () => {
@@ -36,6 +36,63 @@ const Index = () => {
   const toast = useToast()
   const { setUserEmail,SaveMail } = useAuth();
   const { applanguage } = langaugeContext()
+
+
+
+
+ // Configure Google Sign-In
+//  GoogleSignin.configure({
+//   webClientId: "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
+// });
+
+// const [initializing, setInitializing] = useState(true);
+// const [user, setUser] = useState();
+
+// // Handle user state changes
+// function onAuthStateChanged(user) {
+//   setUser(user);
+//   if (initializing) setInitializing(false);
+// }
+
+// useEffect(() => {
+//   const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+//   return subscriber; // unsubscribe on unmount
+// }, []);
+
+// if (initializing) return null;
+
+// // Initialize Firebase if not initialized
+// if (!firebase.apps.length) {
+//   firebase.initializeApp();
+// } else {
+//   firebase.app(); // Use the existing app if already initialized
+// }
+
+// // Google Sign-In
+// async function onGoogleButtonPress() {
+//   try {
+//     // Check if your device supports Google Play
+//     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+//     // Get the user's ID token
+//     const signInResult = await GoogleSignin.signIn();
+//     let idToken = signInResult.idToken;
+
+//     if (!idToken) {
+//       throw new Error("No ID token found");
+//     }
+
+//     // Create a Google credential with the token
+//     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+//     // Sign-in the user with the credential
+//     const userCredential = await auth().signInWithCredential(googleCredential);
+//     console.log(userCredential);
+//   } catch (error) {
+//     console.error("Google Sign-In Error: ", error);
+//     toast.show(error.message, { type: "danger" });
+//   }
+// }
 
 
   // const animateTab = () => {
@@ -332,7 +389,9 @@ const SignupHandler = async (values) => {
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
-                  <TouchableOpacity>
+                  <TouchableOpacity 
+                  // onPress={()=>onGoogleButtonPress()}
+                  >
                     <SvgGoogle />
                   </TouchableOpacity>
                   <TouchableOpacity>
@@ -417,7 +476,7 @@ const SignupHandler = async (values) => {
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
                   <TouchableOpacity>
-                    <GoogleAuth/>
+                    {/* <GoogleAuth/> */}
                     <SvgGoogle />
                   </TouchableOpacity>
                   <TouchableOpacity>

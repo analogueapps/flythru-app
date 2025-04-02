@@ -108,7 +108,7 @@ const slots = () => {
 
   const formik = useFormik({
     initialValues: {
-      date: "2025-04-01",
+      date: "2025-04-03",
       time: "",
     },
     validationSchema: slotsSchema(applanguage),

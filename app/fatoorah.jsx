@@ -108,7 +108,7 @@ export default function Fatoorah() {
     var sendPaymentRequest = new MFSendPaymentRequest(
       11,
       MFNotificationOption.LINK,
-      "customerName"
+      "customerName" 
     );
     sendPaymentRequest.CustomerEmail = "Test@test.com";
     sendPaymentRequest.CustomerMobile = "123456789";

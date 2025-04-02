@@ -26,10 +26,10 @@
       "config": {
     "googleMaps": {
       "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
-    },
+    } 
   
-      "googleServicesFile": "./google-services.json"
   },
+  "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -48,6 +48,7 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-google-signin/google-signin",
       "expo-localization",
       [
         "expo-location",

@@ -7,6 +7,7 @@ import {
   TextInput,
   StyleSheet,
   Dimensions,
+  Linking,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -54,6 +55,7 @@ const selectlocation = () => {
     const [price, setPrice] = useState([]);
     const [pickupdate, setPickupdate] = useState([]);
     const [pickuploaction, setPickuploaction] = useState([]);
+    const [paymentUrl, setPaymentUrl] = useState(null);
 
 
 
@@ -102,6 +104,7 @@ const selectlocation = () => {
     },
   });
 
+
   // pament api handler
 
   const paymentApi = async (values) => {
@@ -120,6 +123,10 @@ const selectlocation = () => {
       setPickupdate(res.data.date)  
       setPickuploaction(res.data.baggage.pickUpLocation)
       toast.show(res.data.message);
+      setPaymentUrl(res.data.paymentUrl);  // Store URL from backend
+      console.log("URLLLLLL", paymentUrl )
+
+      
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "error occured");
@@ -251,9 +258,15 @@ const selectlocation = () => {
                 alignSelf: "center", // Center it horizontally
               }}
               onSwipeSuccess={() => {
-                router.push("/fatoorah")
                 console.log("Booking Confirmed!");
-                // Add any action on success here
+            
+                if (paymentUrl) {
+                  Linking.openURL(paymentUrl).catch((err) =>
+                    console.error("Failed to open URL:", err)
+                  );
+                } else {
+                  console.error("No payment URL found");
+                }
               }}
             />
           </View>
