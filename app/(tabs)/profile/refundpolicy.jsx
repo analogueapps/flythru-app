@@ -5,11 +5,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
-import { ALL_SETTINGS } from "../../network/apiCallers";
+import { ALL_SETTINGS } from "../../../network/apiCallers";
+import logo from '../../../assets/images/mainLogo.png'
+
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
 const RefundPolicy = () => {
   const insets = useSafeAreaInsets();
   const [refundContent, setRefundContent] = useState("");
+  const { applanguage } = langaugeContext()
+
 
   const fetchedSettings = async () => {
     try {
@@ -78,7 +84,8 @@ const RefundPolicy = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Refund Policy
+           {applanguage==="eng"?Translations.eng.refund_policy:Translations.arb.refund_policy
+              }
           </Text>
         </View>
       </View>
@@ -93,9 +100,19 @@ const RefundPolicy = () => {
           />
         ) : (
           <Text className="text-[15px] font-thin">
-            Loading refund policy...
-          </Text>
+{applanguage==="eng"?Translations.eng.loading_refund_policy:Translations.arb.loading_refund_policy
+              }          </Text>
         )}
+
+        <View className="flex justify-center ">
+        
+                <Image
+                  source={logo}
+                  className="h-52 w-52 self-center"
+                  resizeMode="contain"
+                  
+                  />
+                  </View>
       </ScrollView>
     </View>
   );

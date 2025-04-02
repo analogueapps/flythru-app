@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -11,11 +11,13 @@ import emptystar from "../../../assets/images/emptystar.png"
 import { Calendar } from "lucide-react-native";
 import Filledstar from "../../../assets/svgs/filledstar";
 import Emptystar from "../../../assets/svgs/emptystar";
-import { FEEDBACK } from "../../network/apiCallers";
+import { FEEDBACK } from "../../../network/apiCallers";
 import { useFormik } from "formik";
-import feedbackSchema from "../../yupschema/feedbackSchema";
 import { useToast } from "react-native-toast-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
+import feedbackSchema from "../../../yupschema/feedbackSchema";
 
 
 const feedback = () => {
@@ -23,6 +25,10 @@ const feedback = () => {
     const insets = useSafeAreaInsets();
     const [selectedStars, setSelectedStars] = useState(0); 
     const toast = useToast()
+    const { applanguage } = langaugeContext()
+    const [userName, setUserName] = useState('');
+
+
 
     // Function to update stars based on user click
     const handleStarPress = (index) => {
@@ -38,7 +44,7 @@ const feedback = () => {
         ratingStars: 0, 
         comment: "",
       },
-      validationSchema: feedbackSchema,
+      validationSchema: feedbackSchema(applanguage),
       validateOnChange: true,
       validateOnBlur: true,
       onSubmit: async (values) => {
@@ -68,7 +74,28 @@ const feedback = () => {
       }
     };
     
-    
+    const getUserName = async () => {
+      try {
+        const name = await AsyncStorage.getItem('user_name');
+        if (name !== null) {
+          console.log('Retrieved user name:', name);
+          return name;
+        } else {
+          console.log('No user name found.');
+          return '';
+        }
+      } catch (error) {
+        console.error('Failed to retrieve the user name:', error);
+        return '';
+      }
+    };
+    useEffect(() => {
+      const fetchUserName = async () => {
+          const name = await getUserName();
+          setUserName(name);
+      };
+      fetchUserName();
+  }, []);
   
   return (
     <View className="flex-1">
@@ -96,7 +123,8 @@ const feedback = () => {
                  >
                    <ChevronLeft color="black" size={18} />
                  </TouchableOpacity>
-                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Feedback</Text>
+                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{applanguage==="eng"?Translations.eng.feedback:Translations.arb.feedback
+              }</Text>
                </View>
       </View>
      
@@ -105,7 +133,7 @@ const feedback = () => {
 
       <View className="px-7 flex-col gap-8">
         <View className="flex flex-row justify-between items-center">
-        <Text className="font-bold text-[#050505] text-2xl">Nike</Text>
+        <Text className="font-bold text-[#050505] text-2xl">{userName}</Text>
         <View className="flex-row my-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <TouchableOpacity key={index} onPress={() => handleStarPress(index)}>
@@ -118,14 +146,19 @@ const feedback = () => {
             ))}
           </View>
         </View>
-        <Text className="text-[#40464C] text-lg">Write Feedback on your Latest Service</Text>
+        <Text className="text-[#40464C] text-lg">{applanguage==="eng"?Translations.eng.write_feedback:Translations.arb.write_feedback
+              }</Text>
         <TextInput
     numberOfLines={10}
     onChangeText={formik.handleChange("comment")}
                  onBlur={formik.handleBlur("comment")}
                  value={formik.values.comment}
     className="bg-white rounded-lg p-3"
-    placeholder="Type here..."
+    placeholder={
+      applanguage === "eng"
+        ? Translations.eng.type_here
+        : Translations.arb.type_here
+    }
     textAlignVertical="top"  
     placeholderTextColor={"#1A1C1E"}
 />
@@ -139,7 +172,8 @@ const feedback = () => {
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
     onPress={formik.handleSubmit}
     >
-                <Text className="font-bold text-center text-black ">Submit</Text>
+                <Text className="font-bold text-center text-black ">{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
+              }</Text>
               </TouchableOpacity>
   </View>
   );

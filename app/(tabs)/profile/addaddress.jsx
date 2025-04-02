@@ -16,16 +16,20 @@ import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"; 
 import { Calendar } from "lucide-react-native";
 import Send from "../../../assets/svgs/send";
-import { ADD_ADDRESS } from "../../network/apiCallers";
+import { ADD_ADDRESS } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
-import addaddresSchema from "../../yupschema/addressSchema";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Translations from "../../../language";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import addaddresSchema from "../../../yupschema/addressSchema";
 
 
 const addaddress = () => {
   const insets = useSafeAreaInsets();
   const toast = useToast();
+  const { applanguage } = langaugeContext()
+
 
   const formik = useFormik({
     initialValues: {
@@ -35,7 +39,7 @@ const addaddress = () => {
       postalCode: "",
       locationName: "",
     },
-    validationSchema: addaddresSchema,
+    validationSchema: addaddresSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
@@ -93,7 +97,8 @@ const addaddress = () => {
               className="text-[18px] text-white ml-3"
               style={{ fontFamily: "CenturyGothic" }}
             >
-              Add Address
+              {applanguage==="eng"?Translations.eng.add_address:Translations.arb.add_address
+              }
             </Text>
           </View>
         </View>
@@ -101,7 +106,8 @@ const addaddress = () => {
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="w-full flex-col gap-5">
           <Text className="w-[90%] m-auto">
-            Address<Text className="text-red">*</Text>
+          {applanguage==="eng"?Translations.eng.address:Translations.arb.address
+              }<Text className="text-red">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -109,7 +115,11 @@ const addaddress = () => {
             onBlur={formik.handleBlur("addressData")}
             value={formik.values.addressData}
             name="addressData"
-            placeholder="Enter Address"
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.address_placeholder
+                : Translations.arb.address_placeholder
+            }
           />
 
           {formik.touched.addressData && formik.errors.addressData && (
@@ -117,7 +127,8 @@ const addaddress = () => {
           )}
 
           <Text className="w-[90%] m-auto">
-            City<Text className="text-red">*</Text>
+          {applanguage==="eng"?Translations.eng.city:Translations.arb.city
+              }<Text className="text-red">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -125,7 +136,11 @@ const addaddress = () => {
             onBlur={formik.handleBlur("city")}
             value={formik.values.city}
             name="city"
-            placeholder="Enter City"
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.city_placeholder
+                : Translations.arb.city_placeholder
+            }
           />
 
           {formik.touched.city && formik.errors.city && (
@@ -133,7 +148,8 @@ const addaddress = () => {
           )}
 
           <Text className="w-[90%] m-auto">
-            State<Text className="text-red">*</Text>
+          {applanguage==="eng"?Translations.eng.state:Translations.arb.state
+              }<Text className="text-red">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -141,15 +157,19 @@ const addaddress = () => {
             onBlur={formik.handleBlur("state")}
             value={formik.values.state}
             name="state"
-            placeholder="Enter State"
-          />
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.state_placeholder
+                : Translations.arb.state_placeholder
+            }          />
 
           {formik.touched.state && formik.errors.state && (
             <Text className="text-red-500">{formik.errors.state}</Text>
           )}
 
           <Text className="w-[90%] m-auto">
-            Postal Code<Text className="text-red">*</Text>
+          {applanguage==="eng"?Translations.eng.postal_code:Translations.arb.postal_code
+              }<Text className="text-red">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -157,22 +177,29 @@ const addaddress = () => {
             onBlur={formik.handleBlur("postalCode")}
             value={formik.values.postalCode}
             name="postalCode"
-            placeholder="Enter Postalcode"
-          />
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.postal_placeholder
+                : Translations.arb.postal_placeholder
+            }          />
 
           {formik.touched.postalCode && formik.errors.postalCode && (
             <Text className="text-red-500">{formik.errors.postalCode}</Text>
           )}
 
-          <Text className="w-[90%] m-auto">Location Name</Text>
+          <Text className="w-[90%] m-auto">{applanguage==="eng"?Translations.eng.location_name:Translations.arb.location_name
+              }</Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
             onChangeText={formik.handleChange("locationName")}
             onBlur={formik.handleBlur("locationName")}
             value={formik.values.locationName}
             name="locationName"
-            placeholder="Enter Location"
-          />
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.location_placeholder
+                : Translations.arb.location_placeholder
+            }          />
 
           {formik.touched.locationName && formik.errors.locationName && (
             <Text className="text-red-500">{formik.errors.locationName}</Text>
@@ -181,9 +208,12 @@ const addaddress = () => {
       </ScrollView>
       <TouchableOpacity
         className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg"
-        onPress={() => router.push("/profile")}
+        onPress={() =>{ 
+          formik.handleSubmit()
+        }}
       >
-        <Text className="font-bold text-center text-black " onPress={formik.handleSubmit}>Save</Text>
+        <Text className="font-bold text-center text-black " >{applanguage==="eng"?Translations.eng.save:Translations.arb.save
+              }</Text>
       </TouchableOpacity>
     </View>
   );

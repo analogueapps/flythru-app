@@ -5,11 +5,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
-import { ALL_SETTINGS } from "../../network/apiCallers";
+import { ALL_SETTINGS } from "../../../network/apiCallers";
+import logo from '../../../assets/images/mainLogo.png'
+
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
 const CancellationPolicy = () => {
   const insets = useSafeAreaInsets();
   const [cancellationContent, setCancellationContent] = useState("");
+  const { applanguage } = langaugeContext()
+
 
   const fetchedSettings = async () => {
     try {
@@ -76,7 +82,8 @@ const CancellationPolicy = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Cancellation Policy
+             {applanguage==="eng"?Translations.eng.cancellation_policy:Translations.arb.cancellation_policy
+              }
           </Text>
         </View>
       </View>
@@ -91,9 +98,19 @@ const CancellationPolicy = () => {
           />
         ) : (
           <Text className="text-[15px] font-thin">
-            Loading cancellation policy...
-          </Text>
+  {applanguage==="eng"?Translations.eng.cancellation_policy:Translations.arb.cancellation_policy
+              }          </Text>
         )}
+
+        <View className="flex justify-center ">
+        
+                <Image
+                  source={logo}
+                  className="h-52 w-52 self-center"
+                  resizeMode="contain"
+                  
+                  />
+                  </View>
       </ScrollView>
     </View>
   );

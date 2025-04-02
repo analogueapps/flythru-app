@@ -5,12 +5,11 @@ import { useFonts } from "expo-font";
 import { ActivityIndicator } from "react-native";
 import { ToastProvider } from "react-native-toast-notifications";
 import { AuthProvider } from "../UseContext/AuthContext";
-
+import { LanguageContext } from "../customhooks/languageContext";
 
 const _layout = () => {
-
   const [fontsLoaded] = useFonts({
-    "CenturyGothic": require("../assets/fonts/centurygothic.ttf"),
+    CenturyGothic: require("../assets/fonts/centurygothic.ttf"),
   });
 
   // Show a loader until fonts are loaded
@@ -18,21 +17,22 @@ const _layout = () => {
     return <ActivityIndicator size="large" color="#000" />;
   }
   return (
-    <AuthProvider>
-
-     <ToastProvider
-        
-        placement="bottom"
-        animationType="slide-in"
-        animationDuration={250}
+    <LanguageContext>
+      <AuthProvider>
+        <ToastProvider
+          placement="bottom"
+          animationType="slide-in"
+          animationDuration={250}
         >
-    <Stack>
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="index" />
-    </Stack>
-    </ToastProvider>
-          </AuthProvider>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="fatoorah" options={{ headerShown: false }} />
+            <Stack.Screen name="index" />
+          </Stack>
+        </ToastProvider>
+      </AuthProvider>
+   </LanguageContext>
     // <StatusBar style="light" backgroundColor="transparent" />
   );
 };

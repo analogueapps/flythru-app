@@ -22,7 +22,7 @@ const useExpoLocation = () => {
       setLongitude(longitude)
      
       
-      console.log("User Location");
+      // console.log("User Location", coords);
      }
      
 

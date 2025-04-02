@@ -1,12 +1,16 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [userEmail, setUserEmail] = useState("");
 
+  async function SaveMail(value) {
+    setUserEmail(value);
+  }
+
   return (
-    <AuthContext.Provider value={{ userEmail, setUserEmail }}>
+    <AuthContext.Provider value={{ userEmail, setUserEmail, SaveMail }}>
       {children}
     </AuthContext.Provider>
   );

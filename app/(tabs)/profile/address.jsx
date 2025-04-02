@@ -4,15 +4,19 @@ import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
-import { ALL_ADDRESS, DELETE_ADDRESS } from "../../network/apiCallers";
+import { ALL_ADDRESS, DELETE_ADDRESS } from "../../../network/apiCallers";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useToast } from "react-native-toast-notifications";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
 const Address = () => {
   const insets = useSafeAreaInsets();
   const [addresses, setAddresses] = useState([]);
   const toast = useToast()
+  const { applanguage } = langaugeContext()
+
 
   // Fetch Addresses
   const fetchAddress = async () => {
@@ -113,16 +117,26 @@ const Address = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            Address
+            {applanguage==="eng"?Translations.eng.address:Translations.arb.address
+              }
           </Text>
         </View>
       </View>
 
       {/* Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+
+      <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
+          <Text className="text-[#164F90] font-bold text-right mx-5">
+          {applanguage==="eng"?Translations.eng.add:Translations.arb.add
+              } +
+          </Text>
+        </TouchableOpacity>
+
       {addresses.length > 0 ? (
   addresses.map((address, index) => {
     console.log("Address object:", address);
+
 
     return (
       <View 
@@ -131,7 +145,10 @@ const Address = () => {
       >
         <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
           <View>
-            <Text className="text-[#164F90] font-bold">Home</Text>
+            <Text className="text-[#164F90] font-bold">
+                {/* {applanguage==="eng"?Translations.eng.home:Translations.arb.home
+              } */}
+              Home</Text>
             <Text>{address.addressData}</Text>
           </View>
           <TouchableOpacity 
@@ -154,11 +171,7 @@ const Address = () => {
 
 
         {/* Add Address Button */}
-        <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
-          <Text className="text-[#164F90] font-bold text-right mx-5">
-            Add +
-          </Text>
-        </TouchableOpacity>
+       
       </ScrollView>
     </View>
   );
