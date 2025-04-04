@@ -10,6 +10,7 @@ import Flash from "./flash"; // Flash screen component
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SplashScreen from "expo-splash-screen";
+import { NotificationProvider } from "../UseContext/notifications";
 
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
@@ -25,11 +26,11 @@ const _layout = () => {
       try {
         await AsyncStorage.removeItem("hasLaunched"); // ✅ Reset for testing
         const firstLaunch = await AsyncStorage.getItem("hasLaunched");
-  
+
         if (firstLaunch === null) {
           await AsyncStorage.setItem("hasLaunched", "true");
           setShowFlash(true);
-  
+
           setTimeout(() => {
             setShowFlash(false);
           }, 3000);
@@ -43,10 +44,10 @@ const _layout = () => {
         await SplashScreen.hideAsync();
       }
     }
-  
+
     checkFirstTimeUser();
   }, []);
-  
+
   // Show a loader while fonts are loading
   if (!fontsLoaded || showFlash === null) {
     return <ActivityIndicator size="large" color="#000" />;
@@ -59,22 +60,24 @@ const _layout = () => {
 
   // Normal app flow after the flash screen
   return (
-    <LanguageContext>
-      <AuthProvider>
-        <ToastProvider
-          placement="bottom"
-          animationType="slide-in"
-          animationDuration={250}
-        >
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="fatoorah" options={{ headerShown: false }} />
-            <Stack.Screen name="index" />
-          </Stack>
-        </ToastProvider>
-      </AuthProvider>
-    </LanguageContext>
+    <NotificationProvider>
+      <LanguageContext>
+        <AuthProvider>
+          <ToastProvider
+            placement="bottom"
+            animationType="slide-in"
+            animationDuration={250}
+          >
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="fatoorah" options={{ headerShown: false }} />
+              <Stack.Screen name="index" />
+            </Stack>
+          </ToastProvider>
+        </AuthProvider>
+      </LanguageContext>
+    </NotificationProvider>
   );
 };
 

@@ -26,10 +26,32 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
+// import {  signOut } from "firebase/auth";
+import auth, { firebase, getAuth ,GoogleAuthProvider, signInWithCredential, signOut} from '@react-native-firebase/auth';
 
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { useRouter } from "expo-router";
+import { getApp } from "@react-native-firebase/app";
+// import { Alert, Button } from "react-native";
 
-
-
+const handleSignOut = async () => {
+  try {
+    const app = getApp();
+    const auth = getAuth(app);
+    
+    // Sign out from Firebase
+    await signOut(auth);
+    
+    // Sign out from Google (if using Google Sign-In)
+    await GoogleSignin.signOut();
+    
+    console.log("User signed out successfully");
+    return true; // Success
+  } catch (error) {
+    console.error("Sign-out error:", error);
+    throw error; // Re-throw to handle in the UI
+  }
+};
 const index = () => {
 
     const insets = useSafeAreaInsets();
@@ -37,8 +59,16 @@ const index = () => {
     const logoutrefRBSheet = useRef();
     const [current, setCurrent] = useState("1");
     const { applanguage } = langaugeContext()
-
-    
+    const router = useRouter();
+    const onSignOut = async () => {
+      try {
+        await handleSignOut();
+        // Redirect to login/sign-in screen
+        router.replace("/(auth)");
+      } catch (error) {
+        console.log("Error", error.message); // or toast.show(...)
+      }
+    };
     const handleLogout = () => {
       return (
         <RBSheet
@@ -109,7 +139,8 @@ const index = () => {
    
                 <TouchableOpacity
                 className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg"
-                        onPress={() => router.push("/(auth)")}
+                        // onPress={() => router.push("/(auth)")}
+                        onPress={onSignOut} 
                 
                 >
                        <Text className="text-center text-black font-semibold">{

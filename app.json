@@ -30,7 +30,6 @@
           "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
         }
       },
-      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -42,6 +41,7 @@
         "android.permission.WRITE_CALENDAR",
         "android.permission.RECORD_AUDIO"
       ],
+      "googleServicesFile": "./google-services.json",
       "package": "com.aits.flythru"
     },
     "web": {

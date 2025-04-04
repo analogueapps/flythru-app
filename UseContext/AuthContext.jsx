@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [userEmail, setUserEmail] = useState("");
 
   async function SaveMail(value) {
-    setUserEmail(value);
+    setUserEmail(value?value:"");
   }
 
   return (

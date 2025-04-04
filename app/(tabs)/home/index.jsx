@@ -263,7 +263,7 @@ const Index = () => {
       </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
-        <View className="flex-1 items-center justify-center mt-28 mx-6">
+        <View className="flex-1 items-center justify-center mt- mx-6">
           {/* Ad Card */}
           <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
              {  applanguage==="eng"?Translations.eng.ad:Translations.arb.ad
