@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Flythru",
-    "slug": "Flythru",
+    "slug": "flythru",
     "scheme": "flythru",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,19 +17,20 @@
       "infoPlist": {
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"]
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"
+            ]
           }
         ]
       }
     },
     "android": {
       "config": {
-    "googleMaps": {
-      "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
-    } 
-  
-  },
-  "googleServicesFile": "./google-services.json",
+        "googleMaps": {
+          "apiKey": "AIzaSyCh1D_DHrZSa_5DBuuDrXHWIRuiOe4eNzk"
+        }
+      },
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -38,7 +39,8 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CALENDAR"
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.RECORD_AUDIO"
       ],
       "package": "com.aits.flythru"
     },
@@ -81,7 +83,7 @@
         "expo-build-properties",
         {
           "android": {
-            "minSdkVersion": 26 
+            "minSdkVersion": 26
           }
         }
       ]
@@ -91,10 +93,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "f3880355-abde-4484-82e7-59d99ba456b0"
+        "projectId": "c1ff54c9-b20c-49a7-aeac-4557e23fef16"
       }
-    }
-
-    
+    },
+    "owner": "flythru"
   }
 }

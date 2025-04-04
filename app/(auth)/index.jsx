@@ -203,8 +203,8 @@ const SignupHandler = async (values) => {
         // email: "",
         // password: "",
 
-        email: "kuldeepgautam52@gmail.com",
-        password: "Password@123",
+        email: "naveendaraboina88@gmail.com",
+        password: "Lahari@123.",
       },
       validationSchema: loginSchema(applanguage),
       validateOnChange: true,
@@ -237,7 +237,7 @@ const SignupHandler = async (values) => {
             router.push("/verifyotp")
           }
           else {
-            
+            console.log("error loginnnnnggggg" , error?.response)
             toast.show(error?.response?.data?.errors)
           }
         }
@@ -366,17 +366,14 @@ const SignupHandler = async (values) => {
                   <Text className="text-red-500 w-[90%] mx-auto">{loginFormik.errors.password}</Text>
                 )}
 
-
-
                 <TouchableOpacity
                   onPress={loginFormik.handleSubmit}
-                  // onPress={()=>{router.push("/home")}}
                   className="bg-[#FFB648] rounded-lg py-4 w-[90%] mx-auto mt-4"
                 >
-                  <Text className="text-center text-[#08203C] font-semibold text-lg">
+                  <Text className="text-center  text-[#08203C] font-semibold text-lg">
                   {
                 applanguage==="eng"?Translations.eng.log_in:Translations.arb.log_in
-              }                  </Text>
+              }</Text>
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />

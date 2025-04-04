@@ -37,7 +37,7 @@ const baggage = () => {
     if (type === "increase" && persons < 5) {
       setPersons((prev) => {
         const newValue = prev + 1;
-        console.log("new values,=",newValue)
+        console.log("new values,=", newValue);
         formik.setFieldValue("personsCount", newValue);
         return newValue;
       });
@@ -145,16 +145,14 @@ const baggage = () => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values", values);
-        router.push({
-          pathname: "/home/slots",
-          params: {
-            personsCount: String(values.personsCount),
-            baggageCount: String(values.baggageCount),
-            baggagePictures: 
-              JSON.stringify(values.baggagePictures)
-            ,
-          },
-        });
+      router.push({
+        pathname: "/home/slots",
+        params: {
+          personsCount: String(values.personsCount),
+          baggageCount: String(values.baggageCount),
+          baggagePictures: JSON.stringify(values.baggagePictures),
+        },
+      });
     },
   });
 
@@ -271,8 +269,19 @@ const baggage = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">{flight.departure.iata}</Text>
-            <Text className="text-white">city 1</Text>
+            <Text className="text-2xl font-bold text-white">
+              {flight.departure.iata}
+            </Text>
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+               
+              }}
+            >
+              {/* {flight.departure.airport} */}city1
+            </Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -284,8 +293,16 @@ const baggage = () => {
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">{flight.arrival.iata}</Text>
-            <Text className="text-white">city 2</Text>
+            <Text className="text-2xl font-bold text-white">
+              {flight.arrival.iata}
+            </Text>
+            <Text className="text-white " style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                
+              }}>
+                {/* {flight.arrival.airport} */}
+              city 2</Text>
           </View>
         </View>
       </View>

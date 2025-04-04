@@ -23,7 +23,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 
-
 const search = () => {
   const insets = useSafeAreaInsets();
   const { flightNumber, departureDate } = useLocalSearchParams();
@@ -32,8 +31,7 @@ const search = () => {
   const [loading, setLoading] = useState(true); // Track loading state
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
   const [animatedValues, setAnimatedValues] = useState([]);
-  const { applanguage } = langaugeContext()
-
+  const { applanguage } = langaugeContext();
 
   useEffect(() => {
     if (flights.length > 0) {
@@ -66,7 +64,6 @@ const search = () => {
     <Text style={{ color: "white", fontSize: 20 }}>Gradient Background</Text>
   </LinearGradient>;
 
-
   // useEffect(() => {
   //   const fetchFlights = async () => {
   //     try {
@@ -94,54 +91,89 @@ const search = () => {
   // }, [departureDate, flightNumber]);
 
   useEffect(() => {
-      // fetchAllFlights();
-      fetchClientAllFlights();
-    }, [departureDate, flightNumber]);
-  
-    const fetchClientAllFlights = async () => {
-      setLoading(true);
-  
-      try {
-        const res = await ALL_FLIGHTS_CLIENT();
-        console.log("Fetched flights:", res.data);
-  
-        if (res?.data?.allFlights?.data) {
-          let filteredFlights = res.data.allFlights.data;
-  
-          // Filter by flight number if provided
-          if (flightNumber) {
-            filteredFlights = filteredFlights.filter(
-              (flight) =>
-                flight.flight?.number &&
-                flight.flight.number
-                  .toLowerCase()
-                  .includes(flightNumber.toLowerCase())
-            );
-          }
-  
-          // Filter by departure date if provided
-          if (departureDate) {
-            filteredFlights = filteredFlights.filter(
-              (flight) =>
-                flight.departure?.scheduled &&
-                new Date(flight.departure.scheduled)
-                  .toISOString()
-                  .split("T")[0] === departureDate
-            );
-          }
-  
-          console.log("filteredFlights.........." , filteredFlights)
-          setFlights(filteredFlights);
+    fetchSingleFlights();
+    fetchClientAllFlights();
+  }, [departureDate, flightNumber]);
+
+  const fetchClientAllFlights = async () => {
+    setLoading(true);
+
+    try {
+      const res = await ALL_FLIGHTS_CLIENT();
+      console.log("Fetched flights:", res.data);
+
+      if (res?.data?.allFlights?.data) {
+        let filteredFlights = res.data.allFlights.data;
+
+        // Filter by flight number if provided
+        if (flightNumber) {
+          filteredFlights = filteredFlights.filter(
+            (flight) =>
+              flight.flight?.number &&
+              flight.flight.number
+                .toLowerCase()
+                .includes(flightNumber.toLowerCase())
+          );
         }
-      } catch (error) {
-        console.log("Fetch error:", error);
-        toast.show(error?.response?.data?.message || "Failed to fetch flights");
-      } finally {
-        setLoading(false);
+
+        // Filter by departure date if provided
+        if (departureDate) {
+          filteredFlights = filteredFlights.filter(
+            (flight) =>
+              flight.departure?.scheduled &&
+              new Date(flight.departure.scheduled)
+                .toISOString()
+                .split("T")[0] === departureDate
+          );
+        }
+
+        console.log("filteredFlights..........", filteredFlights);
+        setFlights(filteredFlights);
       }
-    };
-  
-  
+    } catch (error) {
+      console.log("Fetch error:", error);
+      toast.show(error?.response?.data?.message || "Failed to fetch flights");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSingleFlights = async () => {
+    setLoading(true); // Start loading
+    const values = { flightNumber, departureDate };
+    console.log("Fetching flights with:", values);
+
+    try {
+      const res = await ALL_FLIGHTS(values);
+      console.log("Fetched flights:", res.data);
+
+      if (res?.data?.allFlights) {
+        // Transform new API data into the expected structure
+        const transformedFlights = res.data.allFlights.map((flight) => ({
+          _id: flight._id,
+          airline: { name: flight.flightName || "Unknown Airline" }, // Map flightName to airline name
+          flight: { number: flight.flightNumber || "N/A" }, // Map flightNumber
+          departure: {
+            scheduled: flight.departureDate || null, // Map departureDate
+            airport: flight.startingFrom || "Unknown Airport", // Map startingFrom
+          },
+          arrival: {
+            scheduled: flight.departureDate || null, // No explicit arrival time, keeping same as departureDate
+            airport: flight.ending || "Unknown Airport", // Map ending
+          },
+          timing: flight.timing || "N/A", // Store flight timing
+        }));
+
+        setFlights(transformedFlights);
+      }
+    } catch (error) {
+      console.log("Fetch error:", error);
+      toast.show(error?.response?.data?.message || "Failed to fetch flights");
+    } finally {
+      setLoading(false); // Stop loading after data is fetched
+    }
+  };
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -170,20 +202,25 @@ const search = () => {
             className="text-[18px] text-white ml-3 "
             style={{ fontFamily: "CenturyGothic" }}
           >
-{
-                applanguage==="eng"?Translations.eng.search_result:Translations.arb.search_result
-              }          </Text>
+            {applanguage === "eng"
+              ? Translations.eng.search_result
+              : Translations.arb.search_result}{" "}
+          </Text>
         </View>
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         {/* Display Date */}
         <View className="flex flex-row gap-x-4 items-center mb-4 mx-auto">
-          <Text className="text-[#696969] text-lg"> {
-                applanguage==="eng"?Translations.eng.date:Translations.arb.date
-              } {departureDate}</Text>
+          <Text className="text-[#696969] text-lg">
+            {" "}
+            {applanguage === "eng"
+              ? Translations.eng.date
+              : Translations.arb.date}{" "}
+            {departureDate}
+          </Text>
         </View>
- 
+
         {/* Show shimmer if loading */}
 
         {loading ? (
@@ -306,7 +343,6 @@ const search = () => {
             ))}
           </>
         ) : (
-         
           flights.map((flight) => (
             <TouchableOpacity
               key={flight._id}
@@ -330,21 +366,24 @@ const search = () => {
                   </Text>
                 </View>
               </View>
-          
+
               {/* Divider */}
               <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" />
-          
+
               {/* Flight Details */}
               <View className="flex-row justify-between items-center py-6 px-5">
                 {/* Departure */}
                 <View className=" items-center">
                   <Text className="text-2xl font-bold text-[#003C71]">
                     {flight.departure?.scheduled
-                      ? new Date(flight.departure.scheduled).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })
+                      ? new Date(flight.departure.scheduled).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        )
                       : "N/A"}
                   </Text>
                   <Text className="text-gray-500 text-center">
@@ -355,7 +394,7 @@ const search = () => {
                       : "N/A"}
                   </Text>
                 </View>
-          
+
                 {/* Flight Duration */}
                 <View className="flex-1 items-center">
                   <View className="w-full flex-row items-center justify-center mt-2">
@@ -367,32 +406,41 @@ const search = () => {
                   </View>
                   <Text className="text-gray-500 text-sm mt-3 text-center">
                     {flight.departure?.scheduled
-                      ? new Date(flight.departure.scheduled).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })
+                      ? new Date(flight.departure.scheduled).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        )
                       : "N/A"}{" "}
                     to{" "}
                     {flight.arrival?.scheduled
-                      ? new Date(flight.arrival.scheduled).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })
+                      ? new Date(flight.arrival.scheduled).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        )
                       : "N/A"}
                   </Text>
                 </View>
-          
+
                 {/* Arrival */}
                 <View className=" items-center">
                   <Text className="text-2xl font-bold text-[#003C71]">
                     {flight.arrival?.scheduled
-                      ? new Date(flight.arrival.scheduled).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        })
+                      ? new Date(flight.arrival.scheduled).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                          }
+                        )
                       : "N/A"}
                   </Text>
                   <Text className="text-gray-500 text-center">
@@ -406,7 +454,6 @@ const search = () => {
               </View>
             </TouchableOpacity>
           ))
-          
         )}
       </ScrollView>
     </View>

@@ -108,7 +108,7 @@ const slots = () => {
 
   const formik = useFormik({
     initialValues: {
-      date: "2025-04-03",
+      date: "2025-04-04",
       time: "",
     },
     validationSchema: slotsSchema(applanguage),
@@ -280,14 +280,21 @@ const slots = () => {
               />
             </TouchableOpacity>
 
-            {showDatePicker && depDate instanceof Date && !isNaN(depDate) && (
+            {showDatePicker && (
   <DateTimePicker
-    value={depDate}
+    value={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure a valid date is used
     mode="date"
-    minimumDate={depDate}
-    maximumDate={depDate}
+    minimumDate={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure valid min date
+    maximumDate={depDate instanceof Date && !isNaN(depDate) ? depDate : undefined}
     display="default"
-    onChange={handleDateChange}
+    onChange={(event, selectedDate) => {
+      setShowDatePicker(false); // Close the picker after selecting a date
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split("T")[0];
+        setSelectedDate(formattedDate);
+        formik.setFieldValue("date", formattedDate);
+      }
+    }}
   />
 )}
 

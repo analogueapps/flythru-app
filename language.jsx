@@ -125,6 +125,8 @@ const Translations = {
     total: "Total",
     home: "Home",
     search: "Search",
+    entercity:"Enter City",
+    enterairportname:"Enter Airport Name ",
 
     // Placeholders
 
@@ -275,6 +277,8 @@ const Translations = {
     select_location: "اختر الموقع",
     total: "الإجمالي",
     search: "بحث",
+    enterairportname:"أدخل المدينة",
+    entercity:" أدخل اسم المطار",
 
     // placeholder
 
