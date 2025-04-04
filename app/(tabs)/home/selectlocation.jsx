@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Dimensions,
   Linking,
+  FlatList,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -32,13 +33,15 @@ import useExpoLocation from "../../../customhooks/useExpolocation";
 import RBSheet from "react-native-raw-bottom-sheet";
 import Swiperarrow from "../../../assets/svgs/swiperarrow";
 import mapimg from "../../../assets/images/mapimg.jpg";
-import { PAYEMNT_API } from "../../../network/apiCallers";
+import { ALL_ADDRESS, PAYEMNT_API } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import selectlocationSchema from "../../../yupschema/selectLocationSchema";
+import { debounce } from "lodash";
+
 
 const selectlocation = () => {
   const insets = useSafeAreaInsets();
@@ -65,6 +68,48 @@ const selectlocation = () => {
     ? JSON.parse(decodeURIComponent(baggagePictures))
     : [];
 
+
+    const [addresses, setAddresses] = useState([]);
+    const [filteredAddresses, setFilteredAddresses] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+  
+    const handleLocationChange = (text) => {
+      formik.setFieldValue("pickUpLocation", text);
+      
+      if (text.length > 0) {
+        const filtered = addresses.filter(address => 
+          address.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredAddresses(filtered);
+        setShowSuggestions(true);
+      } else {
+        setShowSuggestions(false);
+      }
+    }
+    
+
+    
+    // Fetch address list
+    useEffect(() => {
+      const fetchAddresses = async () => {
+        try {
+          const res = await ALL_ADDRESS();
+          if (res?.data?.addresses && Array.isArray(res.data.addresses)) {
+            console.log("addresses" , res?.data?.addresses)
+            setAddresses(res.data.addresses);
+          } else {
+            setAddresses([]);
+          }
+        } catch (error) {
+          console.log("Error fetching addresses:", error);
+          setAddresses([]);
+        }
+      };
+  
+      fetchAddresses();
+    }, []);
+  
+
   useEffect(() => {
     console.log("slotssssssss", "date :", date);
     console.log("slotssssssss", "time :", time);
@@ -78,7 +123,7 @@ const selectlocation = () => {
 
   const formik = useFormik({
     initialValues: {
-      pickUpLocation: "chennai",
+      pickUpLocation: "",
       pickUpTimings: time,
     },
     validationSchema: selectlocationSchema(applanguage),
@@ -99,8 +144,6 @@ const selectlocation = () => {
       console.log("values CREATE ORDER", requestData);
 
       await paymentApi(requestData);
-
-
     },
   });
 
@@ -184,7 +227,7 @@ const selectlocation = () => {
               {/* <Image
                 source={dp}
                 className="h-16 w-16 rounded-full mr-4"
-                resizeMode="cover"
+                resizeMode="cover" 
               /> */}
 
               <View>
@@ -312,25 +355,51 @@ const selectlocation = () => {
       </View>
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
         <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
-          <TextInput
-             placeholder={
-              applanguage === "eng"
-                ? Translations.eng.pick_up_location
-                : Translations.arb.pick_up_location
-            }
-            className="flex-1 h-[30px]"
-            onChangeText={formik.handleChange("pickUpLocation")}
-            onBlur={formik.handleBlur("pickUpLocation")}
-            value={formik.values.pickUpLocation}
-            placeholderTextColor="#2D2A29"
-          />
-          <Ionicons
+        <TextInput
+  placeholder={
+    applanguage === "eng"
+      ? Translations.eng.pick_up_location
+      : Translations.arb.pick_up_location
+  }
+  className="flex-1 h-[30px]"
+  onChangeText={handleLocationChange}  // Use the new handler here
+  onFocus={() => {
+    if (formik.values.pickUpLocation.length > 0) {
+      setShowSuggestions(true);
+    }
+  }}
+  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Small delay to allow selection
+  value={formik.values.pickUpLocation}
+  placeholderTextColor="#2D2A29"
+  
+/>
+<Ionicons
             name="search-outline"
             size={26}
             color="#194F90"
             className="bg-[#194F901A] p-2 rounded-xl"
           />
-        </View>
+
+{showSuggestions && filteredAddresses.length > 0 && (
+  <View className="absolute top-16 left-0 right-0 z-50 bg-white border border-gray-300 rounded-xl max-h-60 overflow-hidden">
+    <FlatList
+      data={filteredAddresses}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          className="p-3 bg-white border-b border-gray-200"
+          onPress={() => {
+            formik.setFieldValue("pickUpLocation", item);
+            setShowSuggestions(false);
+          }}
+        >
+          <Text className="text-black">{item}</Text>
+        </TouchableOpacity>
+      )}
+    />
+  </View>
+)}
+</View>
 
         {/* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
           <TextInput

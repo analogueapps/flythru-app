@@ -140,10 +140,10 @@ const index = () => {
         className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
       >
         <View className="flex-row items-start py-6 px-4">
-          {/* <Image source={dp} className="h-16 w-16 rounded-full mr-4" resizeMode="cover" /> */}
+          <Image source={dp} className="h-16 w-16 rounded-full mr-4" resizeMode="cover" />
           <View className="ml-2 flex flex-row items-start gap-y-1">
             <Text className="text-gray-600 font-extrabold text-xl">
-              {booking.driver?.driverName || "Driver not assigned"} {" "},{" "}
+              {booking.driver?.driverName || "Driver not assigned"} {" "}
             </Text>
             <Text className="text-[#164F90] font-thin text-lg">
               {booking?.driver?.driverAddress} 

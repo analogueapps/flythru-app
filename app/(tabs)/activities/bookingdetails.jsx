@@ -15,6 +15,8 @@ import { BOOKING_DETAILS } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import verticalline from "../../../assets/images/verticalline.png";
+
 
 const bookingdetails = () => {
   const insets = useSafeAreaInsets();
@@ -116,7 +118,7 @@ const bookingdetails = () => {
               }</Text>
               <Text className="text-[#164F90] text-xl font-bold">{bookingData?.time}
               </Text>
-            </View>
+            </View> 
 
             {fromSelectLocation && (
               <>
@@ -154,6 +156,14 @@ const bookingdetails = () => {
             </View>
           </View>
 
+
+          <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
+          <Image
+              source={verticalline}
+              className="h-36"
+              resizeMode="contain"
+            />
+
           <View className="flex-col gap-5">
             <View className="flex-col gap-3">
             <Text className="text-[#164F90] text-xl font-bold">{
@@ -168,6 +178,8 @@ const bookingdetails = () => {
               }</Text>
             <Text className="text-lg">{bookingData?.booking?.dropOffLocation || "-"}</Text>
             </View>
+          </View>
+
           </View>
 
           <View className="flex-1 h-[1px] border-t  border-[#00000026] relative my-5" />

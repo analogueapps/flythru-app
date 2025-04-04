@@ -25,10 +25,13 @@ import Translations from "../../language";
 import signupSchema from "../../yupschema/signupSchema";
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 // import GoogleAuth from "../../googleAuth";
-import auth from '@react-native-firebase/auth';
+import auth, { firebase, getAuth ,GoogleAuthProvider, signInWithCredential} from '@react-native-firebase/auth';
+import { useNotification } from "../../UseContext/notifications";
+import { getApp } from "@react-native-firebase/app";
 
 
 const Index = () => {
+ 
   const [activeTab, setActiveTab] = useState("signup");
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -37,10 +40,104 @@ const Index = () => {
   const { setUserEmail,SaveMail } = useAuth();
   const { applanguage } = langaugeContext()
 
+  const {expoPushToken}=useNotification()
 
 
 
- // Configure Google Sign-In
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com',
+    });
+  }, []);
+
+//   const signInWithGoogle = async () => {
+//     try {
+//       await GoogleSignin.hasPlayServices();
+//       const userInfo = await GoogleSignin.signIn();
+//       console.log('User Info:', userInfo);
+
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
+
+// const signInWithGoogle = async () => {
+//   try {
+//     // Ensure Google Play Services is available
+//     await GoogleSignin.hasPlayServices();
+
+//     // Sign in to Google
+//     const userInfo = await GoogleSignin.signIn();
+
+//     // Check for the ID token
+//     if (!userInfo.data.idToken) {
+//       throw new Error('Google ID token is missing');
+//     }
+
+//     console.log('User Info:', userInfo);
+
+//     // Create a Google credential with the ID token
+//     const googleCredential = auth.GoogleAuthProvider.credential(userInfo.idToken);
+
+//     // Sign in with Firebase using the Google credential
+//     const userCredential = await auth().signInWithCredential(googleCredential);
+//     console.log('Firebase User:', userCredential);
+
+//     // Handle user sign-in (optional)
+//     const user = userCredential.user;
+//     console.log('Signed in as:', user.email);
+
+//     // Optionally save user email or perform further actions
+//     setUserEmail(user.email);
+
+//     // Redirect to the home screen
+//     router.push('/home');
+//   } catch (error) {
+//     console.error('Google Sign-In Error:', error);
+//     toast.show(error.message, { type: 'danger' });
+//   }
+// };
+
+const signInWithGoogle = async () => {
+  try {
+    // Ensure Google Play Services is available
+    await GoogleSignin.hasPlayServices();
+
+    // Sign in to Google
+    const userInfo = await GoogleSignin.signIn();
+    console.log(userInfo);
+
+    // Check if ID Token is present
+    if (!userInfo.data.idToken) {  // Changed from userInfo.data.idToken
+      throw new Error('Google ID token is missing');
+    }
+
+    // Get the Firebase Auth instance
+    const app = getApp();
+    const auth = getAuth(app);
+
+    // Create a Google credential with the ID token
+    const googleCredential = GoogleAuthProvider.credential(userInfo.data.idToken);
+    // Sign in with Firebase using the Google credential
+    const userCredential = await signInWithCredential(auth, googleCredential);
+    console.log('Firebase User:', userCredential.user);
+
+    // Handle successful sign-in
+    const user = userCredential.user;
+    console.log('Signed in as:', user.email);
+
+    // Optionally save user email or perform further actions
+    // setUserEmail(user.email);
+
+    // Redirect to the home screen
+    router.push('/home');
+  } catch (error) {
+    console.error('Google Sign-In Error:', error);
+    toast.show(error.message, { type: 'danger' });
+  }
+}
+
+
 //  GoogleSignin.configure({
 //   webClientId: "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
 // });
@@ -48,7 +145,6 @@ const Index = () => {
 // const [initializing, setInitializing] = useState(true);
 // const [user, setUser] = useState();
 
-// // Handle user state changes
 // function onAuthStateChanged(user) {
 //   setUser(user);
 //   if (initializing) setInitializing(false);
@@ -68,7 +164,6 @@ const Index = () => {
 //   firebase.app(); // Use the existing app if already initialized
 // }
 
-// // Google Sign-In
 // async function onGoogleButtonPress() {
 //   try {
 //     // Check if your device supports Google Play
@@ -184,7 +279,6 @@ const SignupHandler = async (values) => {
     const res = await SIGN_UP_API(values);
 
         console.log("verification code sent", res.data.message);
-        router.push("/verifyotp"); 
         toast.show(res.data.message)
         router.push({ pathname: "/verifyotp", params: { token: res.data.token } });
 
@@ -203,8 +297,8 @@ const SignupHandler = async (values) => {
         // email: "",
         // password: "",
 
-        email: "kuldeepgautam52@gmail.com",
-        password: "Password@123",
+        email: "naveendaraboina88@gmail.com",
+        password: "Lahari@123.",
       },
       validationSchema: loginSchema(applanguage),
       validateOnChange: true,
@@ -237,7 +331,7 @@ const SignupHandler = async (values) => {
             router.push("/verifyotp")
           }
           else {
-            
+            console.log("error loginnnnnggggg" , error?.response)
             toast.show(error?.response?.data?.errors)
           }
         }
@@ -366,17 +460,14 @@ const SignupHandler = async (values) => {
                   <Text className="text-red-500 w-[90%] mx-auto">{loginFormik.errors.password}</Text>
                 )}
 
-
-
                 <TouchableOpacity
                   onPress={loginFormik.handleSubmit}
-                  // onPress={()=>{router.push("/home")}}
                   className="bg-[#FFB648] rounded-lg py-4 w-[90%] mx-auto mt-4"
                 >
-                  <Text className="text-center text-[#08203C] font-semibold text-lg">
+                  <Text className="text-center  text-[#08203C] font-semibold text-lg">
                   {
                 applanguage==="eng"?Translations.eng.log_in:Translations.arb.log_in
-              }                  </Text>
+              }</Text>
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
@@ -390,7 +481,7 @@ const SignupHandler = async (values) => {
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
                   <TouchableOpacity 
-                  // onPress={()=>onGoogleButtonPress()}
+                  onPress={()=>signInWithGoogle()}
                   >
                     <SvgGoogle />
                   </TouchableOpacity>
