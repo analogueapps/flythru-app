@@ -12,7 +12,8 @@ const _layout = () => {
     "/home/baggage",
     "/home/notification",
     "/home/notificationdetail",
-    "/home/selectlocation"];
+    "/home/selectlocation",
+  "/home/paymentsuccess"];
 
   // Check if current path is in the hideTabsRoutes list
   const shouldHideTabs = hideTabsRoutes.includes(pathname);
@@ -33,17 +34,23 @@ const _layout = () => {
           name="baggage"
           options={{ gestureEnabled: true, animation: "slide_from_right" }}
         />
-         <Stack.Screen
-          name="notification"
-          options={{ gestureEnabled: true, animation: "slide_from_right" , tabBarStyle: { display: "none" },}}
+          
+       <Stack.Screen
+         name="notification"
+          options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
         />
-         <Stack.Screen
+
+        <Stack.Screen
           name="notificationdetail"
           options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
         />
         <Stack.Screen
           name="selectlocation"
           options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
+        />
+         <Stack.Screen
+          name="paymentsuccess"
+          options={{ gestureEnabled: true, animation: "slide_from_right" , tabBarStyle: { display: "none" },}}
         />
       </Stack>
       <StatusBar style="light" backgroundColor="transparent" />

@@ -152,8 +152,8 @@ const index = () => {
         </View>
         <View className="flex-1 h-[1px] border-t border-[#e3e2e2] relative" />
 
-        <View className="flex-row justify-left text-left items-start py-6 px-5">
-          <Calendar size={20} color="#6B7280" className="rounded-full border-[1px] p-6" />
+        <View className="flex-row justify-left text-left gap-2 items-start py-6 px-5">
+          <Calendar size={20} color="#6B7280" className="rounded-full border-[1px] p-6 border-black" />
           <View className="flex-col gap-y-2">
             <Text className="font-extrabold text-xl">
               {booking.pickUpTimings}, {new Date(booking.date).toLocaleDateString()}
@@ -161,11 +161,13 @@ const index = () => {
             <Text className="text-[#383F47] text-lg">
               Status: {booking.bookingStatus}
             </Text>
-            <Text className="text-[#6a6c6e] text-lg">
+            <Text className="text-[#6a6c6e] text-lg w-[90%]">
             You can cancel 1hr before the service time
                         </Text>
-            <View className="flex flex-row justify-center">
-              <TouchableOpacity className="my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10">
+            <View className="flex flex-row justify-center ml-[-44]">
+              <TouchableOpacity
+              onPress={()=>router.push('/activities/cancellation')}
+              className="my-4 mx-2 border-2 border-[#164F90] rounded-xl py-4 px-10">
                 <Text className="text-center text-[#164F90] font-semibold">
                   {applanguage === "eng" ? Translations.eng.cancel : Translations.arb.cancel}
                 </Text>
@@ -177,7 +179,7 @@ const index = () => {
                     params: { bookingId: booking._id }, // Use the actual booking ID
                   })
                 }
-                className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg"
+                className="my-4 mx-2 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg"
               >
                 <Text className="text-center text-black font-semibold">
                   {applanguage === "eng" ? Translations.eng.view_details : Translations.arb.view_details}

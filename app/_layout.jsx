@@ -72,7 +72,7 @@ const _layout = () => {
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="fatoorah" options={{ headerShown: false }} />
-              <Stack.Screen name="index" />
+              {/* <Stack.Screen name="index" /> */}
             </Stack>
           </ToastProvider>
         </AuthProvider>

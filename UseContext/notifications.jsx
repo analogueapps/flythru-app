@@ -21,7 +21,7 @@ import React, {
   };
   
   export const NotificationProvider = ({ children }) => {
-    const [expoPushToken, setExpoPushToken] = useState(null);
+    // const [expoPushToken, setExpoPushToken] = useState(null);
     const [notification, setNotification] = useState(null);
     const [error, setError] = useState(null);
   
@@ -29,10 +29,10 @@ import React, {
     const responseListener = useRef();
   
     useEffect(() => {
-      registerForPushNotificationsAsync().then(
-        (token) => setExpoPushToken(token),
-        (error) => setError(error)
-      );
+      // registerForPushNotificationsAsync().then(
+      //   (token) => setExpoPushToken(token),
+      //   (error) => setError(error)
+      // );
   
       notificationListener.current =
         Notifications.addNotificationReceivedListener((notification) => {
@@ -64,7 +64,7 @@ import React, {
   
     return (
       <NotificationContext.Provider
-        value={{ expoPushToken, notification, error }}
+        value={{  notification, error }}
       >
         {children}
       </NotificationContext.Provider>

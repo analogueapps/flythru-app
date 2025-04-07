@@ -21,6 +21,7 @@ const _layout = () => {
     "/home/notificationdetail",
     "/home/selectlocation",
     "/home/slots",
+    "/home/paymentsuccess",
     "/activities/bookingdetails",
     "/activities/cancellation",
     "/profile/notification",
@@ -76,6 +77,7 @@ const _layout = () => {
 <Tabs.Screen
         name="services"
         options={{
+      
           headerShown: false,
           tabBarLabel:
           applanguage === "eng"

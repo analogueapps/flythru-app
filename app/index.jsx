@@ -10,7 +10,7 @@ const Index = () => {
   //     async function checkToken() {
   //       const token = await AsyncStorage.getItem("authToken")
   //       if ( token){
-  //           router.replace("/home")
+  //           router.replace("/home/slots")
   //       }
   //       else{
   //         router.replace("/(auth)")

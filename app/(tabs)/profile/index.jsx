@@ -32,38 +32,107 @@ import auth, { firebase, getAuth ,GoogleAuthProvider, signInWithCredential, sign
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useRouter } from "expo-router";
 import { getApp } from "@react-native-firebase/app";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DELETE_ACCOUNT } from "../../../network/apiCallers";
+import { useFormik } from "formik";
+import delaccSchema from "../../../yupschema/delaccYupSchema";
+
 // import { Alert, Button } from "react-native";
+
+// const handleSignOut = async () => {
+//   try {
+//     const app = getApp();
+//     const auth = getAuth(app);
+    
+//     // Sign out from Firebase
+//     await signOut(auth);
+    
+//     // Sign out from Google (if using Google Sign-In)
+//     await GoogleSignin.signOut();
+    
+//     console.log("User signed out successfully");
+//     return true; // Success
+//   } catch (error) {
+//     console.error("Sign-out error:", error);
+//     throw error; // Re-throw to handle in the UI
+//   }
+// };
 
 const handleSignOut = async () => {
   try {
     const app = getApp();
     const auth = getAuth(app);
-    
-    // Sign out from Firebase
-    await signOut(auth);
-    
-    // Sign out from Google (if using Google Sign-In)
-    await GoogleSignin.signOut();
-    
-    console.log("User signed out successfully");
-    return true; // Success
+
+    const currentUser = auth.currentUser;
+
+    // If Firebase user exists, sign out from Firebase + Google
+    if (currentUser) {
+      await signOut(auth);
+      await GoogleSignin.signOut();
+      console.log("Signed out from Firebase and Google");
+    } else {
+      console.log("No Firebase user, proceeding with normal logout");
+    }
+
+    // Always clear custom tokens or app data
+    await AsyncStorage.removeItem("authToken"); // or whatever you store
+    return true;
   } catch (error) {
     console.error("Sign-out error:", error);
-    throw error; // Re-throw to handle in the UI
+    throw error;
   }
 };
-const index = () => {
 
-    const insets = useSafeAreaInsets();
-    const drefRBSheet = useRef();
-    const logoutrefRBSheet = useRef();
-    const [current, setCurrent] = useState("1");
-    const { applanguage } = langaugeContext()
-    const router = useRouter();
-    const onSignOut = async () => {
-      try {
-        await handleSignOut();
-        // Redirect to login/sign-in screen
+const index = () => {
+  
+  const insets = useSafeAreaInsets();
+  const drefRBSheet = useRef();
+  const logoutrefRBSheet = useRef();
+  const [current, setCurrent] = useState("1");  
+  const { applanguage } = langaugeContext()
+  const router = useRouter();
+const [otherReason, setOtherReason] = useState(""); // for text input
+
+  
+  const formik = useFormik({
+    initialValues: {
+      reasonForDeleteAccount: "",
+    },
+    validationSchema: delaccSchema(applanguage),
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log("values CREATE ORDER", values);
+    
+      await deleteaccount(values);
+    },
+  });
+  
+
+  const deleteaccount = async (values) => {
+    const token = await AsyncStorage.getItem("authToken");
+  
+    if (!token) {
+      toast.show("No token found. Please log in."); 
+      return;
+    }
+  
+    try {
+      const res = await DELETE_ACCOUNT(values, token);
+      console.log(res.data.message);
+      toast.show(res.data.message);  
+      
+    } catch (error) {
+      console.log("Error sending code:", error?.response);
+      setApiErr(error?.response?.data?.message || "error occured");
+    }
+  };
+
+
+  const onSignOut = async () => {
+    try {
+      await handleSignOut();
+      // Redirect to login/sign-in screen
         router.replace("/(auth)");
       } catch (error) {
         console.log("Error", error.message); // or toast.show(...)
@@ -72,17 +141,17 @@ const index = () => {
     const handleLogout = () => {
       return (
         <RBSheet
-          ref={logoutrefRBSheet}
-          closeOnDragDown={true}
-          closeOnPressMask={true}
-          height={Dimensions.get('window').height / 3}
+        ref={logoutrefRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        height={Dimensions.get('window').height / 2.7}
         
         
-          customStyles={{
+        customStyles={{
             wrapper: {
               backgroundColor: "rgba(0,0,0,0.2)", 
             },
-             
+            
             container: {
               backgroundColor: "#fff",
               borderTopLeftRadius: 20, 
@@ -161,7 +230,7 @@ const index = () => {
               ref={drefRBSheet}
               closeOnDragDown={true}
               closeOnPressMask={true}
-              height={Dimensions.get('window').height / 1.4}
+              height={Dimensions.get('window').height / 1.35}
               customStyles={{
                 wrapper: {
                   backgroundColor: "rgba(0,0,0,0.2)", 
@@ -194,6 +263,9 @@ const index = () => {
                 applanguage==="eng"?Translations.eng.delete_account:Translations.arb.delete_account
               }
                 </Text>
+
+                <ScrollView>
+                
         
                 <Text className="text-center text-xl font-bold">
                 {
@@ -208,17 +280,17 @@ const index = () => {
                     selected={current}
                     onSelected={(value) => setCurrent(value)}
                     radioBackground="#4E4848"
-                  >
+                    >
                     <RadioButtonItem
                       value="1"
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
                             {
-                applanguage==="eng"?Translations.eng.reason_service_not_good:Translations.arb.reason_service_not_good
-              }
+                              applanguage==="eng"?Translations.eng.reason_service_not_good:Translations.arb.reason_service_not_good
+                            }
                         </Text>
                       }
-                    />
+                      />
         
                     <View className="h-3"></View>
         
@@ -243,11 +315,11 @@ const index = () => {
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
                             {
-                applanguage==="eng"?Translations.eng.reason_driver_rude:Translations.arb.reason_driver_rude
-              }
+                              applanguage==="eng"?Translations.eng.reason_driver_rude:Translations.arb.reason_driver_rude
+                            }
                         </Text>
                       }
-                    />
+                      />
         
                     <View className="h-3"></View>
         
@@ -256,11 +328,11 @@ const index = () => {
                       label={
                         <Text style={{ color: "#181716", fontSize: 17, fontWeight: "100" }}>
                            {
-                applanguage==="eng"?Translations.eng.reason_poor_experience:Translations.arb.reason_poor_experience
-              }
+                             applanguage==="eng"?Translations.eng.reason_poor_experience:Translations.arb.reason_poor_experience
+                            }
                         </Text>
                       }
-                    />
+                      />
                   </RadioButtonGroup>
                 </View>
         
@@ -271,21 +343,30 @@ const index = () => {
         
                   <TextInput
                     numberOfLines={7}
+                    onChangeText={formik.handleChange("reasonForDeleteAccount")}
+                    onBlur={formik.handleBlur("reasonForDeleteAccount")}
+                    value={formik.values.reasonForDeleteAccount}
                     className="bg-white rounded-lg p-3 border-[#EDF1F3] border-[1px]"
                     placeholder={
                       applanguage === "eng"
                         ? Translations.eng.type_here
                         : Translations.arb.type_here
-                    }                    textAlignVertical="top"
-                    placeholderTextColor={"#1A1C1E"}
-                  />
+                      }                    textAlignVertical="top"
+                      placeholderTextColor={"#1A1C1E"}
+                      />
+                        {formik.touched.reasonForDeleteAccount && formik.errors.reasonForDeleteAccount && (
+            <Text className="text-red-500">{formik.errors.reasonForDeleteAccount}</Text>
+          )}
                 </View>
         
-                <TouchableOpacity className="my-4 mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg">
+                <TouchableOpacity 
+                onPress={formik.handleSubmit}
+                className="my-4 mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg">
                   <Text className="font-bold text-center text-black">  {
                 applanguage==="eng"?Translations.eng.delete_account:Translations.arb.delete_account
               }</Text>
                 </TouchableOpacity>
+              </ScrollView>
               </View>
             </RBSheet>
           );

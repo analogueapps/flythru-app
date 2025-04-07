@@ -11,7 +11,7 @@ import dp from "../../../assets/images/dpfluthru.jpg"
 import call from "../../../assets/images/call.png"
 import hash from "../../../assets/images/hash.png"
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BOOKING_DETAILS } from "../../../network/apiCallers";
+import { BOOKING_DETAILS, VERIFY_ORDER } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
@@ -39,20 +39,47 @@ const bookingdetails = () => {
       console.log("Fetching details for bookingId:", bookingId);
       const res = await BOOKING_DETAILS(bookingId, token);
       console.log("API Response:", res.data);
+      console.log("bookingid : ", bookingId)
+
       setBookingData(res.data); 
     } catch (error) {
       // console.error("Error fetching booking details:", error?.response?.data || error);
       toast.show(error?.response?.data?.message || "Failed to fetch booking details");
     }
   };
+
+  const verifyotp = async (orderId , baggageId , userId,) => {
+      try {
+        const res = await VERIFY_ORDER(orderId , baggageId , userId,);
+        console.log("Response address", res.data);
+  
+        if (res.data) {
+          console.log(res.data);
+        } else {
+          console.log("Unexpected response format:", res);
+          console.log([]);
+        }
+      } catch (error) {
+        console.log("Error verifying ", error);
+        console.log([]);
+      }
+    };
   
   
-  useEffect(() => {
-    if (bookingId) {
-      fetchBookingDetails(); 
-    }
-  }, [bookingId]);
-  
+    
+    useEffect(()=>{
+      verifyotp()
+    },[])
+
+
+    useEffect(() => {
+      if (bookingId) {
+        fetchBookingDetails(); 
+        console.log("bookingid : ", bookingId)
+
+      }
+    }, [bookingId]);
+    
 
   return (
     <View className="flex-1">
@@ -120,17 +147,17 @@ const bookingdetails = () => {
               </Text>
             </View> 
 
-            {fromSelectLocation && (
+           
               <>
                 <View className="flex-1 h-[1px] border-t border-dashed border-[#00000026] relative" />
                 <View className="flex-row justify-between">
                   <Text className="text-[#164F90] text-xl">{
                 applanguage==="eng"?Translations.eng.total_paid:Translations.arb.total_paid
               }</Text>
-                  <Text className="text-[#164F90] text-xl font-bold">₹500</Text>
+                  <Text className="text-[#164F90] text-xl font-bold">{bookingData?.price}</Text>
                 </View>
               </>
-            )}
+           
           </View>
 
           <View className="flex flex-row justify-between items-center my-7 gap-2">
@@ -162,7 +189,7 @@ const bookingdetails = () => {
               source={verticalline}
               className="h-36"
               resizeMode="contain"
-            />
+            /> 
 
           <View className="flex-col gap-5">
             <View className="flex-col gap-3">
@@ -211,7 +238,7 @@ const bookingdetails = () => {
 
        {/* Modify Slot Button */}
       {/* Conditionally Render Buttons */}
-{fromSelectLocation ? (
+{/* {isFromSelectLocation ? (
     // Show "Go Back" button if coming from select location
     <TouchableOpacity
         onPress={() => router.push("/home")}
@@ -238,7 +265,37 @@ onPress={() => // Example navigation code
                 applanguage==="eng"?Translations.eng.modify_slot:Translations.arb.modify_slot
               }        </Text>
     </TouchableOpacity>
+)} */}
+
+{isFromSelectLocation ? (
+    <TouchableOpacity
+        onPress={() => router.back()}
+        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
+    >
+        <Text className="text-center text-black font-semibold">
+        {
+            applanguage==="eng"?Translations.eng.go_back:Translations.arb.go_back
+        }
+        </Text>
+    </TouchableOpacity>
+) : (
+    <TouchableOpacity
+        onPress={() => 
+            router.push({
+                pathname: "/activities/cancellation",
+                params: { bookingId: bookingId }, // ✅ use actual bookingId
+            })
+        }
+        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
+    >
+        <Text className="text-center text-black font-semibold">
+        {
+            applanguage==="eng"?Translations.eng.cancelslot:Translations.arb.cancelslot
+        }
+        </Text>
+    </TouchableOpacity>
 )}
+
 
         </ScrollView>
        

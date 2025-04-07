@@ -59,6 +59,10 @@ const selectlocation = () => {
     const [pickupdate, setPickupdate] = useState([]);
     const [pickuploaction, setPickuploaction] = useState([]);
     const [paymentUrl, setPaymentUrl] = useState(null);
+    const [oderid, setOrderid] = useState({});
+    const [userId, setUserid] = useState({});
+    const [baggageid, setBaggageid] = useState({});
+
 
 
 
@@ -75,9 +79,10 @@ const selectlocation = () => {
   
     const handleLocationChange = (text) => {
       formik.setFieldValue("pickUpLocation", text);
-      
+    
       if (text.length > 0) {
         const filtered = addresses.filter(address => 
+          typeof address === "string" &&
           address.toLowerCase().includes(text.toLowerCase())
         );
         setFilteredAddresses(filtered);
@@ -85,9 +90,8 @@ const selectlocation = () => {
       } else {
         setShowSuggestions(false);
       }
-    }
+    };
     
-
     
     // Fetch address list
     useEffect(() => {
@@ -140,18 +144,20 @@ const selectlocation = () => {
         personsCount: parsedPersonsCount,
         baggageCount: parsedBaggageCount,
         baggagePictures: parsedBaggagePictures,
+        // successUrl: "flythru://paymentsuccess",  
+        // errorUrl: "flythru://paymentfailed",  
       };
       console.log("values CREATE ORDER", requestData);
 
       await paymentApi(requestData);
     },
   });
-
+ 
 
   // pament api handler
 
   const paymentApi = async (values) => {
-    const token = await AsyncStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem("authToken"); 
 
     if (!token) {
       toast.show("No token found. Please log in."); 
@@ -189,6 +195,7 @@ const selectlocation = () => {
         return name;
       } else {
         console.log('No user name found.');
+        router.push("/profile/editprofile")
         return '';
       }
     } catch (error) {
@@ -202,7 +209,7 @@ const selectlocation = () => {
         setUserName(name);
     };
     fetchUserName();
-}, []);
+}, []); 
 
   const handlelocation = () => {
     return (
@@ -273,7 +280,7 @@ const selectlocation = () => {
                     : Translations.arb.drop_off}{" "}
                 </Text>
                 <Text className="text-lg">
-                  4372 Romano Street, Bedford, 01730 
+                  Airport
                 </Text>
               </View>
             </View>
@@ -302,15 +309,21 @@ const selectlocation = () => {
               }}
               onSwipeSuccess={() => {
                 console.log("Booking Confirmed!");
-            
-                if (paymentUrl) {
-                  Linking.openURL(paymentUrl).catch((err) =>
-                    console.error("Failed to open URL:", err)
-                  );
-                } else {
-                  console.error("No payment URL found");
-                }
-              }}
+                router.push("/activities/bookingdetails")
+              }
+            }
+
+          //   onSwipeSuccess={() => {
+          //     console.log("Booking Confirmed!");
+          //     if (paymentUrl) {
+          //       Linking.openURL(paymentUrl).catch((err) =>
+          //         console.error("Failed to open URL:", err)
+          //       );
+          //     } else {
+          //       console.error("No payment URL found");
+          //     }
+          //   }
+          // }
             />
           </View>
         </View>
@@ -466,11 +479,11 @@ const selectlocation = () => {
               longitudeDelta: 0.01,
             }}
           >
-            {latitude && longitude && (
+            {/* {latitude && longitude && (
               <Marker
                 coordinate={{ longitude: longitude, latitude: latitude }}
               />
-            )}
+            )} */}
           </MapView>
         ) : (
           <Text>Loading Map...</Text> // Show a placeholder while location is being fetched

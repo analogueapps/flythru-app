@@ -151,6 +151,7 @@ const baggage = () => {
           personsCount: String(values.personsCount),
           baggageCount: String(values.baggageCount),
           baggagePictures: JSON.stringify(values.baggagePictures),
+         flightData: JSON.stringify(flight) 
         },
       });
     },

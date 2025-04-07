@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ALL_SERVICES } from "../../../network/apiCallers";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
+import { router } from "expo-router";
 
 const Index = () => {
     const insets = useSafeAreaInsets();
@@ -78,13 +79,13 @@ const Index = () => {
                             <View className="gap-2 px-4">
                                 {typeof service.description === 'string'
                                     ? service.description.split('\r\n').map((line, index) => (
-                                        <View key={index} className="flex-row items-center">
+                                        <View key={index} className="flex-row items-start">
                                             <Image
                                                 source={miniplane}
-                                                className="h-5 w-5 mr-2"
+                                                className="h-5 w-5 mr-2 mt-1"
                                                 resizeMode="contain"
                                             />
-                                            <Text className="text-[#515151] text-base font-light">
+                                            <Text className="text-[#515151] text-base font-light w-[98%]">
                                                 {line}
                                             </Text>
                                         </View>
@@ -96,6 +97,7 @@ const Index = () => {
                             <TouchableOpacity
                                 className="bg-[#FFB800] rounded-xl py-4 mt-4 shadow-md active:opacity-80"
                                 activeOpacity={0.8}
+                                onPress={()=>router.push("/home")}
                             >
                                 <Text className="text-center text-black font-semibold text-lg">
                                 {
