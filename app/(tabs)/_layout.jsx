@@ -21,6 +21,7 @@ const _layout = () => {
     "/home/notificationdetail",
     "/home/selectlocation",
     "/home/slots",
+    "/home/paymentsuccess",
     "/activities/bookingdetails",
     "/activities/cancellation",
     "/profile/notification",
@@ -46,7 +47,7 @@ const _layout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#000000",
+        tabBarActiveTintColor: "#164F90",
         tabBarInactiveTintColor: "#9B9E9F",
         tabBarHideOnKeyboard: true,
         tabBarStyle: shouldHideTabs
@@ -76,6 +77,7 @@ const _layout = () => {
 <Tabs.Screen
         name="services"
         options={{
+      
           headerShown: false,
           tabBarLabel:
           applanguage === "eng"

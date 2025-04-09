@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -26,6 +26,8 @@ const feedback = () => {
     const [selectedStars, setSelectedStars] = useState(0); 
     const toast = useToast()
     const { applanguage } = langaugeContext()
+    const [userName, setUserName] = useState('');
+
 
 
     // Function to update stars based on user click
@@ -72,7 +74,28 @@ const feedback = () => {
       }
     };
     
-    
+    const getUserName = async () => {
+      try {
+        const name = await AsyncStorage.getItem('user_name');
+        if (name !== null) {
+          console.log('Retrieved user name:', name);
+          return name;
+        } else {
+          console.log('No user name found.');
+          return '';
+        }
+      } catch (error) {
+        console.error('Failed to retrieve the user name:', error);
+        return '';
+      }
+    };
+    useEffect(() => {
+      const fetchUserName = async () => {
+          const name = await getUserName();
+          setUserName(name);
+      };
+      fetchUserName();
+  }, []);
   
   return (
     <View className="flex-1">
@@ -110,7 +133,7 @@ const feedback = () => {
 
       <View className="px-7 flex-col gap-8">
         <View className="flex flex-row justify-between items-center">
-        <Text className="font-bold text-[#050505] text-2xl">Nike</Text>
+        <Text className="font-bold text-[#050505] text-2xl">{userName}</Text>
         <View className="flex-row my-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <TouchableOpacity key={index} onPress={() => handleStarPress(index)}>

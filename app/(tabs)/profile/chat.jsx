@@ -1,83 +1,55 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React from "react";
-import images from "../../../constants/images";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
-import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
-import dp from "../../../assets/images/dpfluthru.jpg"
-import { Calendar } from "lucide-react-native";
-import Send from "../../../assets/svgs/send";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, ActivityIndicator } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
 
+const Chat = () => {
+  const [loading, setLoading] = useState(true);
 
-const chat = () => {
-
-    const insets = useSafeAreaInsets();
-  
   return (
-    <View className="flex-1">
-    {/* Header Background Image */}
-    <View> 
-      <Image
-        source={images.HeaderImg}
-        className="w-full h-auto relative"
-        style={{ resizeMode: "cover" }}
-      />
-    </View>
-    <View
-      style={{
-        top: insets.top,
-        zIndex: 1,
-      }}
-      className="p-6 absolute w-full mt-5"
-    >
-      <View className="flex-row  items-center">
-       
-       <View className="flex-row  items-center">
-                 <TouchableOpacity
-                   onPress={() => router.back()}
-                   className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
-                 >
-                   <ChevronLeft color="black" size={18} />
-                 </TouchableOpacity>
-                 <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>Chat</Text>
-               </View>
-      </View>
-     
-    </View>
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-
-        <View className="w-full">
-            <View className="bg-white p-3 m-3 w-[80%] rounded-lg">
-            <Text>This is a message sent by the priya. You were invited to the event of her birthday!</Text> 
-            <Text className="text-right text-[#00000066] text-sm mt-2"> 11.14 AM</Text>           
-            </View>
-
-            <View className="bg-white p-3 m-3 w-[80%] ml-20 rounded-lg">
-            <Text>This is a message sent by the priya. You were invited to the event of her birthday!</Text> 
-            <Text className=" text-[#00000066] text-sm mt-2"> 11.14 AM</Text>           
-           
-            </View>
-
-        </View>
-
-     
-    </ScrollView>
-<View className="px-2 py-5 bg-white flex-row justify-between items-center w-full">
-
-        <TextInput
-        placeholder="Write your comment..."
-        className="p-2 w-[90%]"
+    <SafeAreaView className="flex-1">
+      <StatusBar style="dark" backgroundColor="white" />
+      <View style={styles.container}>
+        {/* Show loader when loading is true */}
+        <WebView
+          source={{
+            uri: "https://tawk.to/chat/67c935007390f819097769cb/1ilkve2kk",
+          }}
+          style={{ flex: 1 }}
+          onLoadStart={() => setLoading(true)} // Show loader when loading starts
+          onLoadEnd={() => setLoading(false)} // Hide loader when loading ends
         />
-        <Send/>
-
-        </View>
-    
-
-  </View>
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={styles.loadingText}>Loading...</Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
 
-export default chat;
- 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // Optional: Adds a light background
+    padding: 20,
+    borderRadius: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
+
+export default Chat;

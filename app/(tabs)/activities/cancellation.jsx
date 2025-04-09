@@ -34,7 +34,7 @@ const cancellation = () => {
 
   const formik = useFormik({
     initialValues: {
-      reasonForCancellation: "",
+      reasonForCancellation: "", 
     }, 
     validationSchema: cancellationSchema(applanguage),
     validateOnChange: true,

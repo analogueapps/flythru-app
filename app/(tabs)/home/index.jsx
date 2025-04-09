@@ -89,8 +89,10 @@ const Index = () => {
  
   const formik = useFormik({
     initialValues: {
-      departureDate: "2025-03-29",
+      departureDate: "",
       flightNumber: "",
+      city:"PPI",
+      airPortName:""
     },
     validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
@@ -102,6 +104,8 @@ const Index = () => {
         params: {
           departureDate: values.departureDate,
           flightNumber: values.flightNumber,
+          city:values.city,
+          airPortName:values.airPortName
         },
       });
     },
@@ -209,15 +213,45 @@ const Index = () => {
           className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
           placeholderTextColor="#2D2A29"
         />
+
+<TextInput
+          placeholder={
+            applanguage === "eng"
+              ? Translations.eng.enterairportname
+              : Translations.arb.enterairportname
+          }   
+          onChangeText={formik.handleChange("airPortName")}
+          onBlur={formik.handleBlur("airPortName")}
+          value={formik.values.airPortName}
+          name="airPortName"
+          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+          placeholderTextColor="#2D2A29"
+        />
+
+<TextInput
+          placeholder={
+            applanguage === "eng"
+              ? Translations.eng.entercity
+              : Translations.arb.entercity
+          }   
+          onChangeText={formik.handleChange("city")}
+          onBlur={formik.handleBlur("city")}
+          value={formik.values.city}
+          name="city"
+          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+          placeholderTextColor="#2D2A29"
+        />
         <TouchableOpacity
        onPress={async () => {
         await formik.validateForm(); // Validate form
-        const { departureDate, flightNumber } = formik.values;
+        const { departureDate, flightNumber , airPortName , city } = formik.values;
     
-        if (!departureDate && !flightNumber) {
+        if (!departureDate && !flightNumber && !airPortName && !city) {
           formik.setErrors({
             departureDate: "Please fill at least one field",
             flightNumber: "Please fill at least one field",
+            airPortName: "Please fill at least one field",
+            city: "Please fill at least one field"
           });
           toast.show("Please fill in at least one field");
         } else {
@@ -235,7 +269,7 @@ const Index = () => {
       </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
-        <View className="flex-1 items-center justify-center mt-28 mx-6">
+        <View className="flex-1 items-center justify-center mt-42 mx-6">
           {/* Ad Card */}
           <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
              {  applanguage==="eng"?Translations.eng.ad:Translations.arb.ad
@@ -251,7 +285,7 @@ const Index = () => {
                 >
                   <Image
                     source={{
-                      uri: `http://192.168.29.75:2001/${banner?.bannerPicture}`,
+                      uri: `http://flythru.net/${banner?.bannerPicture}`,
                     }} // Use full URL
                     className="h-[100px] w-full mb-3 rounded-xl"
                     resizeMode="cover"

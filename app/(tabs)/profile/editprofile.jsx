@@ -15,6 +15,7 @@ import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import editprofileSchema from "../../../yupschema/editProfileSchema";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const editprofile = () => {
@@ -43,6 +44,35 @@ const editprofile = () => {
         router.push("/profile");
       },
     });
+
+    const saveUserName = async (name) => {
+      if (name) { // Check if name is not null or undefined
+        try {
+          await AsyncStorage.setItem('user_name', name);
+          console.log('User name saved successfully');
+        } catch (error) {
+          console.error('Error saving user name:', error);
+        }
+      } else {
+        console.error('Invalid name: Cannot save null or undefined value');
+      }
+    };
+
+    const saveUserData = async (name, phoneNumber) => {
+      try {
+        if (name) {
+          await AsyncStorage.setItem("user_name", name);
+        }
+        if (phoneNumber) {
+          await AsyncStorage.setItem("user_phone", phoneNumber);
+        }
+        console.log("User data saved successfully");
+      } catch (error) {
+        console.error("Error saving user data:", error);
+      }
+    };
+    
+    
     
     useEffect(() => {
       if (userEmail) {
@@ -64,14 +94,37 @@ const editprofile = () => {
         const res = await EDIT_PROFILE(values , token); 
         console.log(res.data.message);
         toast.show(res.data.message)
+
+          // Update formik values after save
+    formik.setValues(values); 
+    await saveUserData(values.name , values.phoneNumber); // persist updated name
+    
       } catch (error) {
         console.log("Error sending code:", error?.response);
       }
     };
-
-    useEffect(()=>{
-      
-    },[])
+    
+    useEffect(() => {
+      const loadProfileData = async () => {
+        try {
+          const storedName = await AsyncStorage.getItem("user_name");
+          const storedPhone = await AsyncStorage.getItem("user_phone");
+    
+          if (storedName) {
+            formik.setFieldValue("name", storedName);
+          }
+    
+          if (storedPhone) {
+            formik.setFieldValue("phoneNumber", storedPhone);
+          }
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      };
+    
+      loadProfileData();
+    }, []);
+    
 
   return (
     <View className="flex-1">
@@ -184,7 +237,7 @@ const editprofile = () => {
     </ScrollView>
 
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
-    onPress={() => formik.handleSubmit()}>
+    onPress={() =>{saveUserName(formik.values.name); formik.handleSubmit()}}>
             <Text className="font-bold text-center text-black "> {
                 applanguage==="eng"?Translations.eng.save:Translations.arb.save
               }</Text>

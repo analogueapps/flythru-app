@@ -125,6 +125,9 @@ const Translations = {
     total: "Total",
     home: "Home",
     search: "Search",
+    entercity:"Enter City",
+    enterairportname:"Enter Airport Name ",
+    cancelslot:"Cancel Slot",
 
     // Placeholders
 
@@ -149,6 +152,7 @@ const Translations = {
     pick_up_timings: "Pick Up Timings",
     pick_up_location: "Pick Up Location",
     write_your_comment: "Write your comment...",
+
 
   },
   arb: {
@@ -275,6 +279,10 @@ const Translations = {
     select_location: "اختر الموقع",
     total: "الإجمالي",
     search: "بحث",
+    enterairportname:"أدخل المدينة",
+    entercity:" أدخل اسم المطار",
+    cancelslot:"إلغاء الموعد ",
+
 
     // placeholder
 

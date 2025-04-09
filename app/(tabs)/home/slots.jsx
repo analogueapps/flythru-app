@@ -26,7 +26,8 @@ const slots = () => {
   const [selected, setSelected] = React.useState("");
   const [timeslot, setTimeslots] = useState([]);
   const { flightData } = useLocalSearchParams();
-  const flight = flightData;
+  
+  const flight = JSON.parse(flightData);
   const [depDate, setdepDate] = useState("");
   const { applanguage } = langaugeContext();
 
@@ -96,7 +97,7 @@ const slots = () => {
 
   useEffect(() => {
     alltimeslots();
-    // console.log("flightsaaaaaa////////////",flight)
+    console.log("flightsaaaaaa////////////",flight)
   }, []);
 
   useFocusEffect(useCallback(()=>
@@ -108,7 +109,7 @@ const slots = () => {
 
   const formik = useFormik({
     initialValues: {
-      date: "2025-03-29",
+      date: "2025-04-09",
       time: "",
     },
     validationSchema: slotsSchema(applanguage),
@@ -222,8 +223,8 @@ const slots = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">HYD</Text>
-            <Text className="text-white">{flight?.startingFrom}</Text>
+            <Text className="text-2xl font-bold text-white"> {flight?.departure?.iata ?? "--"}</Text>
+            <Text className="text-white"> city 1</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -235,11 +236,11 @@ const slots = () => {
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">DUB</Text>
-            <Text className="text-white">{flight?.ending}</Text>
+            <Text className="text-2xl font-bold text-white"> {flight?.arrival?.iata ?? "--"}</Text>
+            <Text className="text-white"> city 2</Text>
           </View>
         </View>
-        <Text className="text-white text-center mt-4">Date : 05/05/2025</Text>
+        {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
       </View>
 
       <View
@@ -280,14 +281,21 @@ const slots = () => {
               />
             </TouchableOpacity>
 
-            {showDatePicker && depDate instanceof Date && !isNaN(depDate) && (
+            {showDatePicker && (
   <DateTimePicker
-    value={depDate}
+    value={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure a valid date is used
     mode="date"
-    minimumDate={depDate}
-    maximumDate={depDate}
+    minimumDate={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure valid min date
+    maximumDate={depDate instanceof Date && !isNaN(depDate) ? depDate : undefined}
     display="default"
-    onChange={handleDateChange}
+    onChange={(event, selectedDate) => {
+      setShowDatePicker(false); // Close the picker after selecting a date
+      if (selectedDate) {
+        const formattedDate = selectedDate.toISOString().split("T")[0];
+        setSelectedDate(formattedDate);
+        formik.setFieldValue("date", formattedDate);
+      }
+    }}
   />
 )}
 

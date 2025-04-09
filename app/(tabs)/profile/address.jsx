@@ -20,8 +20,18 @@ const Address = () => {
 
   // Fetch Addresses
   const fetchAddress = async () => {
+
+    const token = await AsyncStorage.getItem('authToken');
+    console.log("Token:", token);
+  
+    if (!token) {
+      toast.show("No token found. Please log in.");
+      return;
+    }
+  
+
     try {
-      const res = await ALL_ADDRESS();
+      const res = await ALL_ADDRESS(token);
       console.log("Response address", res.data);
 
       if (res?.data?.addresses && Array.isArray(res.data.addresses)) {
