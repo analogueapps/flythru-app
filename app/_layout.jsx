@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SplashScreen from "expo-splash-screen";
 import { NotificationProvider } from "../UseContext/notifications";
+import { NetworkProvider } from "../UseContext/NetworkContext";
 
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
@@ -60,24 +61,30 @@ const _layout = () => {
 
   // Normal app flow after the flash screen
   return (
-    <NotificationProvider>
-      <LanguageContext>
-        <AuthProvider>
-          <ToastProvider
-            placement="bottom"
-            animationType="slide-in"
-            animationDuration={250}
-          >
-            <Stack>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="fatoorah" options={{ headerShown: false }} />
-              {/* <Stack.Screen name="index" /> */}
-            </Stack>
-          </ToastProvider>
-        </AuthProvider>
-      </LanguageContext>
-    </NotificationProvider>
+    <NetworkProvider>
+      <NotificationProvider>
+        <LanguageContext>
+          <AuthProvider>
+            <ToastProvider
+              placement="bottom"
+              animationType="slide-in"
+              animationDuration={250}
+            >
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="fatoorah"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen name="nointernet" options={{headerShown:false}}/>
+                {/* <Stack.Screen name="index" /> */}
+              </Stack>
+            </ToastProvider>
+          </AuthProvider>
+        </LanguageContext>
+      </NotificationProvider>
+    </NetworkProvider>
   );
 };
 

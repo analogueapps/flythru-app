@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -10,12 +10,67 @@ import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
+import { NOTIFICATION } from "../../../network/apiCallers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "react-native-toast-notifications";
 
 
 const notification = () => {
 
     const insets = useSafeAreaInsets();
     const { applanguage } = langaugeContext()
+    const [notifications , setNotifications] = useState([])
+    const toast = useToast()
+
+    //  const fetchNotifications = async () => {
+    //       const token = await AsyncStorage.getItem('authToken');
+    //       if (!token) {
+    //         toast.show("No token found. Please log in.");
+    //         return;
+    //       }
+        
+    //       try {
+    //         const res = await NOTIFICATION(token);
+    //         console.log("notiofications Response:", res.data);
+    //         setNotifications(res.data.userNotifications || [])
+    //         console.log("notifications", notifications)
+    //       } catch (error) {
+    //         console.error("Error fetching notifications:", error);
+    //         toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+    //       }
+    //     };
+
+    const fetchNotifications = async () => {
+      const userId = await AsyncStorage.getItem("userId"); // <-- get userId here
+      try {
+        const res = await NOTIFICATION(userId);
+console.log("Full response:", res);
+
+if (res?.data?.userNotifications) {
+  setNotifications(res.data.userNotifications);
+} else {
+  console.log("No notifications found in response");
+  setNotifications([]); // fallback
+}
+
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+      }
+    };
+    
+    
+
+        useEffect(() => {
+          fetchNotifications();
+        }, []);
+        
+
+        useEffect(() => {
+          console.log("notifications", notifications)
+
+        }, [notifications]);
+    
 
   
   return (
@@ -51,7 +106,7 @@ const notification = () => {
      
     </View>
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-
+{/* 
     {Array.from({ length: 5 }).map((_, index) => (
 
         <TouchableOpacity key={index} className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
@@ -64,8 +119,32 @@ const notification = () => {
             </View>
             <Text>a days ago</Text>
         </TouchableOpacity>
-                  ))}
+                  ))} */}
 
+{notifications.length > 0 ? (
+  notifications.map((notif, index) => (
+    <TouchableOpacity
+      key={notif._id || index}
+      className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
+      onPress={() =>
+        router.push({
+          pathname: "/home/notificationdetail",
+          params: {
+            bookingId: notif.data?.bookingId,
+          },
+        })
+      }
+    >
+      <View className="w-[300px]">
+        <Text className="text-lg font-bold">{notif.title}</Text>
+        <Text>{notif.body}</Text>
+      </View>
+      <Text>{notif.data?.daysAgo || "Just now"}</Text>
+    </TouchableOpacity>
+  ))
+) : (
+  <Text className="text-center text-gray-500">No notifications available</Text>
+)}
 
       
      

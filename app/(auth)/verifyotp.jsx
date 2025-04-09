@@ -58,7 +58,7 @@ const verifyotp = () => {
     }
   };
 
-   useFocusEffect(useCallback(()=>
+   useFocusEffect(useCallback(()=> 
     {
       getToken()
     },[]))

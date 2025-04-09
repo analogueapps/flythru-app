@@ -36,6 +36,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DELETE_ACCOUNT } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import delaccSchema from "../../../yupschema/delaccYupSchema";
+import { useToast } from "react-native-toast-notifications";
 
 // import { Alert, Button } from "react-native";
 
@@ -90,6 +91,7 @@ const index = () => {
   const logoutrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");  
   const { applanguage } = langaugeContext()
+  const toast = useToast()
   const router = useRouter();
 const [otherReason, setOtherReason] = useState(""); // for text input
 
@@ -99,11 +101,11 @@ const [otherReason, setOtherReason] = useState(""); // for text input
       reasonForDeleteAccount: "",
     },
     validationSchema: delaccSchema(applanguage),
-    validateOnChange: true,
+    validateOnChange: true, 
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values CREATE ORDER", values);
-    
+      
       await deleteaccount(values);
     },
   });
@@ -119,12 +121,13 @@ const [otherReason, setOtherReason] = useState(""); // for text input
   
     try {
       const res = await DELETE_ACCOUNT(values, token);
-      console.log(res.data.message);
+      console.log(res);
+      router.push("/(auth)")
       toast.show(res.data.message);  
       
     } catch (error) {
-      console.log("Error sending code:", error?.response);
-      setApiErr(error?.response?.data?.message || "error occured");
+      console.log("Error sending code:", error?.response?.data?.message);
+      toast.show(error?.response?.data?.message || "error occured");
     }
   };
 

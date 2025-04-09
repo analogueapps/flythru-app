@@ -42,6 +42,7 @@ const Index = () => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const widthAnim = useRef(new Animated.Value(0)).current;
   const toast = useToast();
+  const [fcm,setFcm]=useState("")
   const { setUserEmail, SaveMail } = useAuth();
   const { applanguage } = langaugeContext();
   const [showPassword, setShowPassword] = useState(false);
@@ -127,6 +128,20 @@ const Index = () => {
     ]).start();
   };
 
+    useFocusEffect(useCallback(()=> 
+      {
+        getToken()
+      },[]))
+      const getToken = async () => {
+        try {
+          const fcmToken = await registerForPushNotificationsAsync();
+          console.log("fcm", fcmToken);
+          setFcm(fcmToken);
+        } catch (error) {
+          console.error("Push notification error:", error);
+        }
+      };
+
   // signup handler
 
   const formik = useFormik({
@@ -171,8 +186,8 @@ const Index = () => {
       // email: "",
       // password: "",
 
-      email: "naveendaraboina88@gmail.com",
-      password: "Lahari@123.",
+      email: "tarunok@gmail.com",
+      password: "Tarun@12",
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -189,8 +204,13 @@ const Index = () => {
   });
 
   const LoginHandler = async (values) => {
+    const data={
+      email:values.email,
+      password:values.password,
+      fcmToken:fcm
+    }
     try {
-      const res = await LOGIN_API(values);
+      const res = await LOGIN_API(data,values);
       console.log("Login successful", res.data);
       router.push("/home");
       toast.show(res.data.message);
@@ -264,7 +284,7 @@ const Index = () => {
               <Pressable
                 onPress={() => animateTab("signup")}
                 style={{
-                  backgroundColor:
+                  backgroundColor: 
                     activeTab === "signup" ? "#164E8D" : "#E3F8F9",
                 }}
                 className="items-center py-3 rounded-r-full"
@@ -275,8 +295,8 @@ const Index = () => {
                   }`}
                 >
                   {applanguage === "eng"
-                    ? Translations.eng.sign_in
-                    : Translations.arb.sign_in}
+                    ? Translations.eng.sign_up
+                    : Translations.arb.sign_up}
                 </Text>
               </Pressable>
             </Animated.View>

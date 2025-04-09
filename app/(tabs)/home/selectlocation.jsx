@@ -40,7 +40,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import selectlocationSchema from "../../../yupschema/selectLocationSchema";
-import { debounce } from "lodash";
+import SelectDropdown from 'react-native-select-dropdown'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 const selectlocation = () => {
@@ -54,65 +55,73 @@ const selectlocation = () => {
   const longitude = Number(useExpoLocation().longitude);
   const latitude = Number(useExpoLocation().latitude);
   const { applanguage } = langaugeContext();
-    const [userName, setUserName] = useState('');
-    const [price, setPrice] = useState([]);
-    const [pickupdate, setPickupdate] = useState([]);
-    const [pickuploaction, setPickuploaction] = useState([]);
-    const [paymentUrl, setPaymentUrl] = useState(null);
-    const [oderid, setOrderid] = useState({});
-    const [userId, setUserid] = useState({});
-    const [baggageid, setBaggageid] = useState({});
-
-
-
-
+  const [userName, setUserName] = useState("");
+  const [price, setPrice] = useState([]);
+  const [pickupdate, setPickupdate] = useState([]);
+  const [pickuploaction, setPickuploaction] = useState([]);
+  const [paymentUrl, setPaymentUrl] = useState(null);
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
   const parsedBaggagePictures = baggagePictures
     ? JSON.parse(decodeURIComponent(baggagePictures))
     : [];
+    
+  const [addresses, setAddresses] = useState([]);
+  const [filteredAddresses, setFilteredAddresses] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [orderId, setOrderId] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [baggageId, setBaggageId] = useState(null);
 
+  const emojisWithIcons = [
+    {title: 'happy'},
+    {title: 'cool'},
+    {title: 'lo'},
+    {title: 'sa'},
+    {title: 'cr'},
+    {title: 'angry'},
+    {title: 'confused'},
+    {title: 'excited'},
+    {title: 'devil'},
+    {title: 'wink'},
+    {title: 'sick'},
+    {title: 'frown'},
+  ];
 
-    const [addresses, setAddresses] = useState([]);
-    const [filteredAddresses, setFilteredAddresses] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-  
-    const handleLocationChange = (text) => {
-      formik.setFieldValue("pickUpLocation", text);
-    
-      if (text.length > 0) {
-        const filtered = addresses.filter(address => 
-          typeof address === "string" &&
-          address.toLowerCase().includes(text.toLowerCase())
-        );
-        setFilteredAddresses(filtered);
-        setShowSuggestions(true);
-      } else {
-        setShowSuggestions(false);
-      }
-    };
-    
-    
-    // Fetch address list
-    useEffect(() => {
-      const fetchAddresses = async () => {
-        try {
-          const res = await ALL_ADDRESS();
-          if (res?.data?.addresses && Array.isArray(res.data.addresses)) {
-            console.log("addresses" , res?.data?.addresses)
-            setAddresses(res.data.addresses);
-          } else {
-            setAddresses([]);
-          }
-        } catch (error) {
-          console.log("Error fetching addresses:", error);
-          setAddresses([]);
-        }
-      };
-  
-      fetchAddresses();
-    }, []);
-  
+  // const handleLocationChange = (text) => {
+  //   formik.setFieldValue("pickUpLocation", text);
+
+  //   if (text.length > 0) {
+  //     const filtered = addresses.filter(address =>
+  //       typeof address === "string" &&
+  //       address.toLowerCase().includes(text.toLowerCase())
+  //     );
+  //     setFilteredAddresses(filtered);
+  //     setShowSuggestions(true);
+  //   } else {
+  //     setShowSuggestions(false);
+  //   }
+  // };
+
+  // Fetch address list
+  // useEffect(() => {
+  //   const fetchAddresses = async () => {
+  //     try {
+  //       const res = await ALL_ADDRESS();
+  //       if (res?.data?.addresses && Array.isArray(res.data.addresses)) {
+  //         console.log("addresses" , res?.data?.addresses)
+  //         setAddresses(res.data.addresses);
+  //       } else {
+  //         setAddresses([]);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching addresses:", error);
+  //       setAddresses([]);
+  //     }
+  //   };
+
+  //   fetchAddresses();
+  // }, []);
 
   useEffect(() => {
     console.log("slotssssssss", "date :", date);
@@ -127,7 +136,7 @@ const selectlocation = () => {
 
   const formik = useFormik({
     initialValues: {
-      pickUpLocation: "",
+      pickUpLocation: "Bhilai",
       pickUpTimings: time,
     },
     validationSchema: selectlocationSchema(applanguage),
@@ -144,41 +153,78 @@ const selectlocation = () => {
         personsCount: parsedPersonsCount,
         baggageCount: parsedBaggageCount,
         baggagePictures: parsedBaggagePictures,
-        // successUrl: "flythru://paymentsuccess",  
-        // errorUrl: "flythru://paymentfailed",  
+        // successUrl: "flythru://paymentsuccess",
+        // errorUrl: "flythru://paymentfailed",
       };
       console.log("values CREATE ORDER", requestData);
 
       await paymentApi(requestData);
     },
   });
- 
 
   // pament api handler
 
+  // const paymentApi = async (values) => {
+  //   const token = await AsyncStorage.getItem("authToken");
+
+  //   if (!token) {
+  //     toast.show("No token found. Please log in.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await PAYEMNT_API(values, token);
+  //     console.log(res.data.message);
+  //     console.log(res);
+  //     setPrice(res.data.price)
+  //     setPickupdate(res.data.date)
+  //     setPickuploaction(res.data.baggage.pickUpLocation)
+  //     toast.show(res.data.message);
+  //     setPaymentUrl(res.data.paymentUrl);  // Store URL from backend
+  //     console.log("URLLLLLL", paymentUrl )
+
+  //   } catch (error) {
+  //     console.log("Error sending code:", error?.response);
+  //     setApiErr(error?.response?.data?.message || "error occured");
+  //   }
+  // };
+
   const paymentApi = async (values) => {
-    const token = await AsyncStorage.getItem("authToken"); 
+    const token = await AsyncStorage.getItem("authToken");
 
     if (!token) {
-      toast.show("No token found. Please log in."); 
+      toast.show("No token found. Please log in.");
       return;
     }
 
     try {
       const res = await PAYEMNT_API(values, token);
-      console.log(res.data.message);
-      console.log(res);    
-      setPrice(res.data.price)  
-      setPickupdate(res.data.date)  
-      setPickuploaction(res.data.baggage.pickUpLocation)
-      toast.show(res.data.message);
-      setPaymentUrl(res.data.paymentUrl);  // Store URL from backend
-      console.log("URLLLLLL", paymentUrl )
 
-      
+      console.log("Payment API Response:", res.data);
+
+      const orderIdFromRes = res.data.orderId;
+      const userIdFromRes = res.data.baggage?.userId;
+      const baggageIdFromRes = res.data.baggage?.id;
+
+      setPrice(res.data.price);
+      setPickupdate(res.data.date);
+      setPickuploaction(res.data.baggage.pickUpLocation);
+      setOrderId(orderIdFromRes);
+      setUserId(userIdFromRes);
+      setBaggageId(baggageIdFromRes);
+      setPaymentUrl(res.data.paymentUrl);
+
+      // Log here after extracting directly
+      console.log("okieeeeeeeeeeeeeee", {
+        orderId: orderIdFromRes,
+        userId: userIdFromRes,
+        baggageId: baggageIdFromRes,
+      });
+
+      toast.show(res.data.message);
     } catch (error) {
       console.log("Error sending code:", error?.response);
-      setApiErr(error?.response?.data?.message || "error occured");
+      setApiErr(error?.response?.data?.message || "error occurred");
     }
   };
 
@@ -186,30 +232,29 @@ const selectlocation = () => {
     console.log(date, time);
   }, [date, time]);
 
-    
   const getUserName = async () => {
     try {
-      const name = await AsyncStorage.getItem('user_name');
+      const name = await AsyncStorage.getItem("user_name");
       if (name !== null) {
-        console.log('Retrieved user name:', name);
+        console.log("Retrieved user name:", name);
         return name;
       } else {
-        console.log('No user name found.');
-        router.push("/profile/editprofile")
-        return '';
+        console.log("No user name found.");
+        router.push("/profile/editprofile");
+        return "";
       }
     } catch (error) {
-      console.error('Failed to retrieve the user name:', error);
-      return '';
+      console.error("Failed to retrieve the user name:", error);
+      return "";
     }
   };
   useEffect(() => {
     const fetchUserName = async () => {
-        const name = await getUserName();
-        setUserName(name);
+      const name = await getUserName();
+      setUserName(name);
     };
     fetchUserName();
-}, []); 
+  }, []);
 
   const handlelocation = () => {
     return (
@@ -250,7 +295,9 @@ const selectlocation = () => {
                   : Translations.arb.total}{" "}
                 : {price}
               </Text>
-              <Text>{pickupdate} {time} </Text>
+              <Text>
+                {pickupdate} {time}{" "}
+              </Text>
             </View>
           </View>
 
@@ -268,9 +315,7 @@ const selectlocation = () => {
                     ? Translations.eng.pick_up
                     : Translations.arb.pick_up}{" "}
                 </Text>
-                <Text className="text-lg">
-                  {pickuploaction}
-                </Text>
+                <Text className="text-lg">{pickuploaction}</Text>
               </View>
 
               <View className="flex-col gap-3">
@@ -279,9 +324,7 @@ const selectlocation = () => {
                     ? Translations.eng.drop_off
                     : Translations.arb.drop_off}{" "}
                 </Text>
-                <Text className="text-lg">
-                  Airport
-                </Text>
+                <Text className="text-lg">Airport</Text>
               </View>
             </View>
           </View>
@@ -307,23 +350,40 @@ const selectlocation = () => {
                 width: "95%", // Ensure the button is wide enough
                 alignSelf: "center", // Center it horizontally
               }}
+              //   onSwipeSuccess={() => {
+              //     console.log("Booking Confirmed!");
+              //     router.push("/activities/bookingdetails")
+              //   }
+              // }
+
               onSwipeSuccess={() => {
                 console.log("Booking Confirmed!");
-                router.push("/activities/bookingdetails")
-              }
-            }
 
-          //   onSwipeSuccess={() => {
-          //     console.log("Booking Confirmed!");
-          //     if (paymentUrl) {
-          //       Linking.openURL(paymentUrl).catch((err) =>
-          //         console.error("Failed to open URL:", err)
-          //       );
-          //     } else {
-          //       console.error("No payment URL found");
-          //     }
-          //   }
-          // }
+                if (orderId && userId && baggageId) {
+                  router.push({
+                    pathname: "/activities/bookingdetails",
+                    params: {
+                      orderId,
+                      userId,
+                      baggageId,
+                    },
+                  });
+                } else {
+                  toast.show("Missing booking details. Please try again.");
+                }
+              }}
+
+              //   onSwipeSuccess={() => {
+              //     console.log("Booking Confirmed!");
+              //     if (paymentUrl) {
+              //       Linking.openURL(paymentUrl).catch((err) =>
+              //         console.error("Failed to open URL:", err)
+              //       );
+              //     } else {
+              //       console.error("No payment URL found");
+              //     }
+              //   }
+              // }
             />
           </View>
         </View>
@@ -331,6 +391,9 @@ const selectlocation = () => {
     );
   };
 
+  useEffect(() => {
+    console.log("pickUpLocation updated:", formik.values.pickUpLocation);
+  }, [formik.values.pickUpLocation]);
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -367,66 +430,71 @@ const selectlocation = () => {
         </View>
       </View>
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
+        
+
+      <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+
+      <SelectDropdown
+    data={emojisWithIcons}
+    onSelect={(selectedItem, index) => {
+      console.log(selectedItem, index);
+    }}
+    renderButton={(selectedItem, isOpened) => {
+      return (
+        <View style={styles.dropdownButtonStyle}>
+          {selectedItem && (
+            <Icon name={selectedItem.icon} style={styles.dropdownButtonIconStyle} />
+          )}
+          <Text style={styles.dropdownButtonTxtStyle}>
+            {(selectedItem && selectedItem.title) || 'Select your mood'}
+          </Text>
+          <Icon name={isOpened ? 'chevron-up' : 'chevron-down'} style={styles.dropdownButtonArrowStyle} />
+        </View>
+      );
+    }}
+    renderItem={(item, index, isSelected) => {
+      return (
+        <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
+          <Icon name={item.icon} style={styles.dropdownItemIconStyle} />
+          <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
+        </View>
+      );
+    }}
+    showsVerticalScrollIndicator={false}
+    dropdownStyle={styles.dropdownMenuStyle}
+  />
+
+</View>
+
+
         <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
-        <TextInput
-  placeholder={
-    applanguage === "eng"
-      ? Translations.eng.pick_up_location
-      : Translations.arb.pick_up_location
-  }
-  className="flex-1 h-[30px]"
-  onChangeText={handleLocationChange}  // Use the new handler here
-  onFocus={() => {
-    if (formik.values.pickUpLocation.length > 0) {
-      setShowSuggestions(true);
-    }
-  }}
-  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Small delay to allow selection
-  value={formik.values.pickUpLocation}
-  placeholderTextColor="#2D2A29"
-  
-/>
-<Ionicons
+          <TextInput
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.pick_up_location
+                : Translations.arb.pick_up_location
+            }
+            className="flex-1 h-[30px]"
+            placeholderTextColor="#2D2A29"
+            value={formik.values.pickUpLocation}
+            onChangeText={(text) => {
+              formik.setFieldValue("pickUpLocation", text);
+                         }}
+          
+          />
+
+
+
+          <Ionicons
             name="search-outline"
             size={26}
             color="#194F90"
             className="bg-[#194F901A] p-2 rounded-xl"
           />
 
-{showSuggestions && filteredAddresses.length > 0 && (
-  <View className="absolute top-16 left-0 right-0 z-50 bg-white border border-gray-300 rounded-xl max-h-60 overflow-hidden">
-    <FlatList
-      data={filteredAddresses}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          className="p-3 bg-white border-b border-gray-200"
-          onPress={() => {
-            formik.setFieldValue("pickUpLocation", item);
-            setShowSuggestions(false);
-          }}
-        >
-          <Text className="text-black">{item}</Text>
-        </TouchableOpacity>
-      )}
-    />
-  </View>
-)}
-</View>
+        </View>
 
-        {/* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
-          <TextInput
-            placeholder="Drop Off Location"
-            className="flex-1 h-[30px]"
-            onChangeText={formik.handleChange("dropOffLocation")}
-            onBlur={formik.handleBlur("dropOffLocation")}
-            value={formik.values.dropOffLocation}
-            placeholderTextColor="#2D2A29"
-          />
-<Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
-        </View> */}
-
-        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+        <View  className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${showSuggestions?"-z-10 ":""}`}>
           <TextInput
             placeholder={
               applanguage === "eng"
@@ -449,9 +517,10 @@ const selectlocation = () => {
         <TouchableOpacity
           onPress={() => {
             formik.handleSubmit();
-            
-            locationrefRBSheet.current.open()}}
-          className="bg-[#FFB800] rounded-lg py-4 mt-2"
+
+            locationrefRBSheet.current.open();
+          }}
+          className={`bg-[#FFB800] rounded-lg py-4 mt-2 ${showSuggestions?"-z-10":""}`}
         >
           <Text className="text-center text-black font-semibold text-base">
             {applanguage === "eng"
@@ -516,3 +585,17 @@ const styles = StyleSheet.create({
 //     latitudeDelta: 0.1,
 //     longitudeDelta: 0.1,
 //   }}
+
+{
+  /* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+    <TextInput
+      placeholder="Drop Off Location"
+      className="flex-1 h-[30px]"
+      onChangeText={formik.handleChange("dropOffLocation")}
+      onBlur={formik.handleBlur("dropOffLocation")}
+      value={formik.values.dropOffLocation}
+      placeholderTextColor="#2D2A29"
+    />
+  <Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
+  </View> */
+}

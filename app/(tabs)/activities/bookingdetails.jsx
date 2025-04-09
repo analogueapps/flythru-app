@@ -21,11 +21,13 @@ import verticalline from "../../../assets/images/verticalline.png";
 const bookingdetails = () => {
   const insets = useSafeAreaInsets();
   const { fromSelectLocation = "false" } = useLocalSearchParams();
+  const { userId, orderId, baggageId, bookingId } = useLocalSearchParams();
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
     const [bookingData , setBookingData] = useState() 
-  const { bookingId } = useLocalSearchParams(); 
+  // const { bookingId } = useLocalSearchParams(); 
   const toast = useToast()
     const { applanguage } = langaugeContext()
+
 
 
   const fetchBookingDetails = async () => {
@@ -48,7 +50,7 @@ const bookingdetails = () => {
     }
   };
 
-  const verifyotp = async (orderId , baggageId , userId,) => {
+  const verifyOrder = async (orderId , baggageId , userId,) => {
       try {
         const res = await VERIFY_ORDER(orderId , baggageId , userId,);
         console.log("Response address", res.data);
@@ -58,7 +60,7 @@ const bookingdetails = () => {
         } else {
           console.log("Unexpected response format:", res);
           console.log([]);
-        }
+        } 
       } catch (error) {
         console.log("Error verifying ", error);
         console.log([]);
@@ -67,9 +69,12 @@ const bookingdetails = () => {
   
   
     
-    useEffect(()=>{
-      verifyotp()
-    },[])
+    useEffect(() => {
+      if (userId && orderId && baggageId) {
+        verifyOrder(orderId, baggageId, userId);
+      }
+    }, [userId, orderId, baggageId]);
+    
 
 
     useEffect(() => {

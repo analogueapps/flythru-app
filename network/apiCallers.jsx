@@ -127,15 +127,10 @@ export const BOOKING_DETAILS = async (bookingId, token) => {
   });
 };
 
-export const NOTIFICATION = async (bookingId, token ) => {
-  console.log("FETCHING BOOKING DETAILS:", bookingId);
+export const NOTIFICATION = async (userId ) => {
+  console.log("FETCHING NOTIFICATIONS USERID:", userId);
 
-  return await axios.get(`${LOCAL_URL}/notification/userNotification`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+  return await axios.get(`${LOCAL_URL}/usernotifications/${userId}`);
 };
 
 export const ACTIVITIES = async (token) => {
@@ -165,6 +160,8 @@ export const DELETE_ACCOUNT = async (data, token) => {
     },
   });
 };
+
+
 
 export const VERIFY_ORDER = async (orderId , baggageId , userId, token) => {
   console.log("verify params details", orderId , baggageId , userId );
@@ -238,9 +235,16 @@ export const CONTACT_US = async () => {
   return await axios.get(`${LOCAL_URL}/allcontactus`, {});
 };
 
-export const ALL_ADDRESS = async () => {
+export const ALL_ADDRESS = async (token) => {
   console.log("Fetched All address");
-  return await axios.get(`${LOCAL_URL}/user/alladdress`);
+  return await axios.get(`${LOCAL_URL}/user/alladdresses`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+
+  );
 };
 
 export const ALL_TIME_SLOTS = async (data) => {
