@@ -54,7 +54,7 @@ const AddressSuggestionBox = () => {
       />
 
       {/* Dropdown Suggestions */}
-      {showDropdown && filteredAddresses.length > 0 && (
+      {/* {showDropdown && filteredAddresses.length > 0 && (
         <ul className="absolute w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
           {filteredAddresses.map((addr, index) => (
             <li
@@ -69,7 +69,7 @@ const AddressSuggestionBox = () => {
             </li>
           ))}
         </ul>
-      )}
+      )} */}
 
       {/* No Results */}
       {showDropdown && filteredAddresses.length === 0 && (

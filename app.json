@@ -14,14 +14,21 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.aits.flythru",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
               "com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"
             ]
+          },
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"
+            ]
           }
-        ]
+        ],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

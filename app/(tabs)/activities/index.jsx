@@ -68,7 +68,7 @@ const index = () => {
       </View>
      
     </View>
-    {/* <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+    <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
 
       <Text className="text-xl mb-4">{
                 applanguage==="eng"?Translations.eng.active_bookings:Translations.arb.active_bookings
@@ -124,7 +124,7 @@ const index = () => {
           </View>
         </View>
       ))}
-    </ScrollView> */}
+    </ScrollView> 
 
 <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
   <Text className="text-xl mb-4">

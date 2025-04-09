@@ -44,14 +44,14 @@ const _layout = () => {
           name="notificationdetail"
           options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
         />
-        <Stack.Screen
+        {/* <Stack.Screen
           name="selectlocation"
           options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
         />
          <Stack.Screen
           name="paymentsuccess"
           options={{ gestureEnabled: true, animation: "slide_from_right" , tabBarStyle: { display: "none" },}}
-        />
+        /> */}
       </Stack>
       <StatusBar style="light" backgroundColor="transparent" />
     </>

@@ -61,7 +61,7 @@ const _layout = () => {
 
   // Normal app flow after the flash screen
   return (
-    <NetworkProvider>
+    // <NetworkProvider>
       <NotificationProvider>
         <LanguageContext>
           <AuthProvider>
@@ -73,10 +73,10 @@ const _layout = () => {
               <Stack>
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
+                {/* <Stack.Screen
                   name="fatoorah"
                   options={{ headerShown: false }}
-                />
+                /> */}
                 <Stack.Screen name="nointernet" options={{headerShown:false}}/>
                 {/* <Stack.Screen name="index" /> */}
               </Stack>
@@ -84,7 +84,7 @@ const _layout = () => {
           </AuthProvider>
         </LanguageContext>
       </NotificationProvider>
-    </NetworkProvider>
+    // </NetworkProvider>
   );
 };
 

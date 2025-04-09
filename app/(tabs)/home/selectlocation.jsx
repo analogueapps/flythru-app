@@ -28,11 +28,11 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import verticalline from "../../../assets/images/verticalline.png";
 import { router, useLocalSearchParams } from "expo-router";
 import dp from "../../../assets/images/dp2flythru.jpeg";
-import MapView, { Marker, Polyline } from "react-native-maps";
+// import MapView, { Marker, Polyline } from "react-native-maps";
 import useExpoLocation from "../../../customhooks/useExpolocation";
 import RBSheet from "react-native-raw-bottom-sheet";
 import Swiperarrow from "../../../assets/svgs/swiperarrow";
-import mapimg from "../../../assets/images/mapimg.jpg";
+// import mapimg from "../../../assets/images/mapimg.jpg";
 import { ALL_ADDRESS, PAYEMNT_API } from "../../../network/apiCallers";
 import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
@@ -536,7 +536,7 @@ const selectlocation = () => {
         
 
         </ScrollView> */}
-      <View style={styles.mapContainer}>
+      {/* <View style={styles.mapContainer}>
         {longitude && latitude ? (
           <MapView
             style={styles.map}
@@ -548,16 +548,12 @@ const selectlocation = () => {
               longitudeDelta: 0.01,
             }}
           >
-            {/* {latitude && longitude && (
-              <Marker
-                coordinate={{ longitude: longitude, latitude: latitude }}
-              />
-            )} */}
+            
           </MapView>
         ) : (
           <Text>Loading Map...</Text> // Show a placeholder while location is being fetched
         )}
-      </View>
+      </View> */}
 
       {/* <Image source={mapimg} className="h-full " /> */}
     </View>
@@ -599,3 +595,8 @@ const styles = StyleSheet.create({
   <Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
   </View> */
 }
+{/* {latitude && longitude && (
+              <Marker
+                coordinate={{ longitude: longitude, latitude: latitude }}
+              />
+            )} */}
