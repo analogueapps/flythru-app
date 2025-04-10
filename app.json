@@ -14,11 +14,15 @@
     },
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.aits.flythru",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.17898xxxxxx-xxxxxqhqj0exxxxxpl03xxx"
+              "com.googleusercontent.apps.1027382214254-128dgqp4tv02end2s6t600v02egliede"
             ]
           }
         ]
@@ -52,6 +56,13 @@
       "expo-router",
       "@react-native-google-signin/google-signin",
       "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#ffffff"
+        }
+      ],
       [
         "expo-location",
         {

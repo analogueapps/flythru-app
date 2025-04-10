@@ -6,7 +6,7 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -56,12 +56,19 @@ const cancellation = () => {
       const res = await CANCELLATION(values, token , bookingId);
       console.log(res.data.message);
       toast.show(res.data.message);
+      console.log("booking details" , bookingId);
+
       
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Invalid OTP");
     }
   };
+
+  useEffect(()=>{
+    console.log("booking details" , bookingId);
+      
+  },[])
 
   return (
     <View className="flex-1">

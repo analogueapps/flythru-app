@@ -20,6 +20,7 @@ const notification = () => {
     const insets = useSafeAreaInsets();
     const { applanguage } = langaugeContext()
     const [notifications , setNotifications] = useState([])
+    const [notiId , setNotiId] = useState({})
     const toast = useToast()
 
     //  const fetchNotifications = async () => {
@@ -41,13 +42,14 @@ const notification = () => {
     //     };
 
     const fetchNotifications = async () => {
-      const userId = await AsyncStorage.getItem("userId"); // <-- get userId here
+      const userId = await AsyncStorage.getItem("authUserId"); // <-- get userId here
       try {
         const res = await NOTIFICATION(userId);
 console.log("Full response:", res);
 
 if (res?.data?.userNotifications) {
   setNotifications(res.data.userNotifications);
+  setNotiId(res.data.userNotifications.body)
 } else {
   console.log("No notifications found in response");
   setNotifications([]); // fallback
@@ -58,14 +60,9 @@ if (res?.data?.userNotifications) {
         toast.show(error?.response?.data?.message || "Failed to fetch notifications");
       }
     };
-    
-    
-
         useEffect(() => {
           fetchNotifications();
         }, []);
-        
-
         useEffect(() => {
           console.log("notifications", notifications)
 
@@ -130,7 +127,7 @@ if (res?.data?.userNotifications) {
         router.push({
           pathname: "/home/notificationdetail",
           params: {
-            bookingId: notif.data?.bookingId,
+            notifId: notif._id, 
           },
         })
       }

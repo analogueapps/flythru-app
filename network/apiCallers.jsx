@@ -33,13 +33,23 @@ const saveToken = async (token) => {
   }
 };
 
+const saveUserId = async (userId) => {
+  try {
+    await AsyncStorage.setItem("authUserId", userId);
+  } catch (error) {
+    console.log("Error saving token:", error);
+  }
+};
+
 export const SIGN_UP_API = async (data) => {
   try {
     const res = await axios.post(`${LOCAL_URL}/user/register`, data);
     const token = res?.data?.token;
+    const userId = res?.data?.userId
 
-    if (token) {
+    if (token && userId) {
       await saveToken(token);
+      await saveUserId(userId);
     }
 
     return res;
@@ -53,9 +63,11 @@ export const LOGIN_API = async (data) => {
   try {
     const res = await axios.post(`${LOCAL_URL}/user/login`, data);
     const token = res?.data?.token;
+    const userId = res?.data?.userId
 
-    if (token) {
+    if (token && userId) {
       await saveToken(token);
+      await saveUserId(userId);
     }
 
     return res;
@@ -83,14 +95,18 @@ export const RESEND_OTP = async (token) => {
   });
 };
 
-export const CANCELLATION = async (data, token) => {
-  console.log();
-  return await axios.post(`${LOCAL_URL}/payment/cancelbooking`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const CANCELLATION = async (data, token, bookingId) => {
+  return await axios.post(
+    `${LOCAL_URL}/payment/cancelbooking`,
+    { ...data, bookingId }, // 👈 Combine data and bookingId in the body
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
+
 
 export const EDIT_PROFILE = async (data, token) => {
   console.log();

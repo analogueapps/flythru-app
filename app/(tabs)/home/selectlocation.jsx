@@ -72,6 +72,7 @@ const selectlocation = () => {
   const [orderId, setOrderId] = useState(null);
   const [userId, setUserId] = useState(null);
   const [baggageId, setBaggageId] = useState(null);
+  
 
   const emojisWithIcons = [
     {title: 'happy'},
@@ -88,51 +89,49 @@ const selectlocation = () => {
     {title: 'frown'},
   ];
 
-  // const handleLocationChange = (text) => {
-  //   formik.setFieldValue("pickUpLocation", text);
-
-  //   if (text.length > 0) {
-  //     const filtered = addresses.filter(address =>
-  //       typeof address === "string" &&
-  //       address.toLowerCase().includes(text.toLowerCase())
-  //     );
-  //     setFilteredAddresses(filtered);
-  //     setShowSuggestions(true);
-  //   } else {
-  //     setShowSuggestions(false);
-  //   }
-  // };
 
   // Fetch address list
-  // useEffect(() => {
-  //   const fetchAddresses = async () => {
-  //     try {
-  //       const res = await ALL_ADDRESS();
-  //       if (res?.data?.addresses && Array.isArray(res.data.addresses)) {
-  //         console.log("addresses" , res?.data?.addresses)
-  //         setAddresses(res.data.addresses);
-  //       } else {
-  //         setAddresses([]);
-  //       }
-  //     } catch (error) {
-  //       console.log("Error fetching addresses:", error);
-  //       setAddresses([]);
-  //     }
-  //   };
-
-  //   fetchAddresses();
-  // }, []);
+  
 
   useEffect(() => {
-    console.log("slotssssssss", "date :", date);
-    console.log("slotssssssss", "time :", time);
-    console.log(
-      "baggage details",
-      parsedPersonsCount,
-      parsedBaggageCount,
-      parsedBaggagePictures
-    );
+    const fetchAddresses = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        toast.show("No token found. Please log in.");
+        return;
+      }
+  
+      try {
+        const res = await ALL_ADDRESS(token);
+        const raw = res?.data?.addresses || [];
+  
+        const mapped = raw.map(addr => ({
+          label: `${addr.addressData}, ${addr.city}, ${addr.state}`,
+          value: addr.id, // or addr._id if that's your backend key
+          fullData: addr, // optional, if you want original data
+        }));
+  
+        setAddresses(mapped); // ✅ Clean array now
+      } catch (error) {
+        console.log("Error fetching addresses:", error);
+        setAddresses([]);
+      }
+    };
+  
+    fetchAddresses();
   }, []);
+  
+
+  // useEffect(() => {
+  //   console.log("slotssssssss", "date :", date);
+  //   console.log("slotssssssss", "time :", time);
+  //   console.log(
+  //     "baggage details",
+  //     parsedPersonsCount,
+  //     parsedBaggageCount,
+  //     parsedBaggagePictures
+  //   );
+  // }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -434,35 +433,74 @@ const selectlocation = () => {
 
       <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
 
-      <SelectDropdown
-    data={emojisWithIcons}
-    onSelect={(selectedItem, index) => {
-      console.log(selectedItem, index);
-    }}
-    renderButton={(selectedItem, isOpened) => {
-      return (
-        <View style={styles.dropdownButtonStyle}>
-          {selectedItem && (
-            <Icon name={selectedItem.icon} style={styles.dropdownButtonIconStyle} />
-          )}
-          <Text style={styles.dropdownButtonTxtStyle}>
-            {(selectedItem && selectedItem.title) || 'Select your mood'}
-          </Text>
-          <Icon name={isOpened ? 'chevron-up' : 'chevron-down'} style={styles.dropdownButtonArrowStyle} />
-        </View>
-      );
-    }}
-    renderItem={(item, index, isSelected) => {
-      return (
-        <View style={{...styles.dropdownItemStyle, ...(isSelected && {backgroundColor: '#D2D9DF'})}}>
-          <Icon name={item.icon} style={styles.dropdownItemIconStyle} />
-          <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
-        </View>
-      );
-    }}
-    showsVerticalScrollIndicator={false}
-    dropdownStyle={styles.dropdownMenuStyle}
-  />
+{/* <SelectDropdown
+  data={addresses}
+  onSelect={(selectedItem, index) => {
+    console.log("Selected address:", selectedItem);
+  }}
+  renderButton={(selectedItem, isOpened) => (
+    <View style={styles.dropdownButtonStyle}>
+      <Text style={styles.dropdownButtonTxtStyle}>
+        {(selectedItem && selectedItem.label) || 'Select address'}
+      </Text>
+      <Icon
+        name={isOpened ? 'chevron-up' : 'chevron-down'}
+        style={styles.dropdownButtonArrowStyle}
+      />
+    </View>
+  )}
+  renderItem={(item, index, isSelected) => (
+    <View
+      style={{
+        ...styles.dropdownItemStyle,
+        ...(isSelected && { backgroundColor: '#D2D9DF' }),
+      }}
+    >
+      <Text style={styles.dropdownItemTxtStyle}>{item.label}</Text>
+    </View>
+  )}
+  showsVerticalScrollIndicator={false}
+  dropdownStyle={styles.dropdownMenuStyle}
+/> */}
+
+<SelectDropdown
+  data={addresses}
+  onSelect={(selectedItem, index) => {
+    console.log("Selected address:", selectedItem);
+  }}
+  renderButton={(selectedItem, isOpened) => (
+    <View className="flex-row items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 justify-between my-2">
+      <Text className="text-base text-gray-900 flex-1">
+        {(selectedItem && selectedItem.label) || 'Select address'}
+      </Text>
+      <Icon
+        name={isOpened ? 'chevron-up' : 'chevron-down'}
+        size={16}
+        color="#6B7280"
+        className="ml-2"
+      />
+    </View>
+  )}
+  renderItem={(item, index, isSelected) => (
+    <View
+      className={`px-4 py-3 ${
+        isSelected ? 'bg-gray-200' : 'bg-white'
+      }`}
+    >
+      <Text className="text-base text-gray-900">{item.label}</Text>
+    </View>
+  )}
+  dropdownStyle={{
+    borderRadius: 12,
+    backgroundColor: '#F9FAFB',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+  }}
+  showsVerticalScrollIndicator={false}
+/>
+
+
+
 
 </View>
 

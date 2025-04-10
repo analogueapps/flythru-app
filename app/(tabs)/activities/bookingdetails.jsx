@@ -288,7 +288,8 @@ onPress={() => // Example navigation code
         onPress={() => 
             router.push({
                 pathname: "/activities/cancellation",
-                params: { bookingId: bookingId }, // ✅ use actual bookingId
+                params: { bookingId: bookingId },
+                
             })
         }
         className="border-2 border-[#164F90] rounded-xl py-4 my-5"

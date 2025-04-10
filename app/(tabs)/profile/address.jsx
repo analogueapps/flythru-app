@@ -29,7 +29,6 @@ const Address = () => {
       return;
     }
   
-
     try {
       const res = await ALL_ADDRESS(token);
       console.log("Response address", res.data);

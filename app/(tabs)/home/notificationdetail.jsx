@@ -1,23 +1,57 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import { NOTIFICATION } from "../../../network/apiCallers";
+import { useToast } from "react-native-toast-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const notificationdetail = () => {
 
     const insets = useSafeAreaInsets();
     const { applanguage } = langaugeContext()
+    const { notifId } = useLocalSearchParams(); 
+    const [notification, setNotification] = useState(null);
+        const toast = useToast()
 
-  
+        const fetchNotifications = async () => {
+          const userId = await AsyncStorage.getItem("authUserId");
+          console.log("Fetched userId:", userId); // 👈
+        
+          try {
+            const res = await NOTIFICATION(userId);
+            const notifs = res?.data?.userNotifications || [];
+        
+            console.log("Fetched notifs:", notifs); // 👈
+            console.log("Looking for notifId:", notifId); // 👈
+        
+            const foundNotif = notifs.find((item) => item._id?.trim() === notifId?.trim());
+            console.log("Found notification:", foundNotif); // 👈
+        
+            setNotification(foundNotif);
+          } catch (error) {
+            console.error("Error fetching notification:", error);
+            toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+          }
+        };
+        
+
+        useEffect(()=>{
+          fetchNotifications()
+          console.log("notifId",notifId)
+
+        },[])
+
+        
   return (
     <View className="flex-1">
     {/* Header Background Image */}
@@ -52,13 +86,28 @@ const notificationdetail = () => {
     </View>
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
 
-        <View className="bg-white p-5 mx-7 rounded-lg">
-            <Text className="text-[#1D030099] font-thin text-lg">Your Baggage has been delivered all QR Code is verified. You can confirm from your end to Close the trip. You can use below button to close the trip by verifying your bag once you reached the airpoort.</Text>
-             {/* <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 mb-3">
-                    <Text className="text-center text-black font-bold text-lg">Close the Trip</Text>
-                  </TouchableOpacity> */}
-                    <Text className="text-[#00000033] text-right">11.14 AM</Text>
-        </View>
+        {/* <View className="bg-white p-5 mx-7 rounded-lg">
+            <Text className="text-[#1D030099] font-thin text-lg">
+            {notification?.body || "No details found."}
+            </Text>
+                    <Text className="text-[#00000033] text-right">  
+                        {new Date(notification?.createdAt).toLocaleTimeString() || ""}
+                    </Text>
+        </View> */}
+
+{notification ? (
+  <View className="bg-white p-5 mx-7 rounded-lg">
+    <Text className="text-[#1D030099] font-thin text-lg">
+      {notification.body}
+    </Text>
+    <Text className="text-[#00000033] text-right">
+      {new Date(notification.createdAt).toLocaleTimeString()}
+    </Text>
+  </View>
+) : (
+  <Text className="text-center text-gray-400 mt-10">Loading or notification not found.</Text>
+)}
+
 
    
   
@@ -68,4 +117,7 @@ const notificationdetail = () => {
 };
 
 export default notificationdetail;
- 
+
+{/* <TouchableOpacity className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 mb-3">
+       <Text className="text-center text-black font-bold text-lg">Close the Trip</Text>
+     </TouchableOpacity> */}
