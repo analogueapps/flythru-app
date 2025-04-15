@@ -170,11 +170,11 @@ router.push("/home");
 
   const formik = useFormik({
     initialValues: {
-      // email: "",
-      // password: "",
+      email: "",
+      password: "",
 
-      email: "tarunok@gmail.com",
-      password: "Tarun@12",
+      // email: "tarunok@gmail.com",
+      // password: "Tarun@12",
     },
     validationSchema: signupSchema(applanguage),
     validateOnChange: true,
@@ -210,11 +210,11 @@ router.push("/home");
 
   const loginFormik = useFormik({
     initialValues: {
-      // email: "",
-      // password: "",
+      email: "",
+      password: "",
 
-      email: "tarun99@gmail.com",
-      password: "Tarun@12",
+      // email: "tarun99@gmail.com",
+      // password: "Tarun@12",
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -279,7 +279,7 @@ router.push("/home");
       toast.show(error?.response?.data?.message || error?.response?.data?.errors);
     }
   };
-
+//Rohith Madipelly
   return (
     <SafeAreaView className="flex-1">
 
