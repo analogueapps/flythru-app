@@ -7,7 +7,7 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Delete } from "lucide-react-native";
@@ -42,7 +42,8 @@ import auth, {
   signInWithCredential,
   signOut,
 } from "@react-native-firebase/auth";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useRouter } from "expo-router";
 import { getApp } from "@react-native-firebase/app";
@@ -106,7 +107,36 @@ const index = () => {
   const { applanguage } = langaugeContext();
   const toast = useToast();
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [otherReason, setOtherReason] = useState(""); // for text input
+ 
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const checkLoginStatus = async () => {
+  //       const token = await AsyncStorage.getItem("authToken");
+  //       const skipped = await AsyncStorage.getItem("skippedLogin");
+  //       const isLoggedIn = !!token && skipped !== "true";
+  //       setIsLoggedIn(isLoggedIn);
+  //       console.log("Token:", token, "Skipped:", skipped, "isLoggedIn:", isLoggedIn);
+  //     };
+  
+  //     checkLoginStatus();
+  //   }, [])
+  // );
+
+  const checkLoginStatus = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    console.log("Token in checkLoginStatus:", token); // ✅ debug
+    setIsLoggedIn(!!token);
+  };
+  
+  // useFocusEffect for re-checking when screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      checkLoginStatus();
+    }, [])
+  );
+  
 
   const formik = useFormik({
     initialValues: {
@@ -492,8 +522,8 @@ const index = () => {
               <Editprofile />
               <Text className="text-[#515151] text-xl">
                 {applanguage === "eng"
-                  ? Translations.eng.edit_profile
-                  : Translations.arb.edit_profile}
+                  ? Translations.eng.profile_details
+                  : Translations.arb.profile_details}
               </Text>
             </View>
             <Rightarrow />
@@ -665,19 +695,30 @@ const index = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
-            onPress={() => logoutrefRBSheet.current.open()}
-          >
-            <View className="flex-row gap-3 items-center">
-              <Logout />
-              <Text className="text-[#515151] text-xl">
-                {applanguage === "eng"
-                  ? Translations.eng.logout
-                  : Translations.arb.logout}
-              </Text>
-            </View>
-            <Rightarrow />
-          </TouchableOpacity>
+  className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+  onPress={() => {
+    if (isLoggedIn) {
+      logoutrefRBSheet.current.open(); // open sheet only if logged in
+    } else {
+      router.replace("/(auth)"); // go to auth screen if not logged in
+    }
+  }}
+>
+  <View className="flex-row gap-3 items-center">
+    <Logout />
+    <Text className="text-[#515151] text-xl">
+      {isLoggedIn
+        ? applanguage === "eng"
+          ? Translations.eng.logout
+          : Translations.arb.logout
+        : applanguage === "eng"
+        ? Translations.eng.log_in
+        : Translations.arb.log_in}
+    </Text>
+  </View>
+  <Rightarrow />
+</TouchableOpacity>
+
         </View>
       </ScrollView>
     </View>

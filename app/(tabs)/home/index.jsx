@@ -31,6 +31,9 @@ import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { AllflightSchema } from "../../../yupschema/allFlightSchema";
+import Fromto from "../../../assets/svgs/fromto";
+import HomeCal from "../../../assets/homecalender";
+import Homecal from "../../../assets/homecalender";
 
 
 const Index = () => {
@@ -40,6 +43,16 @@ const Index = () => {
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
+  const [fromValue, setFromValue] = useState("");
+const [toValue, setToValue] = useState("");
+
+// Swap function
+const handleSwap = () => {
+  const temp = fromValue;
+  setFromValue(toValue);
+  setToValue(temp);
+};
+
 
   const toast = useToast();
   const { applanguage } = langaugeContext()
@@ -206,12 +219,12 @@ const Index = () => {
           <TextInput
           placeholder={
             applanguage === "eng"
-              ? Translations.eng.select_date
-              : Translations.arb.select_date
+              ? Translations.eng.departure_date
+              : Translations.arb.departure_date
           }   
             onChangeText={formik.handleChange("departureDate")}
             onBlur={formik.handleBlur("departureDate")}
-            value={formik.values.departureDate}
+            value={formik.values.departureDate} 
             name="departureDate"
             className="flex-1 h-[30px]"
             placeholderTextColor="#2D2A29"
@@ -222,7 +235,7 @@ const Index = () => {
               console.log("calender pressed")
             }}
           > 
-            <Calendar size={20} color="#6B7280" />
+            <Homecal size={24} color="#6B7280" />
           </TouchableOpacity>
         </View>
 
@@ -238,8 +251,8 @@ const Index = () => {
         <TextInput
           placeholder={
             applanguage === "eng"
-              ? Translations.eng.enter_flight_number
-              : Translations.arb.enter_flight_number
+              ? Translations.eng.flight_number
+              : Translations.arb.flight_number
           }   
           onChangeText={formik.handleChange("flightNumber")}
           onBlur={formik.handleBlur("flightNumber")}
@@ -249,33 +262,37 @@ const Index = () => {
           placeholderTextColor="#2D2A29"
         />
 
-{/* <TextInput
-          placeholder={
-            applanguage === "eng"
-              ? Translations.eng.enterairportname
-              : Translations.arb.enterairportname
-          }   
-          onChangeText={formik.handleChange("airPortName")}
-          onBlur={formik.handleBlur("airPortName")}
-          value={formik.values.airPortName}
-          name="airPortName"
-          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-          placeholderTextColor="#2D2A29"
-        /> */}
+<TextInput
+  placeholder={
+    applanguage === "eng"
+      ? Translations.eng.from
+      : Translations.arb.from
+  }
+  value={fromValue}
+  onChangeText={(text) => setFromValue(text)}
+  className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+  placeholderTextColor="#2D2A29"
+/>
 
-{/* <TextInput
-          placeholder={
-            applanguage === "eng"
-              ? Translations.eng.entercity
-              : Translations.arb.entercity
-          }   
-          onChangeText={formik.handleChange("city")}
-          onBlur={formik.handleBlur("city")}
-          value={formik.values.city}
-          name="city"
-          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-          placeholderTextColor="#2D2A29"
-        /> */}
+<TouchableOpacity
+  className="z-[100] absolute right-10 top-[203px]"
+  onPress={handleSwap}
+>
+  <Fromto size={20} color="#6B7280" />
+</TouchableOpacity>
+
+<TextInput
+  placeholder={
+    applanguage === "eng"
+      ? Translations.eng.to
+      : Translations.arb.to
+  }
+  value={toValue}
+  onChangeText={(text) => setToValue(text)}
+  className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+  placeholderTextColor="#2D2A29"
+/>
+
         <TouchableOpacity
        onPress={async () => {
         await formik.validateForm(); // Validate form
@@ -304,7 +321,7 @@ const Index = () => {
       </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
-        <View className="flex-1 items-center justify-center mt-28 mx-6 ">
+        <View className="flex-1 items-center justify-center mt-64 mx-6 ">
     {/* Ad Card */}
 {Array.isArray(banners) && banners.length > 0 && (
   <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
@@ -314,27 +331,7 @@ const Index = () => {
 
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">
-            {/* {Array.isArray(banners) && banners.length > 0 ? (
-              banners.map((banner, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => banner.link && Linking.openURL(banner.link)} // Open link if exists
-                >
-                  <Image
-                    source={{
-                      uri: bannerPicture,
-
-                    }} // Use full URL
-                    className="h-[100px] w-full mb-3 rounded-xl"
-                    resizeMode="cover"
-                  />
-                </TouchableOpacity>
-              ))
-            ) : (
-              <Text className="text-center text-gray-500">
-                No banners available
-              </Text> // Placeholder if empty
-            )} */}
+          
 
 {Array.isArray(banners) && banners.length > 0 ? (
   banners.map((banner, index) => (
@@ -354,7 +351,7 @@ const Index = () => {
 ) : (
  <Image
  source={icongrey}
- className="h-20 mt-20 w-full"
+ className="h-20 mt-24 w-full"
  resizeMode="contain"
  />
 )}

@@ -107,7 +107,7 @@ const addaddress = () => {
         <View className="w-full flex-col gap-5">
           <Text className="w-[90%] m-auto">
           {applanguage==="eng"?Translations.eng.address:Translations.arb.address
-              }<Text className="text-red">*</Text>
+              }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -128,7 +128,7 @@ const addaddress = () => {
 
           <Text className="w-[90%] m-auto">
           {applanguage==="eng"?Translations.eng.city:Translations.arb.city
-              }<Text className="text-red">*</Text>
+              }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -149,7 +149,7 @@ const addaddress = () => {
 
           <Text className="w-[90%] m-auto">
           {applanguage==="eng"?Translations.eng.state:Translations.arb.state
-              }<Text className="text-red">*</Text>
+              }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
@@ -169,7 +169,7 @@ const addaddress = () => {
 
           <Text className="w-[90%] m-auto">
           {applanguage==="eng"?Translations.eng.postal_code:Translations.arb.postal_code
-              }<Text className="text-red">*</Text>
+              }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
             className="bg-white p-3 w-[90%] m-auto rounded-lg"

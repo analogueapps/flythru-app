@@ -35,6 +35,7 @@ import auth, {
 import { useNotification } from "../../UseContext/notifications";
 import { getApp } from "@react-native-firebase/app";
 import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("signup");
@@ -213,7 +214,7 @@ router.push("/home");
       // email: "",
       // password: "",
 
-      email: "tarun99@gmail.com",
+      email: "tarunok@gmail.com",
       password: "Tarun@12",
     },
     validationSchema: loginSchema(applanguage),
@@ -279,11 +280,10 @@ router.push("/home");
       toast.show(error?.response?.data?.message || error?.response?.data?.errors);
     }
   };
-
+// Update code ...
   return (
     <SafeAreaView className="flex-1">
-
-{/* {authPopupVisible && (
+      {/* {authPopupVisible && (
   <View className="absolute top-10 left-5 right-5 bg-white px-4 py-3 rounded-xl shadow-lg border border-[#FFB648] z-50">
     <Text className="text-black text-center font-medium">
       {authPopupMessage}
@@ -291,28 +291,27 @@ router.push("/home");
   </View>
 )} */}
 
-{authPopupVisible && (
-  <View className="absolute top-10 left-4 right-4 bg-white px-4 py-4 rounded-2xl shadow-xl border-l-4 border-[#FFB648] z-50 flex-row items-start space-x-3">
-    {/* Icon */}
-    <View className="mt-1">
-      <AlertTriangle size={24} color="#FFB648" />
-    </View>
+      {authPopupVisible && (
+        <View className="absolute top-10 left-4 right-4 bg-white px-4 py-4 rounded-2xl shadow-xl border-l-4 border-[#FFB648] z-50 flex-row items-start space-x-3">
+          {/* Icon */}
+          <View className="mt-1">
+            <AlertTriangle size={24} color="#FFB648" />
+          </View>
 
-    {/* Message and Close */}
-    <View className="flex-1">
-      <Text className="text-[#08203C] font-semibold text-base mb-1">
-        Authentication Required
-      </Text>
-      <Text className="text-sm text-[#333]">{authPopupMessage}</Text>
-    </View>
+          {/* Message and Close */}
+          <View className="flex-1">
+            <Text className="text-[#08203C] font-semibold text-base mb-1">
+              Authentication Required
+            </Text>
+            <Text className="text-sm text-[#333]">{authPopupMessage}</Text>
+          </View>
 
-    {/* Close Button */}
-    <TouchableOpacity onPress={() => setAuthPopupVisible(false)}>
-      <X size={20} color="#999" />
-    </TouchableOpacity>
-  </View>
-)}
-
+          {/* Close Button */}
+          <TouchableOpacity onPress={() => setAuthPopupVisible(false)}>
+            <X size={20} color="#999" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ScrollView className="flex-1">
         <View className="flex-1 items-center">
@@ -364,7 +363,7 @@ router.push("/home");
               <Pressable
                 onPress={() => animateTab("signup")}
                 style={{
-                  backgroundColor: 
+                  backgroundColor:
                     activeTab === "signup" ? "#164E8D" : "#E3F8F9",
                 }}
                 className="items-center py-3 rounded-r-full"
@@ -469,19 +468,43 @@ router.push("/home");
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
-                  <TouchableOpacity onPress={() => signInWithGoogle()} 
+                  <TouchableOpacity
+                    onPress={() => signInWithGoogle()}
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
-                    >
+                  >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10">Login with Google</Text>
+                    <Text className="font-bold text-lg mr-10">
+                      Login with Google
+                    </Text>
                   </TouchableOpacity>
                   {/* <TouchableOpacity>
                     <SvgApple />
                   </TouchableOpacity> */}
                 </View>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   className="self-center"
                   onPress={() => router.push("/home")}
+                >
+                  <Text className="text-[#0F7BE6] text-lg">
+                    {applanguage === "eng"
+                      ? Translations.eng.skip_login
+                      : Translations.arb.skip_login}
+                  </Text>
+                </TouchableOpacity> */}
+
+                <TouchableOpacity
+                  className="self-center"
+                  onPress={async () => {
+                    // Ensure no token is saved
+                    await AsyncStorage.removeItem("authToken");
+                    await AsyncStorage.removeItem("userId"); // if you're storing userId
+
+                    // Mark as skipped
+                    await AsyncStorage.setItem("skippedLogin", "true");
+
+                    // Navigate to home
+                    router.push("/home");
+                  }}
                 >
                   <Text className="text-[#0F7BE6] text-lg">
                     {applanguage === "eng"
@@ -574,20 +597,36 @@ router.push("/home");
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
                 <View className="flex flex-row items-center justify-center gap-x-8 py-10">
-                <TouchableOpacity onPress={() => signInWithGoogle()} 
+                  <TouchableOpacity
+                    onPress={() => signInWithGoogle()}
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
-                    >
+                  >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10">Signup with Google</Text>
+                    <Text className="font-bold text-lg mr-10">
+                      Signup with Google
+                    </Text>
                   </TouchableOpacity>
                   {/* <TouchableOpacity>
                     <SvgApple />
                   </TouchableOpacity> */}
                 </View>
                 <TouchableOpacity
+
+                
                   className="self-center"
-                  onPress={() => router.push("/home")}
-                >
+                  // onPress={() => router.push("/home")}
+                  onPress={async () => {
+                    // Ensure no token is saved
+                    await AsyncStorage.removeItem("authToken");
+                    await AsyncStorage.removeItem("userId"); // if you're storing userId
+
+                    // Mark as skipped
+                    await AsyncStorage.setItem("skippedLogin", "true");
+
+                    // Navigate to home
+                    router.push("/home");
+                  }}
+>
                   <Text className="text-[#0F7BE6] text-lg">
                     {applanguage === "eng"
                       ? Translations.eng.skip_signin

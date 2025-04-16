@@ -12,6 +12,7 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { ACTIVITIES, BOOKING_DETAILS } from "../../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "react-native-toast-notifications";
 
 
 const index = () => {
@@ -19,6 +20,7 @@ const index = () => {
     const insets = useSafeAreaInsets(); 
     const { applanguage } = langaugeContext()
     const [bookings , setBookings] = useState([])
+    const toast = useToast();
     const fetchActivities = async () => {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
@@ -76,7 +78,7 @@ const index = () => {
   </Text>
 
   {bookings.length === 0 ? (
-    <Text>No bookings found.</Text>
+    <Text className="text-center mt-36">No bookings found.</Text>
   ) : (
     bookings.map((booking) => (
       <View

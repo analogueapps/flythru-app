@@ -157,11 +157,11 @@ const editprofile = () => {
                  <TouchableOpacity
                    onPress={() => router.back()}
                    className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
-                 >
+                 > 
                    <ChevronLeft color="black" size={18} />
                  </TouchableOpacity>
                  <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}> {
-                applanguage==="eng"?Translations.eng.edit_profile:Translations.arb.edit_profile
+                applanguage==="eng"?Translations.eng.profile_details:Translations.arb.profile_details
               }</Text>
                </View>
       </View>
