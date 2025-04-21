@@ -1,26 +1,29 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { ALL_ADDRESS, DELETE_ADDRESS } from "../../../network/apiCallers";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import { ActivityIndicator } from "react-native";
+
 
 const Address = () => {
   const insets = useSafeAreaInsets();
   const [addresses, setAddresses] = useState([]);
   const toast = useToast()
   const { applanguage } = langaugeContext()
+  const [loading, setLoading] = useState(true);
 
 
   // Fetch Addresses
   const fetchAddress = async () => {
-
+    setLoading(true);
     const token = await AsyncStorage.getItem('authToken');
     console.log("Token:", token);
   
@@ -42,6 +45,9 @@ const Address = () => {
     } catch (error) {
       console.log("Error fetching addresses:", error);
       setAddresses([]);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -92,9 +98,12 @@ const Address = () => {
     );
   };
 
-  useEffect(() => {
-    fetchAddress();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchAddress();
+    }, [])
+  );
+  
 
   return (
     <View className="flex-1">
@@ -133,55 +142,42 @@ const Address = () => {
       </View>
 
       {/* Content */}
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-
-      <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
-          <Text className="text-[#164F90] font-bold text-right mx-5">
-          {applanguage==="eng"?Translations.eng.add:Translations.arb.add
-              } +
-          </Text>
-        </TouchableOpacity>
-
-      {addresses.length > 0 ? (
-  addresses.map((address, index) => {
-    console.log("Address object:", address);
-
-
-    return (
-      <View 
-        key={address?.id || index}  // Use address.id instead of _id
-        className="w-full flex-col gap-5"
-      >
-        <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
-          <View>
-            <Text className="text-[#164F90] font-bold">
-                {/* {applanguage==="eng"?Translations.eng.home:Translations.arb.home
-              } */}
-              Home</Text>
-            <Text>{address.addressData}</Text>
-          </View>
-          <TouchableOpacity 
-            onPress={() => {
-              console.log("Deleting address ID:", address.id);
-              if (address.id) handleDelete(address.id);
-            }}
-          >
-            <AntDesign name="delete" size={19} color="red" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  })
+      {loading ? (
+  <View className="flex-1 justify-center items-center">
+    <ActivityIndicator size="large" color="#164F90" />
+  </View>
 ) : (
-  <Text className="text-center text-gray-500">No addresses found.</Text>
+  <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+    <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
+      <Text className="text-[#164F90] font-bold text-right mx-5">
+        {applanguage === "eng" ? Translations.eng.add : Translations.arb.add} +
+      </Text>
+    </TouchableOpacity>
+
+    {addresses.length > 0 ? (
+      addresses.map((address, index) => (
+        <View key={address?.id || index} className="w-full flex-col gap-5">
+          <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
+            <View>
+              <Text className="text-[#164F90] font-bold">Home</Text>
+              <Text className="w-72">{address.addressData}</Text>
+            </View>
+            <TouchableOpacity onPress={() => address.id && handleDelete(address.id)}>
+              <AntDesign name="delete" size={19} color="red" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      ))
+    ) : (
+      <Text className="text-center text-gray-500">
+        {applanguage === "eng"
+          ? Translations.eng.no_address_found
+          : Translations.arb.no_address_found}
+      </Text>
+    )}
+  </ScrollView>
 )}
 
-
-
-
-        {/* Add Address Button */}
-       
-      </ScrollView>
     </View>
   );
 };

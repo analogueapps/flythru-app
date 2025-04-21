@@ -6,6 +6,7 @@ import {
   ScrollView,
   Animated,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
@@ -19,11 +20,15 @@ import { useToast } from "react-native-toast-notifications";
 import ShimmerPlaceHolder, {
   createShimmerPlaceholder,
 } from "react-native-shimmer-placeholder";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import axios from "axios";
 import { LOCAL_URL } from "../../../network/environment";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import flightlogo from "../../../assets/images/flight.png";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
@@ -36,6 +41,27 @@ const Search = () => {
   const { applanguage } = langaugeContext();
   const [specialflightDatas, setSpecialflightDatas] = useState([]);
   const [flightDatas, setFlightDatas] = useState([]);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [showLoginPopup, setShowLoginPopup] = useState(false);
+    const [loginChecked, setLoginChecked] = useState(false);
+
+
+    
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+      console.log("Token in checkLoginStatus:", token);
+      setIsLoggedIn(!!token);
+      setLoginChecked(true); // ✅ ensure login state is ready
+    };
+    
+  
+  // useFocusEffect for re-checking when screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      checkLoginStatus();
+    }, [])
+  );
+  
 
   useEffect(() => {
     if (flights.length > 0) {
@@ -162,8 +188,8 @@ const Search = () => {
             status: error.response?.status,
             data: error.response?.data
           });
-          toast.show(`API Error: ${error.message}`);
-          throw error; // Re-throw to be caught by the Promise chain
+          // toast.show(`API Error: ${error.message}`);
+          // throw error; // Re-throw to be caught by the Promise chain
         });
       };
   
@@ -215,7 +241,7 @@ const Search = () => {
         setFlightDatas(apiFlights || []);
       } catch (error) {
         console.error('Error fetching flights:', error);
-        toast.show('Failed to fetch flights');
+        // toast.show('Failed to fetch flights');
       } finally {
         setLoading(false);
       }
@@ -261,6 +287,48 @@ const Search = () => {
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+
+      <Modal
+        visible={showLoginPopup}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLoginPopup(false)}
+      >
+        <View className="flex-1 bg-black/40 justify-center items-center px-4">
+          <View className="w-[90%] bg-white rounded-2xl p-6 shadow-xl">
+            <Text className="text-xl font-bold text-center mb-2">
+              You're not logged in
+            </Text>
+            <Text className="text-base text-center text-gray-700 mb-5">
+              Would you like to log in now?
+            </Text>
+
+            <View className="flex-row justify-between gap-x-4">
+             
+
+              <TouchableOpacity
+                className="flex-1 bg-gray-200 py-3 rounded-xl"
+                onPress={() => setShowLoginPopup(false)}
+              >
+                <Text className="text-gray-800 font-bold text-center">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 bg-[#FFB648] py-3 rounded-xl"
+                onPress={() => {
+                  setShowLoginPopup(false);
+                  router.replace("/(auth)"); 
+                }}
+              >
+                <Text className="text-black font-bold text-center">Login</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
         {/* Display Date */}
         <View className="flex flex-row gap-x-4 items-center mb-4 mx-auto">
           <Text className="text-[#696969] text-lg">
@@ -398,17 +466,48 @@ const Search = () => {
             {specialflightDatas.map((flight, index) => (
               <TouchableOpacity
                 key={`special-${index}`}
+                // onPress={() => {
+                //   if (!loginChecked) return;
+                //   if (isLoggedIn) {
+                //   router.push({
+                //     pathname: "/home/baggage",
+                //     params: { flightData: JSON.stringify(flight) },
+                //   })}
+                //   else{
+                //     setShowLoginPopup(true)
+
+                //   }
+                // }}
                 onPress={() => {
-                  router.push({
-                    pathname: "/home/baggage",
-                    params: { flightData: JSON.stringify(flight) },
-                  });
+                  console.log("Login checked:", loginChecked);
+                  console.log("Is Logged In:", isLoggedIn);
+                
+                
+                  if (isLoggedIn) {
+                    console.log("Navigating to baggage...");
+                    router.push({
+                      pathname: "/home/baggage",
+                      params: { flightData: JSON.stringify(flight) },
+                    });
+                  } else {
+                    console.log("User not logged in, showing popup");
+                    setShowLoginPopup(true);
+                  }
                 }}
+                
                 className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
               >
                 {/* Flight Header */}
                 <View className="flex-row items-center py-6 px-4">
-                  <TempAirWaysLogo />
+                  {/* <TempAirWaysLogo /> */}
+
+
+                  <View className="w-10 h-10 rounded-full border-[1px] border-[#164F90] justify-center items-center">
+                  <Image
+                  source={flightlogo} className="h-10" resizeMode="contain"
+                  />
+                  </View>
+
                   <View className="ml-2 flex flex-col items-start">
                     <Text className="text-gray-600">{flight.airline?.name || "Unknown Airline"}</Text>
                     <Text className="text-[#164F90] text-lg font-bold">{flight.flight?.number || "N/A"}</Text>
@@ -466,17 +565,46 @@ const Search = () => {
             {flightDatas.map((flight, index) => (
               <TouchableOpacity
                 key={`normal-${index}`}
+                // onPress={() => {
+                //   if (!loginChecked) return;
+                //   if (isLoggedIn) {
+                //   router.push({
+                //     pathname: "/home/baggage",
+                //     params: { flightData: JSON.stringify(flight) },
+                //   })}
+                //   else{
+                //     setShowLoginPopup(true)
+                //   }
+                // }}
+
                 onPress={() => {
-                  router.push({
-                    pathname: "/home/baggage",
-                    params: { flightData: JSON.stringify(flight) },
-                  });
+                  console.log("Login checked:", loginChecked);
+                  console.log("Is Logged In:", isLoggedIn);
+                
+                
+                  if (isLoggedIn) {
+                    console.log("Navigating to baggage...");
+                    router.push({
+                      pathname: "/home/baggage",
+                      params: { flightData: JSON.stringify(flight) },
+                    });
+                  } else {
+                    console.log("User not logged in, showing popup");
+                    setShowLoginPopup(true);
+                  }
                 }}
+                
                 className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
               >
                 {/* Flight Header */}
                 <View className="flex-row items-center py-6 px-4">
-                  <TempAirWaysLogo />
+                  {/* <TempAirWaysLogo /> */}
+
+                  <View className="w-10 h-10 rounded-full border-[1px] border-[#164F90] justify-center items-center">
+                  <Image
+                  source={flightlogo} className="h-10" resizeMode="contain"
+                  />
+                  </View>
                   <View className="ml-2 flex flex-col items-start">
                     <Text className="text-gray-600">
                       {flight.airline?.name || "Unknown Airline"}
@@ -530,7 +658,7 @@ const Search = () => {
           </>
         ) : (
           <View className="h-40 justify-center items-center">
-            <Text className="text-gray-500">No data</Text>
+            <Text className="text-gray-500 text-2xl">No Flights Found</Text>
           </View>
         )}
       </ScrollView>

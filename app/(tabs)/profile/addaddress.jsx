@@ -110,8 +110,13 @@ const addaddress = () => {
               }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
+          maxLength={50}
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
-            onChangeText={formik.handleChange("addressData")}
+            // onChangeText={formik.handleChange("addressData")}
+            onChangeText={(text) => {
+              const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+              formik.setFieldValue("addressData", cleanedText);
+            }}
             onBlur={formik.handleBlur("addressData")}
             value={formik.values.addressData}
             name="addressData"
@@ -121,9 +126,9 @@ const addaddress = () => {
                 : Translations.arb.address_placeholder
             }
           />
-
+ 
           {formik.touched.addressData && formik.errors.addressData && (
-            <Text className="text-red-500">{formik.errors.addressData}</Text>
+            <Text className="text-red-500 w-[90%]  px-3 m-auto">{formik.errors.addressData}</Text>
           )}
 
           <Text className="w-[90%] m-auto">
@@ -131,8 +136,13 @@ const addaddress = () => {
               }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
+          maxLength={20}
+          onChangeText={(text) => {
+            const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+            formik.setFieldValue("city", cleanedText);
+          }}
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
-            onChangeText={formik.handleChange("city")}
+            // onChangeText={formik.handleChange("city")}
             onBlur={formik.handleBlur("city")}
             value={formik.values.city}
             name="city"
@@ -144,7 +154,7 @@ const addaddress = () => {
           />
 
           {formik.touched.city && formik.errors.city && (
-            <Text className="text-red-500">{formik.errors.city}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.city}</Text>
           )}
 
           <Text className="w-[90%] m-auto">
@@ -152,8 +162,13 @@ const addaddress = () => {
               }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
+           onChangeText={(text) => {
+            const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+            formik.setFieldValue("state", cleanedText);
+          }}
+          maxLength={20}
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
-            onChangeText={formik.handleChange("state")}
+            // onChangeText={formik.handleChange("state")}
             onBlur={formik.handleBlur("state")}
             value={formik.values.state}
             name="state"
@@ -164,7 +179,7 @@ const addaddress = () => {
             }          />
 
           {formik.touched.state && formik.errors.state && (
-            <Text className="text-red-500">{formik.errors.state}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.state}</Text>
           )}
 
           <Text className="w-[90%] m-auto">
@@ -172,10 +187,12 @@ const addaddress = () => {
               }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
+          maxLength={5}
+          keyboardType="number-pad"
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
             onChangeText={formik.handleChange("postalCode")}
             onBlur={formik.handleBlur("postalCode")}
-            value={formik.values.postalCode}
+            value={formik.values.postalCode.trim()}
             name="postalCode"
             placeholder={
               applanguage === "eng"
@@ -184,14 +201,19 @@ const addaddress = () => {
             }          />
 
           {formik.touched.postalCode && formik.errors.postalCode && (
-            <Text className="text-red-500">{formik.errors.postalCode}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.postalCode}</Text>
           )}
 
           <Text className="w-[90%] m-auto">{applanguage==="eng"?Translations.eng.location_name:Translations.arb.location_name
               }</Text>
           <TextInput
+          maxLength={50}
+          onChangeText={(text) => {
+            const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+            formik.setFieldValue("locationName", cleanedText);
+          }}
             className="bg-white p-3 w-[90%] m-auto rounded-lg"
-            onChangeText={formik.handleChange("locationName")}
+            // onChangeText={formik.handleChange("locationName")}
             onBlur={formik.handleBlur("locationName")}
             value={formik.values.locationName}
             name="locationName"
@@ -202,7 +224,7 @@ const addaddress = () => {
             }          />
 
           {formik.touched.locationName && formik.errors.locationName && (
-            <Text className="text-red-500">{formik.errors.locationName}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.locationName}</Text>
           )}
         </View>
       </ScrollView>

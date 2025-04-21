@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import React, { useCallback, useContext, useRef, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, } from "react-native";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import OTPinput from "../../components/OTPinput";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
+import flightloader from "../../assets/images/flightload.gif";
+
 import { RESEND_OTP, VERIFY_OTP } from "../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useToast } from "react-native-toast-notifications";
@@ -22,11 +24,63 @@ const verifyotp = () => {
   const [resentOtpMsg, setResentOtpMsg] = useState(false);
   const toast = useToast();
   const { applanguage } = langaugeContext();
+const [loading, setLoading] = useState(false);
 
   const params = useLocalSearchParams();
   const restoken = params.token;
   console.log("Received Token:", restoken);
   const [fcm,setFcm]=useState("")
+
+  const [timer, setTimer] = useState(5);
+  const [isTimerRunning, setIsTimerRunning] = useState(true);
+  
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    translateX.setValue(-30); // Reset position
+  
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 100, // How far to move
+        duration: 3000, // Slower movement
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+  
+  // Run it when loading starts
+  useEffect(() => {
+    if (loading) {
+      startAnimation();
+    } else {
+      translateX.stopAnimation();
+      translateX.setValue(0); // Reset to start
+    }
+  }, [loading]);
+  
+
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setIsTimerRunning(false);
+    }
+  
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timer]);
+  
+  const handleResend = () => {
+    if (isTimerRunning) return; // prevent if still timing
+    setTimer(5);
+    setIsTimerRunning(true);
+    resendOtpHandler(restoken);
+  };
+  
+
 
   const formik = useFormik({
     initialValues: {
@@ -41,22 +95,8 @@ const verifyotp = () => {
   });
 
   const { values, handleSubmit, setFieldValue, errors, touched } = formik;
-
-  const onChangeCode = (text, index) => {
-    setApiErr("");
-    const numericText = text.replace(/[^0-9]/g, "");
-
-    const newCodes = [...codes];
-    newCodes[index] = numericText;
-    setCodes(newCodes);
-
-    setFieldValue("otp", newCodes.join(""));
-
-    // Move to next input
-    if (numericText && index < refs.length - 1) {
-      refs[index + 1].current.focus();
-    }
-  };
+ 
+  
 
    useFocusEffect(useCallback(()=> 
     {
@@ -73,6 +113,8 @@ const verifyotp = () => {
     };
 
   const verifyOtpHandler = async (values) => {
+
+    setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
       toast.show("No token found. Please log in.");
@@ -90,6 +132,10 @@ const verifyotp = () => {
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Invalid OTP");
+    }
+
+    finally{
+      setLoading(false);
     }
   };
 
@@ -116,6 +162,35 @@ const verifyotp = () => {
       setApiErr(error?.response?.data?.message || "Failed to resend OTP");
     }
   };
+
+ 
+
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === "Backspace") {
+      if (codes[index] === "") {
+        const newCodes = [...codes];
+        if (index > 0) {
+          newCodes[index - 1] = "";
+          setCodes(newCodes);
+          setFieldValue("otp", newCodes.join(""));
+          refs[index - 1]?.current?.focus();
+        }
+      }
+    }
+  };
+  
+  const onChangeCode = (text, index) => {
+    const numericText = text.replace(/[^0-9]/g, "");
+    const newCodes = [...codes];
+    newCodes[index] = numericText;
+    setCodes(newCodes);
+    setFieldValue("otp", newCodes.join(""));
+  
+    if (numericText && index < refs.length - 1) {
+      refs[index + 1]?.current?.focus();
+    }
+  };
+  
 
   return (
     <SafeAreaView className="flex-1 bg-white p-6">
@@ -157,11 +232,13 @@ const verifyotp = () => {
 
             {/* OTP Input */}
             <View className="self-start w-full">
-              <OTPinput
+              <OTPinput   
+              
                 codes={codes}
                 refs={refs}
                 errorMessages={errorMessages}
                 onChangeCode={onChangeCode}
+                onKeyPress={handleKeyPress}
               />
 
               {/*  Show Formik error */}
@@ -179,7 +256,7 @@ const verifyotp = () => {
             </View>
 
             {/* Resend OTP */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               className="self-end mt-4"
               onPress={() => resendOtpHandler(restoken)}
             >
@@ -188,19 +265,61 @@ const verifyotp = () => {
                   ? Translations.eng.resend_otp
                   : Translations.arb.resend_otp}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {/*  Trigger Formik submission */}
             <TouchableOpacity
+            disabled={loading}
               onPress={handleSubmit} //  Use handleSubmit instead of router.push
-              className="bg-[#FFB648] rounded-lg py-4 mt-[35%]"
+              className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
             >
-              <Text className="text-center text-[#08203C] font-semibold text-lg">
+               {loading ? (
+    <Animated.View
+    style={{
+      transform: [{ translateX }],
+      width: 100,
+      height: 100,
+      alignSelf: "center",
+    }}
+    
+  >
+    <Image
+      source={flightloader}
+      style={{ width: 100, height: 100 }}
+      resizeMode="contain"
+      
+    />
+  </Animated.View>
+  
+  ) : (
+              <Text className="text-center text-[#08203C] font-bold text-lg">
                 {applanguage === "eng"
                   ? Translations.eng.submit
                   : Translations.arb.submit}
               </Text>
+  )}
             </TouchableOpacity>
+
+            <View className="mt-6 items-center">
+  {isTimerRunning ? (
+    <Text className="text-[#164F90] text-base" style={{ fontFamily: "CenturyGothic" }}>
+      {applanguage === "eng"
+        ? `0.${timer} sec`
+        : `0.${timer} ثانية `}
+    </Text>
+  ) : (
+    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken);
+                                      handleResend}}>
+      <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
+        {applanguage === "eng"
+          ? Translations.eng.resend_otp
+          : Translations.arb.resend_otp}
+      </Text>
+    </TouchableOpacity>
+  )}
+</View>
+
+
           </View>
         </ScrollView>
       </View>

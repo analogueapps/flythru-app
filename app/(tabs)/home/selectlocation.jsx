@@ -43,6 +43,7 @@ import selectlocationSchema from "../../../yupschema/selectLocationSchema";
 import SelectDropdown from 'react-native-select-dropdown'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from "expo-router";
+import * as Location from 'expo-location';
 
 
 
@@ -67,7 +68,8 @@ const selectlocation = () => {
   const parsedBaggagePictures = baggagePictures
     ? JSON.parse(decodeURIComponent(baggagePictures))
     : [];
-    
+    const [markerCoords, setMarkerCoords] = useState(null);
+
   const [addresses, setAddresses] = useState([]);
   const [filteredAddresses, setFilteredAddresses] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -152,6 +154,25 @@ const selectlocation = () => {
 
   // Fetch address list
   
+  const searchLocation = async () => {
+    const text = formik.values.pickUpLocation;
+  
+    if (text.length > 2) {
+      try {
+        const results = await Location.geocodeAsync(text);
+        if (results.length > 0) {
+          const { latitude, longitude } = results[0];
+          setMarkerCoords({ latitude, longitude });
+        }
+      } catch (error) {
+        console.error("Geocoding error:", error);
+      }
+    }
+  };
+
+  const handleLocationInput = (text) => {
+    formik.setFieldValue("pickUpLocation", text);
+  };
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -181,9 +202,6 @@ const selectlocation = () => {
     fetchAddresses();
   }, []);
   
-
- 
-
   const formik = useFormik({
     initialValues: {
       pickUpLocation: "",
@@ -436,35 +454,57 @@ const selectlocation = () => {
 
       <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-1 bg-gray-50">
 
+      <TextInput
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.select_location
+                : Translations.arb.select_location
+            }
+            className="flex-1 h-[30px]"
+            placeholderTextColor="#2D2A29"
+            value={formik.values.pickUpLocation}
+            // onChangeText={(text) => formik.setFieldValue("pickUpLocation", text)}
+            onChangeText={handleLocationInput}
+          />
+       
+
       <SelectDropdown
-  data={addresses}
+  data={addresses.length > 0 ? addresses : [{ label: 'No address found', disabled: true }]}
   onSelect={(selectedItem, index) => {
     formik.setFieldValue("pickUpLocation", selectedItem.label);
   }}
   renderButton={(selectedItem, isOpened) => (
-    <View className="flex-row items-center rounded-xl  bg-gray-50 justify-between my-2">
-      <Text className="text-base text-gray-900 flex-1">
-        {formik.values.pickUpLocation || 'Select address'}
-      </Text>
-      {/* <Icon
+    <View className="flex-row items-center rounded-xl  justify-between my-2">
+     
+      <Icon
         name={isOpened ? 'chevron-up' : 'chevron-down'}
         size={16}
         color="#6B7280"
         className="ml-2"
-      /> */}
+      />
        <Ionicons
             name="search-outline"
             size={26}
             color="#194F90"
+            onPress={searchLocation}
             className="bg-[#194F901A] p-2 rounded-xl"
           />
     </View>
   )}
   renderItem={(item, index, isSelected) => (
     <View
-      className={`px-4 py-3 ${
+      className={`px-4 py-3 w-full ${
         isSelected ? 'bg-gray-200' : 'bg-white'
       }`}
+      dropdownStyle={{
+        borderRadius: 12,
+        backgroundColor: '#F9FAFB',
+        borderColor: '#D1D5DB',
+        borderWidth: 1,
+        width: '100%', // Set to 100% or any custom width based on the desired design
+        maxWidth: '100%' // Prevent it from exceeding the parent container
+      }}
+    
     >
       <Text className="text-base text-gray-900">{item.label}</Text>
     </View>
@@ -477,12 +517,7 @@ const selectlocation = () => {
   }}
   showsVerticalScrollIndicator={false}
 />
-
 </View>
-
-
-       
-
         <View  className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${showSuggestions?"-z-10 ":""}`}>
           <TextInput
             placeholder={
@@ -531,8 +566,8 @@ const selectlocation = () => {
             style={styles.map}
             showsUserLocation={true}
             region={{
-              longitude: longitude,
-              latitude: latitude,
+              latitude: markerCoords?.latitude || latitude,
+              longitude: markerCoords?.longitude || longitude,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
@@ -542,6 +577,13 @@ const selectlocation = () => {
                 coordinate={{ longitude: longitude, latitude: latitude }}
               />
             )} */}
+
+<Marker
+    coordinate={{
+      latitude: markerCoords?.latitude || latitude,
+      longitude: markerCoords?.longitude || longitude,
+    }}
+  />
           </MapView>
         ) : (
           <Text>Loading Map...</Text> // Show a placeholder while location is being fetched

@@ -22,7 +22,7 @@ const RefundPolicy = () => {
       const res = await ALL_SETTINGS();
       console.log("API Response:", res.data);
 
-      // ✅ Extract `refundPolicy` from API
+   
       if (
         res?.data?.allSettings &&
         Array.isArray(res.data.allSettings) &&
@@ -30,10 +30,9 @@ const RefundPolicy = () => {
       ) {
         const settings = res.data.allSettings[0];
         if (settings?.refundPolicy) {
-          // ✅ Replace newlines with HTML breaks
           const formattedContent = settings.refundPolicy.replace(
             /\r\n|\n/g,
-            "<br>"
+            // "<br>"
           );
           setRefundContent(formattedContent);
         } else {

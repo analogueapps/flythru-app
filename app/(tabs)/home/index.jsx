@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import * as Calendarpicker from "expo-calendar";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -24,8 +24,8 @@ import { Calendar } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker"; // Import DateTimePicker
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
-import { ALL_BANNERS, ALL_FLIGHTS } from "../../../network/apiCallers";
+import { router, useFocusEffect } from "expo-router";
+import { ALL_BANNERS, ALL_FLIGHTS, NOTIFICATION } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
@@ -34,6 +34,7 @@ import { AllflightSchema } from "../../../yupschema/allFlightSchema";
 import Fromto from "../../../assets/svgs/fromto";
 import HomeCal from "../../../assets/homecalender";
 import Homecal from "../../../assets/homecalender";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const Index = () => {
@@ -46,6 +47,7 @@ const Index = () => {
   const [fromValue, setFromValue] = useState("");
 const [toValue, setToValue] = useState("");
 
+
 // Swap function
 const handleSwap = () => {
   const temp = fromValue;
@@ -56,6 +58,32 @@ const handleSwap = () => {
 
   const toast = useToast();
   const { applanguage } = langaugeContext()
+
+  useFocusEffect(
+    useCallback(() => {
+      const checkNotificationStatus = async () => {
+        try {
+          const userId = await AsyncStorage.getItem("authUserId");
+          const hasVisited = await AsyncStorage.getItem("hasVisitedNotifications");
+  
+          const res = await NOTIFICATION(userId);
+          console.log("userId", userId);
+          const hasNotifications = res?.data?.userNotifications?.length > 0;
+  
+          if (hasNotifications && hasVisited !== "true") {
+            setHasUnreadNotifications(true);
+          } else {
+            setHasUnreadNotifications(false);
+          }
+        } catch (error) {
+          console.error("Error checking notifications:", error);
+          setHasUnreadNotifications(false);
+        }
+      };
+  
+      checkNotificationStatus();
+    }, [])
+  );
 
 
   useEffect(() => {
@@ -107,7 +135,7 @@ const handleSwap = () => {
  
   const formik = useFormik({
     initialValues: {
-      departureDate: "",
+      departureDate: "2025-04-29",
       flightNumber: "",
    
     },
@@ -215,7 +243,11 @@ const handleSwap = () => {
         </TouchableOpacity>
       </View>
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
-        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+        <TouchableOpacity
+         onPress={() => {setShowDatePicker(true);
+          console.log("calender pressed")
+        }}
+        className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
           <TextInput
           placeholder={
             applanguage === "eng"
@@ -237,7 +269,13 @@ const handleSwap = () => {
           > 
             <Homecal size={24} color="#6B7280" />
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
+
+          {formik.touched.departureDate && formik.errors.departureDate && (
+                          <Text className="text-red-500 w-[90%] mx-auto">
+                            {formik.errors.departureDate}
+                          </Text>
+                        )}
 
         {showDatePicker && (
           <DateTimePicker
@@ -245,10 +283,12 @@ const handleSwap = () => {
           mode="date"
             display="default"
             onChange={handleDateChange}
+            minimumDate={new Date()}
           />
         )}
 
         <TextInput
+        maxLength={8}
           placeholder={
             applanguage === "eng"
               ? Translations.eng.flight_number
@@ -261,6 +301,12 @@ const handleSwap = () => {
           className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
           placeholderTextColor="#2D2A29"
         />
+
+{formik.touched.flightNumber && formik.errors.flightNumber && (
+                          <Text className="text-red-500 w-[90%] mx-auto">
+                            {formik.errors.flightNumber}
+                          </Text>
+                        )}
 
 <TextInput
   placeholder={

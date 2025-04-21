@@ -5,19 +5,19 @@ const addaddresSchema = (applanguage) =>
     addressData: Yup.string()
       .required(
         applanguage === "eng"
-          ? "This field is required"
-          : "هذا الحقل مطلوب"
+          ? "Address is required"
+          : "العنوان مطلوب"
       )
       .min(
-        5,
+        3,
         applanguage === "eng"
-          ? "Address must be at least 5 characters long"
+          ? "Address must be at least 3 characters long"
           : "يجب أن يتكون العنوان من 5 أحرف على الأقل"
       )
       .max(
-        100,
+        50,
         applanguage === "eng"
-          ? "Address cannot exceed 100 characters"
+          ? "Address cannot exceed 50 characters"
           : "لا يمكن أن يتجاوز العنوان 100 حرف"
       )
       .matches(
@@ -40,16 +40,16 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم المدينة على أحرف، مسافات، شرطات، وعلامات اقتباس فقط"
       )
       .min(
-        2,
+        5,
         applanguage === "eng"
-          ? "City must be at least 2 characters long"
-          : "يجب أن يتكون اسم المدينة من حرفين على الأقل"
+          ? "City must be at least 5 characters long"
+          : "يجب أن يتكون اسم المدينة من 5 أحرف على الأقل"
       )
       .max(
-        50,
+        20,
         applanguage === "eng"
-          ? "City cannot exceed 50 characters"
-          : "لا يمكن أن يتجاوز اسم المدينة 50 حرفًا"
+          ? "City cannot exceed 20 characters"
+          : "لا يمكن أن يتجاوز اسم المدينة 20 حرفًا"
       ),
 
     state: Yup.string()
@@ -65,16 +65,16 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم الولاية على أحرف، مسافات، شرطات، وعلامات اقتباس فقط"
       )
       .min(
-        2,
+        5,
         applanguage === "eng"
-          ? "State must be at least 2 characters long"
-          : "يجب أن يتكون اسم الولاية من حرفين على الأقل"
+          ? "State must be at least 5 characters long"
+          : "يجب أن يتكون اسم الولاية من 5 أحرف على الأقل"
       )
       .max(
-        50,
+        20,
         applanguage === "eng"
-          ? "State cannot exceed 50 characters"
-          : "لا يمكن أن يتجاوز اسم الولاية 50 حرفًا"
+          ? "State cannot exceed 20 characters"
+          : "لا يمكن أن يتجاوز اسم الولاية 20 حرفًا"
       ),
 
     postalCode: Yup.string()
@@ -83,24 +83,20 @@ const addaddresSchema = (applanguage) =>
           ? "Postal code is required"
           : "الرمز البريدي مطلوب"
       )
+      
       .matches(
-        /^[a-zA-Z0-9\s\-]+$/,
+        /^[0-9]+$/,
         applanguage === "eng"
-          ? "Postal code can only contain letters, numbers, spaces, and hyphens"
-          : "يمكن أن يحتوي الرمز البريدي على أحرف وأرقام ومسافات وشرطات فقط"
+          ? "Postal code can only contain numbers"
+          : "يمكن أن يحتوي الرمز البريدي على أرقام فقط"
       )
       .min(
-        3,
+        5,
         applanguage === "eng"
-          ? "Postal code must be at least 3 characters long"
-          : "يجب أن يتكون الرمز البريدي من 3 أحرف على الأقل"
+          ? "Postal should be exactly 5 digits"
+          : "يجب أن يتكون الرمز البريدي من 5 أرقام"
       )
-      .max(
-        10,
-        applanguage === "eng"
-          ? "Postal code cannot exceed 10 characters"
-          : "لا يمكن أن يتجاوز الرمز البريدي 10 أحرف"
-      ),
+    ,
 
     locationName: Yup.string()
       .required(
@@ -108,6 +104,14 @@ const addaddresSchema = (applanguage) =>
           ? "Location name is required"
           : "اسم الموقع مطلوب"
       )
+      .matches(/^(?=.*[A-Za-z])[A-Za-z0-9\s]*$/, "Must contain letters")
+      .matches(
+        /^(?!.*[!@#$%^&*()_+={}\[\]:;"'<>,.?~`\\|\/-]).*$/,
+        applanguage === "eng"
+          ? "Location name cannot contain special characters"
+          : "لا يمكن أن يحتوي اسم الموقع على رموز خاصة"
+      )
+
       .matches(
         /^[a-zA-Z0-9\s\-.,#]+$/,
         applanguage === "eng"
@@ -115,7 +119,7 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم الموقع على أحرف وأرقام ومسافات وشرطات ونقاط وفواصل وعلامات هاش فقط"
       )
       .min(
-        2,
+        5,
         applanguage === "eng"
           ? "Location name must be at least 2 characters long"
           : "يجب أن يتكون اسم الموقع من حرفين على الأقل"

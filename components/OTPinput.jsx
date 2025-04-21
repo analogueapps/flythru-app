@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import { TextInput, View } from "react-native";
 
-const OTPinput = ({ codes, refs, errorMessages, onChangeCode }) => {
+const OTPinput = ({ codes, refs, errorMessages, onChangeCode , onKeyPress }) => {
   return (
     <View className="flex flex-row self-start justify-center mt-8">
       {codes.map((code, index) => (
@@ -20,16 +20,18 @@ const OTPinput = ({ codes, refs, errorMessages, onChangeCode }) => {
           value={code}
           maxLength={1}
           ref={refs[index]}
-          onKeyPress={({ nativeEvent: { key } }) => {
-            if (key === "Backspace" && index > 0) {
-              // Handling backspace, focus previous input
-              const prevRef = refs[index - 1];
-              if (prevRef && prevRef.current) {
-                onChangeCode("", index - 1);
-                prevRef.current.focus();
-              }
-            }
-          }}
+          // onKeyPress={({ nativeEvent: { key } }) => {
+          //   if (key === "Backspace" && index > 0) {
+          //     // Handling backspace, focus previous input
+          //     const prevRef = refs[index - 1];
+          //     if (prevRef && prevRef.current) {
+          //       onChangeCode("", index - 1);
+          //       prevRef.current.focus();
+          //     }
+          //   }
+          // }}
+
+          onKeyPress={(e) => onKeyPress(e, index)}
         />
       ))}
     </View>

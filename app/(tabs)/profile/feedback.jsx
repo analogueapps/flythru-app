@@ -27,6 +27,7 @@ const feedback = () => {
     const toast = useToast()
     const { applanguage } = langaugeContext()
     const [userName, setUserName] = useState('');
+    const [errormsg, setErrormessage] = useState("");
 
 
 
@@ -35,10 +36,10 @@ const feedback = () => {
       const rating = index + 1;
       setSelectedStars(rating);
       formik.setFieldValue("ratingStars", rating);
+      formik.setFieldTouched("ratingStars", true);
     };
     
     
-
     const formik = useFormik({
       initialValues: {
         ratingStars: 0, 
@@ -50,6 +51,7 @@ const feedback = () => {
       onSubmit: async (values) => {
       
         values.ratingStars = selectedStars || 0;
+        formik.setFieldTouched("ratingStars", true);
         console.log("Submitting values:", values); 
         await handleFeedback(values);
       },
@@ -70,7 +72,8 @@ const feedback = () => {
         router.push("/profile");
       } catch (error) {
         console.log("Error:", error);
-        toast.show(error?.response?.data?.message || "Failed to submit feedback");
+        // toast.show(error?.response?.data?.message || "Failed to submit feedback");
+        setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
       }
     };
     
@@ -138,7 +141,8 @@ const feedback = () => {
 
       <View className="px-7 flex-col gap-8">
         <View className="flex flex-row justify-between items-center">
-        <Text className="font-bold text-[#050505] text-2xl">Rate</Text>
+        <Text className="font-bold text-[#050505] text-2xl"> {applanguage==="eng"?Translations.eng.review:Translations.arb.review
+              }</Text>
         <View className="flex-row my-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <TouchableOpacity key={index} onPress={() => handleStarPress(index)}>
@@ -167,9 +171,16 @@ const feedback = () => {
     textAlignVertical="top"  
     placeholderTextColor={"#1A1C1E"}
 />
+{errormsg && <Text className="text-red-500">{errormsg}</Text>
+}
+
 
 {formik.touched.comment && formik.errors.comment && (
                   <Text className="text-red-500">{formik.errors.comment}</Text>
+                )}
+
+{formik.touched.ratingStars && formik.errors.ratingStars && (
+                  <Text className="text-red-500">{formik.errors.ratingStars}</Text>
                 )}
       </View>
      

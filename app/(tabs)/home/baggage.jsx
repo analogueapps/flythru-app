@@ -281,7 +281,7 @@ const baggage = () => {
                
               }}
             >
-              {/* {flight.departure.airport} */}city1
+              {/* {flight.departure.airport} */}Departure
             </Text>
           </View>
           <View className="flex-1 items-center px-2">
@@ -303,7 +303,7 @@ const baggage = () => {
                 
               }}>
                 {/* {flight.arrival.airport} */}
-              city 2</Text>
+              Arrival</Text>
           </View>
         </View>
       </View>

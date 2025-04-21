@@ -33,7 +33,7 @@ const PrivacyPolicy = () => {
           // ✅ Replace newlines with HTML breaks
           const formattedContent = settings.privacyPolicy.replace(
             /\r\n|\n/g,
-            "<br>"
+            // "<br>"
           );
           setPrivacyContent(formattedContent);
         } else {

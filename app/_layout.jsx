@@ -51,6 +51,9 @@ const _layout = () => {
   //   checkFirstTimeUser();
   // }, []);
 
+  
+  
+
   useEffect(() => {
     async function registerForPushNotificationsAsync() {
       if (!Device.isDevice) {
@@ -129,6 +132,7 @@ const _layout = () => {
               animationDuration={250}
             >
               <Stack>
+                <Stack.Screen name="splash" options={{ headerShown: false }} />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen
@@ -136,7 +140,6 @@ const _layout = () => {
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen name="nointernet" options={{headerShown:false}}/>
-                {/* <Stack.Screen name="index" /> */}
               </Stack>
             </ToastProvider>
           </AuthProvider>
@@ -147,3 +150,5 @@ const _layout = () => {
 };
 
 export default _layout;
+
+{/* <Stack.Screen name="index" /> */}

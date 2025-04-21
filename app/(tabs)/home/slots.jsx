@@ -224,7 +224,7 @@ const slots = () => {
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white"> {flight?.departure?.iata ?? "--"}</Text>
-            <Text className="text-white"> city 1</Text>
+            <Text className="text-white">Departure</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -237,7 +237,7 @@ const slots = () => {
           </View>
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white"> {flight?.arrival?.iata ?? "--"}</Text>
-            <Text className="text-white"> city 2</Text>
+            <Text className="text-white">Arrival</Text>
           </View>
         </View>
         {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
@@ -255,8 +255,8 @@ const slots = () => {
             style={{ fontFamily: "CenturyGothic" }}
           >
             {applanguage === "eng"
-              ? Translations.eng.select_date
-              : Translations.arb.select_date}
+              ? Translations.eng.pick_up_date
+              : Translations.arb.pick_up_date}
           </Text>
           <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
             <TextInput
@@ -305,8 +305,8 @@ const slots = () => {
             style={{ fontFamily: "CenturyGothic" }}
           >
             {applanguage === "eng"
-              ? Translations.eng.select_time
-              : Translations.arb.select_time}
+              ? Translations.eng.pick_up_time
+              : Translations.arb.pick_up_time}
           </Text>
 
           <SelectList

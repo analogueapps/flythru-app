@@ -19,13 +19,10 @@ const useExpoLocation = () => {
       let {latitude,longitude} = coords;
       console.log(coords);
       setLatitude(latitude)
-      setLongitude(longitude)
-     
-      
+      setLongitude(longitude) 
       // console.log("User Location", coords);
      }
      
-
    }
    useEffect(()=>{
     getUserLocation()

@@ -38,17 +38,12 @@ const editprofileSchema = (applanguage) =>
           ? "Phone number is required"
           : "رقم الهاتف مطلوب"
       )
-      .matches(
-        /^[6-9]/,
+      .test(
+        "no-letters",
         applanguage === "eng"
-          ? "Phone number must start with 6, 7, 8, or 9"
-          : "يجب أن يبدأ رقم الهاتف بـ 6 أو 7 أو 8 أو 9"
-      )
-      .matches(
-        /^\d{10}$/,
-        applanguage === "eng"
-          ? "Phone number must be exactly 10 digits"
-          : "يجب أن يتكون رقم الهاتف من 10 أرقام بالضبط"
+          ? "Phone number cannot contain letters"
+          : "لا يمكن أن يحتوي رقم الهاتف على أحرف",
+        (value) => /^[^a-zA-Z]+$/.test(value)
       )
       .test(
         "no-special-chars",
@@ -57,13 +52,20 @@ const editprofileSchema = (applanguage) =>
           : "لا يمكن أن يحتوي رقم الهاتف على رموز خاصة",
         (value) => /^[0-9]+$/.test(value)
       )
-      .test(
-        "no-letters",
+      .matches(
+        /^[569]/,
         applanguage === "eng"
-          ? "Phone number cannot contain letters"
-          : "لا يمكن أن يحتوي رقم الهاتف على أحرف",
-        (value) => /^[^a-zA-Z]+$/.test(value)
-      ),
+        ? "Phone number must start with 5,6,9"
+        : "يجب أن يبدأ رقم الهاتف بـ 5،6،9"
+      )
+      .matches(
+        /^\d{8}$/,
+        applanguage === "eng"
+          ? "Phone number must be exactly 8 digits"
+          : "يجب أن يتكون رقم الهاتف من 8 أرقام بالضبط"
+      )
+    
+     
   });
 
 export default editprofileSchema;

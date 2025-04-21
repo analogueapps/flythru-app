@@ -11,6 +11,9 @@ import Rightarrow from "../../../assets/svgs/rightarrow";
 import { CONTACT_US } from "../../../network/apiCallers";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
+import Mail from "../../../assets/svgs/mail";
+import Whatsappicon from "../../../assets/svgs/whatsapp";
+import Call from "../../../assets/svgs/call";
 
 const ContactUs = () => {
   const insets = useSafeAreaInsets();
@@ -110,7 +113,14 @@ const ContactUs = () => {
           onPress={handleEmailPress}
         >
           <View className="flex-row items-center gap-4">
-            <Image source={mail} className="h-8 w-8" resizeMode="contain" />
+            {/* <Image source={mail} className="h-8 w-8" resizeMode="contain" /> */}
+
+            {/* <Mail/> */}
+            <View className="w-12 h-12 bg-red-100 flex justify-center items-center">
+  <Mail width={26} height={26} />
+</View>
+
+
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.send_mail:Translations.arb.send_mail
               }</Text>
           </View>
@@ -123,7 +133,10 @@ const ContactUs = () => {
           onPress={handleWhatsappPress}
         >
           <View className="flex-row items-center gap-4">
-            <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" />
+            {/* <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" /> */}
+            <View className="w-12 h-12 bg-red-100 self-center justify-center items-center">
+  <Whatsappicon  className="w-12 h-12"/>
+</View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
               }</Text>
           </View>
@@ -136,7 +149,10 @@ const ContactUs = () => {
           onPress={handleCallPress}
         >
           <View className="flex-row items-center gap-4">
-            <Image source={call} className="h-8 w-8" resizeMode="contain" />
+            {/* <Image source={call} className="h-8 w-8" resizeMode="contain" /> */}
+            <View className="w-12 h-12 bg-red-100 self-center justify-center items-center">
+  <Call  className="w-12 h-12"/>
+</View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.call:Translations.arb.call
               }</Text>
           </View>

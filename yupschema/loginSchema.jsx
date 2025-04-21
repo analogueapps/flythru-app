@@ -1,10 +1,42 @@
 import * as Yup from "yup";
 
 const loginSchema = (applanguage) =>
-  Yup.object().shape({
+  Yup.object().shape({ 
     email: Yup.string()
       .required(
         applanguage === "eng" ? "Email is required" : "البريد الإلكتروني مطلوب"
+      )
+      .test(
+        "no-spaces",
+        applanguage === "eng"
+          ? "Email should not contain any spaces"
+          : "لا يجب أن يحتوي البريد الإلكتروني على مسافات",
+        (value) => {
+          return value ? !/\s/.test(value) : false;
+        }
+      )  
+      .test(
+        "valid-domain",
+        applanguage === "eng"
+          ? "Invalid email domain format"
+          : "تنسيق نطاق البريد الإلكتروني غير صالح",
+        (value) => {
+          if (!value) return false;
+      
+          const parts = value.split("@");
+          if (parts.length !== 2) return false;
+      
+          const domainPart = parts[1];
+          if (!domainPart || !domainPart.includes(".")) return false;
+      
+          const [domainName, topLevelDomain] = domainPart.split(".");
+          if (!domainName || !topLevelDomain) return false;
+      
+          const validDomains = [
+            "com", "org", "net", "edu", "gov", "mil", "in", "us", "uk", "au", "ca", "eu"
+          ];
+          return validDomains.includes(topLevelDomain);
+        }
       )
       .test(
         "valid-email",
@@ -58,6 +90,22 @@ const loginSchema = (applanguage) =>
         }
       )
       .test(
+        "valid-email",
+        applanguage === "eng"
+          ? "Invalid email format"
+          : "تنسيق البريد الإلكتروني غير صالح",
+        (value) => {
+          if (!value) return false;
+      
+          value = value.toLowerCase().trim();
+      
+          const emailRegex =
+            /^[a-z0-9](?!.*[._-]{2})[a-z0-9._-]*[a-z0-9]@[a-z0-9-]+\.[a-z]{2,}$/;
+      
+          return emailRegex.test(value);
+        }
+      )
+      .test(
         "no-spaces",
         applanguage === "eng"
           ? "Email cannot contain spaces"
@@ -82,6 +130,13 @@ const loginSchema = (applanguage) =>
           ? "Password must be at most 14 characters"
           : "يجب ألا تتجاوز كلمة المرور 14 حرفًا"
       )
+      .test(
+        "no-spaces",
+        applanguage === "eng"
+          ? "Password should not contain spaces"
+          : "يجب ألا تحتوي كلمة المرور على مسافات",
+        (value) => value ? !/\s/.test(value) : false
+      )
       .matches(
         /[a-z]/,
         applanguage === "eng"
@@ -101,7 +156,7 @@ const loginSchema = (applanguage) =>
           : "يجب أن تحتوي على رقم"
       )
       .matches(
-        /[@$!%*?&#]/,
+        /[@$₹!%*-+/.:;"'<>,{}_=₩€£?&#]/,
         applanguage === "eng"
           ? "Must include a special character"
           : "يجب أن تحتوي على رمز خاص"

@@ -105,7 +105,7 @@ const index = () => {
   const logoutrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");
   const { applanguage } = langaugeContext();
-  const toast = useToast();
+  const toast = useToast(); 
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [otherReason, setOtherReason] = useState(""); // for text input
@@ -152,25 +152,55 @@ const index = () => {
     },
   });
 
+  // const logoutapi = async () => {
+  //   const token = await AsyncStorage.getItem("authToken");
+
+  //   if (!token) {
+  //     toast.show("Logged out successfully");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await LOGOUT(token);
+  //     console.log(res);
+  //     router.replace("/(auth)");
+  //     toast.show(res.data.message);
+  //     console.log(res.data.message);
+  //   } catch (error) {
+  //     console.log("Error sending code:", error?.response?.data?.message);
+  //     toast.show(error?.response?.data?.message || "error occured");
+  //   }
+  // };
+
   const logoutapi = async () => {
     const token = await AsyncStorage.getItem("authToken");
-
-    if (!token) {
-      toast.show("Logged out successfully");
-      return;
-    }
-
+  
     try {
-      const res = await LOGOUT(token);
-      console.log(res);
-      router.replace("/(auth)");
-      toast.show(res.data.message);
-      console.log(res.data.message);
+      if (token) {
+        const res = await LOGOUT(token);
+        console.log(res);
+        toast.show(res.data.message);
+      } else {
+        toast.show("Logged out successfully");
+      }
     } catch (error) {
-      console.log("Error sending code:", error?.response?.data?.message);
-      toast.show(error?.response?.data?.message || "error occured");
+      console.log("Error during logout:", error?.response?.data?.message);
+      toast.show(error?.response?.data?.message || "An error occurred during logout");
+    } finally {
+      // Clear all user-related data from AsyncStorage
+      await AsyncStorage.multiRemove([
+        "authToken",
+        "authUserId",
+        "isGuestUser",
+        "userEmail",
+        // Add any other keys you store
+      ]);
+  
+      // Navigate to the auth screen
+      router.replace("/(auth)");
     }
   };
+  
 
   const deleteaccount = async (values) => {
     const token = await AsyncStorage.getItem("authToken");
@@ -490,7 +520,7 @@ const index = () => {
       <View>
         <Image
           source={images.HeaderImg}
-          className="w-full h-auto relative"
+          className="w-full h-auto relative" 
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -537,8 +567,8 @@ const index = () => {
               <Addaddress />
               <Text className="text-[#515151] text-xl">
                 {applanguage === "eng"
-                  ? Translations.eng.add_address
-                  : Translations.arb.add_address}
+                  ? Translations.eng.address
+                  : Translations.arb.address}
               </Text>
             </View>
             <Rightarrow />

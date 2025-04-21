@@ -9,15 +9,19 @@ import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import { ActivityIndicator } from "react-native";
+
 
 const FAQ = () => {
     const { applanguage } = langaugeContext()
   const insets = useSafeAreaInsets();
   const [faqs, setFaqs] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchFaqs = async () => {
-    try {
+    setLoading(true);
+        try {
       const res = await ALL_FAQS();
       console.log("ressss faq", res.data);
 
@@ -30,6 +34,9 @@ const FAQ = () => {
     } catch (error) {
       console.log("Error fetching FAQs:", error);
       setFaqs([]);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -77,53 +84,64 @@ const FAQ = () => {
       </View>
 
       {/* Scrollable FAQ Content */}
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-        {faqs.length > 0 ? (
-          faqs.map((faq, index) => (
-            <View
-              key={faq._id}
-              className="mb-6 border-b border-gray-300 p-4 rounded-lg"
-            >
-              {/* FAQ Question */}
-              <TouchableOpacity
-                className="flex-row justify-between items-center"
-                onPress={() => toggleAnswer(index)}
-              >
-                <Text className="text-[16px] font-bold text-[#164F90]">
-                  {faq.question}
-                </Text>
-                {openIndex === index ? (
-                  <Entypo name="minus" size={24} color="#164F90" />
-                ) : (
-                  <FontAwesome6 name="plus" size={24} color="#164F90" />
-                )}
-              </TouchableOpacity>
+      
 
-              {/* FAQ Answer */}
-              {openIndex === index && (
-                <View className="mt-2 px-4">
-                  {typeof faq.answer === "string"
-                    ? faq.answer.split("\r\n").map((line, lineIndex) => (
-                        <Text
-                          key={lineIndex}
-                          className="text-[#515151] text-base font-light"
-                        >
-                          {line}
-                        </Text>
-                      ))
-                    : null}
-                </View>
-              )}
+
+      {loading ? (
+  <View className="flex-1 justify-center items-center">
+    <ActivityIndicator size="large" color="#164F90" />
+  </View>
+) : (
+  <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+    {faqs.length > 0 ? (
+      faqs.map((faq, index) => (
+        <View
+          key={faq._id}
+          className="mb-6 border-b border-gray-300 p-4 rounded-lg"
+        >
+          <TouchableOpacity
+            className="flex-row justify-between items-center"
+            onPress={() => toggleAnswer(index)}
+          >
+            <Text className="text-[16px] font-bold text-[#164F90]">
+              {faq.question}
+            </Text>
+            {openIndex === index ? (
+              <Entypo name="minus" size={24} color="#164F90" />
+            ) : (
+              <FontAwesome6 name="plus" size={24} color="#164F90" />
+            )}
+          </TouchableOpacity>
+
+          {openIndex === index && (
+            <View className="mt-2 px-4">
+              {typeof faq.answer === "string"
+                ? faq.answer.split("\r\n").map((line, lineIndex) => (
+                    <Text
+                      key={lineIndex}
+                      className="text-[#515151] text-base font-light"
+                    >
+                      {line}
+                    </Text>
+                  ))
+                : null}
             </View>
-          ))
-        ) : (
-          <Text className="text-center text-gray-500 text-lg mt-5">
-            No FAQs available
-          </Text>
-        )}
-      </ScrollView>
+          )}
+        </View>
+      ))
+    ) : (
+      <Text className="text-center text-gray-500 text-lg mt-5">
+        No FAQs available
+      </Text>
+    )}
+  </ScrollView>
+)}
+
+      
     </View>
   );
 };
 
 export default FAQ;
+
+

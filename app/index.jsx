@@ -7,6 +7,20 @@ import { useNetwork } from "../UseContext/NetworkContext";
 
 
 const Index = () => {
+
+
+  return (
+   
+    <View>
+      <Redirect href={"/(auth)"} />
+      {/* <Redirect href={"/verifyotp"} /> */}
+
+    </View>
+  );
+};
+export default Index;
+
+
   // const {isConnected}=useNetwork()
   // useEffect(()=>{
   //     async function checkToken() {
@@ -26,11 +40,16 @@ const Index = () => {
   //     checkToken()
   // },[isConnected])
 
-  return (
-   
-    <View>
-      <Redirect href={"/(auth)"} />
-    </View>
-  );
-};
-export default Index;
+  // useEffect(()=>{
+  //       async function checkToken() {
+  //         const token = await AsyncStorage.getItem("authToken")
+        
+  //         if ( token){
+  //             router.replace("/home/selectlocation")
+  //         }
+  //         else{
+  //           router.replace("/(auth)")
+  //         }
+  //       }
+  //       checkToken()
+  //     },[])

@@ -140,7 +140,8 @@ if (res?.data?.userNotifications) {
     </TouchableOpacity>
   ))
 ) : (
-  <Text className="text-center text-gray-500">No notifications available</Text>
+  <Text className="text-center text-gray-500"> {applanguage==="eng"?Translations.eng.no_notifications_available:Translations.arb.no_notifications_available
+  }</Text>
 )}
 
       

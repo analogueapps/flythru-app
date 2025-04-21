@@ -4,8 +4,8 @@ const feedbackSchema = (applanguage) =>
   Yup.object().shape({
     ratingStars: Yup.string().required(
       applanguage === "eng"
-        ? "Please fill required fields"
-        : "يرجى ملء الحقول المطلوبة"
+        ? "Please select the ratings"
+        : "يرجى اختيار التقييمات"
     ),
 
     comment: Yup.string().required(

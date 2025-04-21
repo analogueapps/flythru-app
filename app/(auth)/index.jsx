@@ -3,6 +3,7 @@ import {
   Text,
   Pressable,
   Animated,
+  Easing,
   TextInput,
   Platform,
   TouchableOpacity,
@@ -22,6 +23,7 @@ import { useToast } from "react-native-toast-notifications";
 import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
+import flightloader from "../../assets/images/flightload.gif";
 import signupSchema from "../../yupschema/signupSchema";
 import { AlertTriangle, X, Eye, EyeOff } from "lucide-react-native"; // Optional, or use FontAwesome if preferred
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -46,6 +48,7 @@ const Index = () => {
   const [fcm,setFcm]=useState("")
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
 const [authPopupMessage, setAuthPopupMessage] = useState("");
+const [loading, setLoading] = useState(false);
 
 
   const { setUserEmail, SaveMail } = useAuth();
@@ -53,6 +56,32 @@ const [authPopupMessage, setAuthPopupMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   // const { expoPushToken } = useNotification();
 
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    translateX.setValue(-30); // Reset position
+  
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 100, // How far to move
+        duration: 3000, // Slower movement
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+  
+  // Run it when loading starts
+  useEffect(() => {
+    if (loading) {
+      startAnimation();
+    } else {
+      translateX.stopAnimation();
+      translateX.setValue(0); // Reset to start
+    }
+  }, [loading]);
+  
+  
 
   
   useEffect(() => {
@@ -62,10 +91,7 @@ const [authPopupMessage, setAuthPopupMessage] = useState("");
 
       });
   }, []);
-
-
- 
-
+  
   const signInWithGoogle = async () => {
     try {
       // Ensure Google Play Services is available
@@ -96,15 +122,17 @@ const [authPopupMessage, setAuthPopupMessage] = useState("");
 const firebaseIdToken = await firebaseUser.getIdToken();
 console.log("Firebase ID Token:", firebaseIdToken);
 
+
 await oauthHandler({ oAuthToken: firebaseIdToken });
 
 router.push("/home");
-      // Handle successful sign-in
-      const user = userCredential.user;
-      console.log("Signed in as:", user.email);
+// Handle successful sign-in
+const user = userCredential.user;
+console.log("Signed in as:", user.email);
 
-      // Optionally save user email or perform further actions
-      // setUserEmail(user.email);
+// Optionally save user email or perform further actions
+// setUserEmail(user.email);
+await SaveMail(user.email);
 
       // Redirect to the home screen
       router.push("/home");
@@ -174,7 +202,7 @@ router.push("/home");
       // email: "",
       // password: "",
 
-      email: "tarunok@gmail.com",
+      email: "tarunok1234@gmail.com",
       password: "Tarun@12",
     },
     validationSchema: signupSchema(applanguage),
@@ -190,6 +218,7 @@ router.push("/home");
   });
 
   const SignupHandler = async (values) => {
+    setLoading(true);
     try {
       const res = await SIGN_UP_API(values);
 
@@ -205,6 +234,9 @@ router.push("/home");
       console.log("Error signing up:", error?.response);
       toast.show(error?.response?.data?.message || error?.response?.data?.errors);
     }
+    finally{
+      setLoading(false);
+    }
   };
 
   // login handler
@@ -215,7 +247,7 @@ router.push("/home");
       // password: "",
 
       email: "tarunok@gmail.com",
-      password: "Tarun@12",
+      password: "Tarun12@123",
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -232,6 +264,7 @@ router.push("/home");
   });
 
   const LoginHandler = async (values) => {
+    setLoading(true);
     const data={
       email:values.email,
       password:values.password,
@@ -261,9 +294,12 @@ router.push("/home");
       
         } else {
           console.log("error loginnnnnggggg", error?.response);
-          toast.show(error?.response?.data?.message);
+          toast.show(error?.response?.data?.message || error?.response?.data?.errors);
         }
       }
+    }
+    finally{
+      setLoading(false);
     }
   };
 
@@ -281,6 +317,24 @@ router.push("/home");
     }
   };
 // Update code ...
+
+
+const handleSkipLogin = async () => {
+  try {
+    // Set guest flag
+    await AsyncStorage.setItem("isGuestUser", "true");
+
+    // Make sure no old user ID or token is kept
+    await AsyncStorage.removeItem("authUserId");
+    await AsyncStorage.removeItem("authToken");
+
+    // Navigate to home or wherever the guest should go
+    router.replace("/home");
+  } catch (error) {
+    console.error("Error handling guest login:", error);
+  }
+};
+
   return (
     <SafeAreaView className="flex-1">
       {/* {authPopupVisible && (
@@ -450,13 +504,34 @@ router.push("/home");
 
                 <TouchableOpacity
                   onPress={loginFormik.handleSubmit}
-                  className="bg-[#FFB648] rounded-lg py-4 w-[90%] mx-auto mt-4"
+                  disabled={loading}
+                  className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
                 >
-                  <Text className="text-center  text-[#08203C] font-semibold text-lg">
+                   {loading ? (
+    <Animated.View
+    style={{
+      transform: [{ translateX }],
+      width: 100,
+      height: 100,
+      alignSelf: "center",
+    }}
+    
+  >
+    <Image
+      source={flightloader}
+      style={{ width: 100, height: 100 }}
+      resizeMode="contain"
+      
+    />
+  </Animated.View>
+  
+  ) : (
+                  <Text className="text-center  text-[#08203C] font-bold text-lg">
                     {applanguage === "eng"
                       ? Translations.eng.log_in
                       : Translations.arb.log_in}
                   </Text>
+  )}
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
@@ -497,7 +572,7 @@ router.push("/home");
                   onPress={async () => {
                     // Ensure no token is saved
                     await AsyncStorage.removeItem("authToken");
-                    await AsyncStorage.removeItem("userId"); // if you're storing userId
+                    await AsyncStorage.removeItem("authUserId"); // if you're storing userId
 
                     // Mark as skipped
                     await AsyncStorage.setItem("skippedLogin", "true");
@@ -577,16 +652,38 @@ router.push("/home");
                   </Text>
                 )}
 
-                <TouchableOpacity
-                  onPress={formik.handleSubmit}
-                  className="bg-[#FFB648] rounded-lg py-4 w-[90%] mx-auto mt-4"
-                >
-                  <Text className="text-center text-[#08203C] font-semibold text-lg">
-                    {applanguage === "eng"
-                      ? Translations.eng.sign_up
-                      : Translations.arb.sign_up}
-                  </Text>
-                </TouchableOpacity>
+<TouchableOpacity
+  onPress={formik.handleSubmit}
+  disabled={loading}
+  className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
+>
+  {loading ? (
+    <Animated.View
+    style={{
+      transform: [{ translateX }],
+      width: 100,
+      height: 100,
+      alignSelf: "center",
+    }}
+    
+  >
+    <Image
+      source={flightloader}
+      style={{ width: 100, height: 100 }}
+      resizeMode="contain"
+      
+    />
+  </Animated.View>
+  
+  ) : (
+    <Text className="text-[#08203C] font-bold text-lg">
+      {applanguage === "eng"
+        ? Translations.eng.sign_up
+        : Translations.arb.sign_up}
+    </Text>
+  )}
+</TouchableOpacity>
+
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
                   <Text className="mx-2">
@@ -618,7 +715,7 @@ router.push("/home");
                   onPress={async () => {
                     // Ensure no token is saved
                     await AsyncStorage.removeItem("authToken");
-                    await AsyncStorage.removeItem("userId"); // if you're storing userId
+                    await AsyncStorage.removeItem("authUserId"); // if you're storing userId
 
                     // Mark as skipped
                     await AsyncStorage.setItem("skippedLogin", "true");
