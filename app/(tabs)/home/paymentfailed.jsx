@@ -1,10 +1,19 @@
 import { View, Text, Image } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import paysuccess from "../../../assets/images/paysuccess.gif";
+import paysuccess from "../../../assets/images/paymentfailed.gif";
+import { router } from "expo-router";
 
 const paymentfailed = () => {
   const insets = useSafeAreaInsets();
+
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        router.replace("/home");
+      }, 3000); // 3 seconds
+  
+      return () => clearTimeout(timeout); // cleanup on unmount
+    }, []);
 
   return (
     <View
@@ -13,7 +22,7 @@ const paymentfailed = () => {
         justifyContent: "center",
         alignItems: "center",
         paddingTop: insets.top,
-        paddingBottom: insets.bottom,
+        paddingBottom: insets.bottom,  
         paddingHorizontal: 20,
         backgroundColor: "#ffffff",
       }}
@@ -30,14 +39,14 @@ const paymentfailed = () => {
         Payment Failed
       </Text>
 
-      {/* <Image
+      <Image
         source={paysuccess}
         style={{
           width: 200,
           height: 200,
         }}
         resizeMode="contain"
-      /> */}
+      />
     </View>
   );
 };

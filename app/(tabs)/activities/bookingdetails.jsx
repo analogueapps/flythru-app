@@ -12,56 +12,70 @@ import call from "../../../assets/images/call.png"
 import hash from "../../../assets/images/hash.png"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BOOKING_DETAILS, VERIFY_ORDER } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import verticalline from "../../../assets/images/verticalline.png";
+import Toast from "react-native-toast-message";
+import { useFormik } from "formik";
 
 
 const bookingdetails = () => {
   const insets = useSafeAreaInsets();
   const { fromSelectLocation = "false" } = useLocalSearchParams();
-  const { userId, orderId, baggageId, bookingId } = useLocalSearchParams();
+  const { userId, orderId, baggageId, bookingId , paymentId } = useLocalSearchParams();
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
     const [bookingData , setBookingData] = useState() 
   // const { bookingId } = useLocalSearchParams(); 
-  const toast = useToast()
     const { applanguage } = langaugeContext()
 const [verifiedBookingId, setVerifiedBookingId] = useState(null);
 
 
- 
-  
-    const verifyOrder = async (orderId, baggageId, userId) => {
-      try {
-        const res = await VERIFY_ORDER(orderId, baggageId, userId);
-        console.log("Response address", res.data);
-    
-        if (res.data) {
-          console.log(res.data);
-          toast.show(res.data.message);
-          setVerifiedBookingId(res.data.bookingId); // ✅ Save the verified bookingId
-        } else {
-          console.log("Unexpected response format:", res);
-        }
-      } catch (error) {
-        console.log("Error verifying ", error);
+useEffect(() => {
+  console.log("Verifying order with orderId:", orderId, "and paymentId:", paymentId);
+  const verifyOrder = async () => {
+    if (!orderId || !paymentId) return;
+
+    try {
+      const res = await VERIFY_ORDER(orderId, paymentId);
+      console.log("Verify order response:", res.data);
+
+
+      if (res.data) {
+        Toast.show({ type: "success", text1: res.data.message });
+        setVerifiedBookingId(res.data.bookingId);
+      } else {
+        console.log("Unexpected response format:", res);
       }
-    };
+    } catch (error) {
+      console.log("Error verifying order:", error);
+      Toast.show({ type: "error", text1: "Verification failed" });
+    }
+  };
+
+  verifyOrder();
+}, [orderId, paymentId]);
+
+
+
+// useEffect(() => {
+//   if (orderId && paymentId) {
+//     verifyOrder(orderId, paymentId);
+//     console.log("Verifying order with orderId:", orderId, "and paymentId:", paymentId);
     
-    
-    useEffect(() => {
-      if (userId && orderId && baggageId) {
-        verifyOrder(orderId, baggageId, userId);
-      }
-    }, [userId, orderId, baggageId]);
-    
+//   }
+// }, [orderId, paymentId]);
+
 
 
     const fetchBookingDetails = async (id) => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        toast.show("No token found. Please log in.");
+        Toast.show(
+          {
+            type: "error",
+            text1: "Token not found",
+          }
+        );
         return;
       }
     
@@ -70,7 +84,10 @@ const [verifiedBookingId, setVerifiedBookingId] = useState(null);
         const res = await BOOKING_DETAILS(id, token);
         setBookingData(res.data);
       } catch (error) {
-        toast.show(error?.response?.data?.message || "Failed to fetch booking details");
+        Toast.show({
+          type: "error",
+          text1: error?.response?.data?.message || "Failed to fetch booking details",
+        });
       }
     };
     

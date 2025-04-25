@@ -12,7 +12,7 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { ACTIVITIES, BOOKING_DETAILS } from "../../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useToast } from "react-native-toast-notifications";
+import Toast from "react-native-toast-message";
 
 
 const index = () => {
@@ -20,11 +20,14 @@ const index = () => {
     const insets = useSafeAreaInsets(); 
     const { applanguage } = langaugeContext()
     const [bookings , setBookings] = useState([])
-    const toast = useToast();
     const fetchActivities = async () => {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
-        toast.show("No token found. Please log in.");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Please login again",
+        });
         return;
       }
     
@@ -35,7 +38,11 @@ const index = () => {
         setBookings(res.data.data || []); // Fallback to empty array if undefined
       } catch (error) {
         console.error("Error fetching bookings:", error);
-        toast.show(error?.response?.data?.message || "Failed to fetch bookings");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: error?.response?.data?.message || "Failed to fetch bookings",
+        });
         setBookings([]); // Ensure bookings is always an array
       }
     };

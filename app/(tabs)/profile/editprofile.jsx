@@ -5,8 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Animated,Easing
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -17,27 +18,57 @@ import dp from "../../../assets/images/dpfluthru.jpg";
 import { Calendar } from "lucide-react-native";
 import { useAuth } from "../../../UseContext/AuthContext";
 import { EDIT_PROFILE } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import editprofileSchema from "../../../yupschema/editProfileSchema";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import flightloader from "../../../assets/images/flightloader.gif";
+import Toast from "react-native-toast-message";
 
 const editprofile = () => {
   const insets = useSafeAreaInsets();
-  const toast = useToast();
   const { applanguage } = langaugeContext();
+const [loading, setLoading] = useState(false);
+const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } = useAuth();
 
-  const { userEmail } = useAuth();
   // console.log("userEmailaaaaaaaaaa" , userEmail)
+
+    const translateX = useRef(new Animated.Value(0)).current;
+  
+
+const startAnimation = () => {
+    translateX.setValue(-40); // Reset position
+  
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 100, // How far to move
+        duration: 3000, // Slower movement
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+  
+  // Run it when loading starts
+  useEffect(() => {
+    if (loading) {
+      startAnimation();
+    } else {
+      translateX.stopAnimation();
+      translateX.setValue(0); // Reset to start
+    }
+  }, [loading]);
+
+
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      name: userName || "",
       email: userEmail || "",
-      phoneNumber: "",
+      phoneNumber: userPhone || "",
     },
+    
     enableReinitialize: true, // ✅ Ensure reinitialization when values change
     validationSchema: editprofileSchema(applanguage),
     validateOnChange: true,
@@ -63,20 +94,23 @@ const editprofile = () => {
     }
   };
 
-  const saveUserData = async (name, phoneNumber) => {
+  const saveUserData = async (name, phoneNumber, email) => {
     try {
-      if (name) {
-        await AsyncStorage.setItem("user_name", name);
+      if (email) {
+        if (name) {
+          await AsyncStorage.setItem(`user_name_${email}`, name);
+        }
+        if (phoneNumber) {
+          await AsyncStorage.setItem(`user_phone_${email}`, phoneNumber);
+        }
+      } else {
+        console.warn("No email provided — cannot save user data.");
       }
-      if (phoneNumber) {
-        await AsyncStorage.setItem("user_phone", phoneNumber);
-      }
-      console.log("User data saved successfully");
     } catch (error) {
       console.error("Error saving user data:", error);
     }
   };
-
+  
   useEffect(() => {
     if (userEmail) {
       console.log("userEmail:", userEmail);
@@ -85,46 +119,50 @@ const editprofile = () => {
   }, [userEmail]);
 
   const editprofilehandler = async (values) => {
+    setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show("No token found. Please log in.");
       return;
     }
 
     try {
       const res = await EDIT_PROFILE(values, token);
       console.log(res.data.message);
-      toast.show(res.data.message);
-
+      Toast.show({
+        type: "success",
+        text1: res.data.message, 
+      });
       // Update formik values after save
       formik.setValues(values);
-      await saveUserData(values.name, values.phoneNumber); // persist updated name
-    } catch (error) {
+      await saveUserData(values.name, values.phoneNumber ); // Local storage
+      SaveName(values.name); // Context update
+      SavePhone(values.phoneNumber); // Context update
+          } catch (error) {
       console.log("Error sending code:", error?.response);
+    }
+    finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const loadProfileData = async () => {
-      const token = await AsyncStorage.getItem("authToken"); 
-      if (!token) {
-        // If not logged in, clear fields
+      const token = await AsyncStorage.getItem("authToken");
+      const email = await AsyncStorage.getItem("user_email"); // Or use from context
+    
+      if (!token || !email) {
         formik.setFieldValue("name", "");
         formik.setFieldValue("phoneNumber", "");
         return;
       }
-
+    
       try {
         const storedName = await AsyncStorage.getItem("user_name");
         const storedPhone = await AsyncStorage.getItem("user_phone");
-
-        if (storedName) {
-          formik.setFieldValue("name", storedName);
-        }
-
-        if (storedPhone) {
-          formik.setFieldValue("phoneNumber", storedPhone);
-        }
+    
+        if (storedName) formik.setFieldValue("name", storedName);
+        if (storedPhone) formik.setFieldValue("phoneNumber", storedPhone);
       } catch (error) {
         console.error("Error loading user data:", error);
       }
@@ -260,18 +298,38 @@ const editprofile = () => {
       </ScrollView>
 
       <TouchableOpacity
-        className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
+      disabled={loading}
+        className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
         onPress={() => {
           saveUserName(formik.values.name);
           formik.handleSubmit();
         }}
       >
+         {loading ? (
+            <Animated.View
+            style={{
+              transform: [{ translateX }],
+              width: 100,
+              height: 100,
+              alignSelf: "center",
+            }}
+          >
+            <Image
+              source={flightloader}
+              style={{ width: 100, height: 100 }}
+              resizeMode="contain"
+              
+            />
+          </Animated.View>
+          
+          ) : (
         <Text className="font-bold text-center text-black ">
           {" "}
           {applanguage === "eng"
             ? Translations.eng.save
             : Translations.arb.save}
         </Text>
+          )}
       </TouchableOpacity>
     </View>
   );

@@ -7,16 +7,15 @@ import { router, useFocusEffect } from "expo-router";
 import { ALL_ADDRESS, DELETE_ADDRESS } from "../../../network/apiCallers";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { ActivityIndicator } from "react-native";
+import Toast from "react-native-toast-message";
 
 
 const Address = () => {
   const insets = useSafeAreaInsets();
   const [addresses, setAddresses] = useState([]);
-  const toast = useToast()
   const { applanguage } = langaugeContext()
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +27,12 @@ const Address = () => {
     console.log("Token:", token);
   
     if (!token) {
-      toast.show("No token found. Please log in.");
+      // Toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please login again",
+      });
       return;
     }
   
@@ -54,7 +58,11 @@ const Address = () => {
   // Delete Address
   const deleteAddress = async (addressId) => {
     if (!addressId) {
-      toast.show("Invalid address ID");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Invalid address ID",
+      });
       return;
     }
   
@@ -62,7 +70,11 @@ const Address = () => {
     console.log("Token:", token);
   
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please login again",
+      });
       return;
     }
   
@@ -73,10 +85,19 @@ const Address = () => {
       // Remove from state directly
       setAddresses((prev) => prev.filter((address) => address.id !== addressId));
   
-      toast.show("Address deleted");
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Address deleted",
+      });
     } catch (error) {
       console.log("Error deleting address:", error.response?.data || error.message);
-      toast.show("Failed to delete address");
+      Toast.show("Failed to delete address");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error?.response?.data?.message || "Failed to delete address",
+      });
     }
   };
   

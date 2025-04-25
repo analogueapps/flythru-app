@@ -22,11 +22,12 @@ import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { baggageSchema } from "../../../yupschema/baggageSchema";
+import Toast from "react-native-toast-message";
 
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
-  const { flightData } = useLocalSearchParams();
+  const { flightData , departureDate } = useLocalSearchParams();
   const flight = JSON.parse(flightData);
   const [persons, setPersons] = useState(1);
   const [bags, setBags] = useState(1);
@@ -34,7 +35,7 @@ const baggage = () => {
   const { applanguage } = langaugeContext();
 
   const numberOfPersons = (type) => {
-    if (type === "increase" && persons < 5) {
+    if (type === "increase" && persons < 10) {
       setPersons((prev) => {
         const newValue = prev + 1;
         console.log("new values,=", newValue);
@@ -94,15 +95,35 @@ const baggage = () => {
   }, [persons, bags, bagimages]);
 
   const pickImage = async () => {
+    if (bagimages.length >= 10) {
+      alert("You can only upload up to 10 images.");
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
 
     if (!result.canceled) {
       const newImage = result.assets[0].uri;
+      const image = result.assets[0];
+      const imageSizeInMB = (image.base64.length * (3 / 4)) / (1024 * 1024);
+  
+      if (imageSizeInMB > 5) {
+        Toast.show({
+          type: "error",
+          text1: "Image must be smaller than 5MB.",
+          position: "top",
+          visibilityTime: 2000,
+          autoHide: true,
+          topOffset: 40,
+        });
+        return;
+      }
       setBagimages((prev) => {
         const updatedImages = [...prev, newImage];
         formik.setFieldValue("baggagePictures", updatedImages);
@@ -112,6 +133,10 @@ const baggage = () => {
   };
 
   const takePhoto = async () => {
+    if (bagimages.length >= 10) {
+      alert("You can only upload up to 10 images.");
+      return;
+    }
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       alert("Permission to access camera is required!");
@@ -122,10 +147,24 @@ const baggage = () => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true,
     });
 
     if (!result.canceled) {
       const newImage = result.assets[0].uri;
+      const image = result.assets[0];
+      const imageSizeInMB = (image.base64.length * (3 / 4)) / (1024 * 1024);
+
+      if (imageSizeInMB > 5) {
+        Toast.show({
+          type: "error",
+          text1: "Image must be smaller than 5MB.",
+          position: "top",
+          visibilityTime: 2000,
+          autoHide: true,
+          topOffset: 40,
+        });        return;
+      }
       setBagimages((prev) => {
         const updatedImages = [...prev, newImage];
         formik.setFieldValue("baggagePictures", updatedImages);
@@ -151,11 +190,16 @@ const baggage = () => {
           personsCount: String(values.personsCount),
           baggageCount: String(values.baggageCount),
           baggagePictures: JSON.stringify(values.baggagePictures),
-         flightData: JSON.stringify(flight) 
+         flightData: JSON.stringify(flight) ,
+         departureDate: departureDate
         },
       });
     },
   });
+
+   useEffect(() => {
+        console.log("bababababababa",departureDate)
+      },[])
 
   console.log("Formik errors:", formik.errors);
   console.log("flight apiiiiiiiiiiii", flight);
@@ -332,14 +376,14 @@ const baggage = () => {
                   className="mr-2"
                   onPress={() => numberOfPersons("decrease")}
                 >
-                  <Minus color={"#194F90"} size={13} />
+                  <Minus color={"#194F90"} size={17} />
                 </TouchableOpacity>
                 <Text className="text-[#194f90]">{persons}</Text>
                 <TouchableOpacity
                   className="ml-3"
                   onPress={() => numberOfPersons("increase")}
                 >
-                  <Plus color={"#194F90"} size={13} />
+                  <Plus color={"#194F90"} size={17} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -358,10 +402,10 @@ const baggage = () => {
                   : Translations.arb.checked_in_bags}
               </Text>
               <View className="flex-row items-center gap-x-2 bg-[#194f9027] px-3 py-2 rounded-lg">
-                <TouchableOpacity className="mr-2">
+                <TouchableOpacity className="mr-2 ">
                   <Minus
                     color={"#194F90"}
-                    size={13}
+                    size={17}
                     onPress={() => numberOfBags("decreasebags")}
                   />
                 </TouchableOpacity>
@@ -369,7 +413,7 @@ const baggage = () => {
                 <TouchableOpacity className="ml-3">
                   <Plus
                     color={"#194F90"}
-                    size={13}
+                    size={17}
                     onPress={() => numberOfBags("increasebags")}
                   />
                 </TouchableOpacity>

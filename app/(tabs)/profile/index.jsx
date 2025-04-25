@@ -4,8 +4,11 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Animated,
+  Easing,
   Dimensions,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -51,7 +54,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DELETE_ACCOUNT, LOGOUT } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import delaccSchema from "../../../yupschema/delaccYupSchema";
-import { useToast } from "react-native-toast-notifications";
+import Cut from "../../../assets/svgs/cut";
+import flightloader from "../../../assets/images/flightloader.gif"
+import Toast from "react-native-toast-message";
+
 
 // import { Alert, Button } from "react-native";
 
@@ -104,8 +110,9 @@ const index = () => {
   const drefRBSheet = useRef();
   const logoutrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");
+  const [loading, setLoading] = useState(false);
+
   const { applanguage } = langaugeContext();
-  const toast = useToast(); 
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [otherReason, setOtherReason] = useState(""); // for text input
@@ -123,6 +130,34 @@ const index = () => {
   //     checkLoginStatus();
   //   }, [])
   // );
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  
+
+  const startAnimation = () => {
+      translateX.setValue(-40); // Reset position
+    
+      Animated.loop(
+        Animated.timing(translateX, {
+          toValue: 100, // How far to move
+          duration: 3000, // Slower movement
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+    
+    // Run it when loading starts
+    useEffect(() => {
+      if (loading) {
+        startAnimation();
+      } else {
+        translateX.stopAnimation();
+        translateX.setValue(0); // Reset to start
+      }
+    }, [loading]);
+  
+  
 
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("authToken");
@@ -173,20 +208,33 @@ const index = () => {
   // };
 
   const logoutapi = async () => {
+    setLoading(true)
     const token = await AsyncStorage.getItem("authToken");
   
     try {
       if (token) {
         const res = await LOGOUT(token);
         console.log(res);
-        toast.show(res.data.message);
+        Toast.show({
+          type: "success",
+          text1: res.data.message,
+        });
       } else {
-        toast.show("Logged out successfully");
+        Toast.show({
+          type: "info",
+          text1: "Logged out successfully",
+        });
+
       }
     } catch (error) {
       console.log("Error during logout:", error?.response?.data?.message);
-      toast.show(error?.response?.data?.message || "An error occurred during logout");
+      Toast.show({
+        type: "error",
+        text1: error?.response?.data?.message || "Error occurred during logout",
+      });
+
     } finally {
+      setLoading(false)
       // Clear all user-related data from AsyncStorage
       await AsyncStorage.multiRemove([
         "authToken",
@@ -203,10 +251,12 @@ const index = () => {
   
 
   const deleteaccount = async (values) => {
+    setLoading(true)
+
     const token = await AsyncStorage.getItem("authToken");
 
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show("No token found. Please log in.");
       return;
     }
 
@@ -214,10 +264,21 @@ const index = () => {
       const res = await DELETE_ACCOUNT(values, token);
       console.log(res);
       router.push("/(auth)");
-      toast.show(res.data.message);
+      // Toast.show(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
     } catch (error) {
       console.log("Error sending code:", error?.response?.data?.message);
-      toast.show(error?.response?.data?.message || "error occured");
+      // Toast.show(error?.response?.data?.message || "error occured");
+      Toast.show({
+        type: "error",
+        text1: error?.response?.data?.message || "error occured",
+      })
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -297,19 +358,25 @@ const index = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg"
-              // onPress={() => router.push("/(auth)")}
-              onPress={() => {
-                onSignOut();
-                logoutapi();
-              }}
-            >
-              <Text className="text-center text-black font-semibold">
-                {applanguage === "eng"
-                  ? Translations.eng.yes_logout
-                  : Translations.arb.yes_logout}
-              </Text>
-            </TouchableOpacity>
+  className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
+  onPress={() => {
+    onSignOut();
+    logoutapi();
+  }}
+>
+  {loading ? (
+    <View style={{ width: 72, alignItems: "center" }}>
+      <ActivityIndicator size="small" color="#000000" />
+    </View>
+  ) : (
+    <Text className="text-center text-black font-semibold">
+      {applanguage === "eng"
+        ? Translations.eng.yes_logout
+        : Translations.arb.yes_logout}
+    </Text>
+  )}
+</TouchableOpacity>
+
           </View>
         </View>
       </RBSheet>
@@ -347,14 +414,24 @@ const index = () => {
             height: 5,
             borderRadius: 10,
           },
-        }}
+        }} 
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6">
-          <Text className="text-center border-b-[1px] border-[#E0E0E0] py-3 text-2xl font-bold">
-            {applanguage === "eng"
-              ? Translations.eng.delete_account
-              : Translations.arb.delete_account}
-          </Text>
+        <View className="relative justify-center items-center border-b border-[#E0E0E0] px-4 py-3">
+  <Text className="text-2xl font-bold text-center">
+    {applanguage === "eng"
+      ? Translations.eng.delete_account
+      : Translations.arb.delete_account}
+  </Text>
+  <TouchableOpacity
+    onPress={() => drefRBSheet.current.close()}
+    className="absolute right-4 top-1/2 -translate-y-1/2"
+  >
+    <Cut className="h-6 w-6" />
+  </TouchableOpacity>
+</View>
+
+
 
           <ScrollView>
             <Text className="text-center text-xl font-bold">
@@ -496,15 +573,35 @@ const index = () => {
             </View>
 
             <TouchableOpacity
+            disabled={loading}
               onPress={formik.handleSubmit}
-              className="my-4 mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg"
+              className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
             >
+               {loading ? (
+                          <Animated.View
+                          style={{
+                            transform: [{ translateX }],
+                            width: 100,
+                            height: 100,
+                            alignSelf: "center",
+                          }}
+                        >
+                          <Image
+                            source={flightloader}
+                            style={{ width: 100, height: 100 }}
+                            resizeMode="contain"
+                            
+                          />
+                        </Animated.View>
+                        
+                        ) : (
               <Text className="font-bold text-center text-black">
                 {" "}
                 {applanguage === "eng"
                   ? Translations.eng.delete_account
                   : Translations.arb.delete_account}
               </Text>
+                        )}
             </TouchableOpacity>
           </ScrollView>
         </View>

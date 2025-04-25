@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  Animated,
+  Easing,
   Dimensions,
   Linking,
   FlatList,
@@ -34,7 +36,6 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import Swiperarrow from "../../../assets/svgs/swiperarrow";
 import mapimg from "../../../assets/images/mapimg.jpg";
 import { ALL_ADDRESS, PAYEMNT_API } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../../customhooks/languageContext";
@@ -44,6 +45,8 @@ import SelectDropdown from 'react-native-select-dropdown'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from "expo-router";
 import * as Location from 'expo-location';
+import Toast from "react-native-toast-message";
+import flightloader from "../../../assets/images/flightload.gif";
 
 
 
@@ -53,7 +56,6 @@ const selectlocation = () => {
   // const { longitude, latitude } = useExpoLocation();
   const { date, time, personsCount, baggageCount, baggagePictures } =
     useLocalSearchParams();
-  const toast = useToast();
   const [apiErr, setApiErr] = useState("");
   const longitude = Number(useExpoLocation().longitude);
   const latitude = Number(useExpoLocation().latitude);
@@ -76,84 +78,69 @@ const selectlocation = () => {
   const [orderId, setOrderId] = useState(null);
   const [userId, setUserId] = useState(null);
   const [baggageId, setBaggageId] = useState(null);
+
+  const [region, setRegion] = useState(null);
+const [address, setAddress] = useState('');
+const [loading, setLoading] = useState(false);
+
+
+ const translateX = useRef(new Animated.Value(0)).current;
+
+  const startAnimation = () => {
+    translateX.setValue(-30); // Reset position
   
-
-  // useEffect(() => {
-  //   const handleDeepLink = ({ url }) => {
-  //     const { path } = Linking.parse(url);
-  //     console.log("Incoming deep link:", url);
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 100, // How far to move
+        duration: 3000, // Slower movement
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    ).start();
+  };
   
-  //     if (path === "paymentsuccess") {
-  //       navigation.navigate("paymentsuccess");
-  //     } else if (path === "paymentfailed") {
-  //       navigation.navigate("paymentfailed");
-  //     }
-  //   };
-  
-  //   const linkingListener = Linking.addEventListener("url", handleDeepLink);
-  
-  //   return () => {
-  //     linkingListener.remove();
-  //   };
-  // }, []);
+  // Run it when loading starts
+  useEffect(() => {
+    if (loading) {
+      startAnimation();
+    } else {
+      translateX.stopAnimation();
+      translateX.setValue(0); // Reset to start
+    }
+  }, [loading]);
+
+useEffect(() => {
+  if (latitude && longitude) {
+    setRegion({
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
+    setLoading(false);
+  }
+}, [latitude, longitude]);
 
 
-//   // Handles in-app URL events
-// useEffect(() => {
-//   const handleDeepLink = ({ url }) => {
-//     const { path } = Linking.parse(url);
-//     console.log("Incoming deep link:", url);
+const onRegionChangeComplete = async (newRegion) => {
+  setRegion(newRegion);
+  try {
+    const [geo] = await Location.reverseGeocodeAsync({
+      latitude: newRegion.latitude,
+      longitude: newRegion.longitude,
+    });
+    const formattedAddress = `${geo.name || ''} ${geo.street || ''}, ${geo.city || ''}`;
+    setAddress(formattedAddress);
+    formik.setFieldValue("pickUpLocation", formattedAddress);
+  } catch (error) {
+    console.error("Reverse Geocode Error", error);
+  }
+};
 
-//     if (path === "paymentsuccess") {
-//       navigation.navigate("PaymentSuccess");
-//     } else if (path === "paymentfailed") {
-//       navigation.navigate("PaymentFailed");
-//     }
-//   };
 
-//   const linkingListener = Linking.addEventListener("url", handleDeepLink);
-
-//   return () => {
-//     linkingListener.remove();
-//   };
-// }, []);
-
-// Handles when app is launched from closed state with URL
-// useEffect(() => {
-//   Linking.getInitialURL().then((url) => {
-//     if (url) {
-//       const { path } = Linking.parse(url);
-//       console.log("App launched with URL:", url);
-
-//       if (path === "paymentsuccess") {
-//         navigation.navigate("PaymentSuccess");
-//       } else if (path === "paymentfailed") {
-//         navigation.navigate("PaymentFailed");
-//       }
-//     }
-//   });
-// }, []);
-
-  
-//   useEffect(() => {
-//     Linking.getInitialURL().then((url) => {
-//       if (url) {
-//         const { path } = Linking.parse(url);
-//         console.log("App launched with:", url);
-  
-//         if (path === "paymentsuccess") {
-//           navigation.navigate("paymentsuccess");
-//         } else if (path === "paymentfailed") {
-//           navigation.navigate("paymentfailed");
-//         }
-//       }
-//     });
-//   }, []);
   
 
 
-  // Fetch address list
-  
   const searchLocation = async () => {
     const text = formik.values.pickUpLocation;
   
@@ -170,6 +157,8 @@ const selectlocation = () => {
     }
   };
 
+
+
   const handleLocationInput = (text) => {
     formik.setFieldValue("pickUpLocation", text);
   };
@@ -178,7 +167,12 @@ const selectlocation = () => {
     const fetchAddresses = async () => {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
-        toast.show("No token found. Please log in.");
+        // Toast.show("No token found. Please log in.");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Please login again",
+        });
         return;
       }
   
@@ -211,7 +205,7 @@ const selectlocation = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("values CREATE ORDER", values);
+      // console.log("values CREATE ORDER", values);
 
       // Include additional data for the API call
       const requestData = {
@@ -226,17 +220,30 @@ const selectlocation = () => {
       };
       console.log("values CREATE ORDER", requestData);
 
-      await paymentApi(requestData);
+      const success = await paymentApi(requestData);
+      if (success) {
+        locationrefRBSheet.current?.open();
+      }
+
+      // await paymentApi(requestData);
+
     },
   });
 
   // pament api handler
 
   const paymentApi = async (values) => {
+    setLoading(true);
+
     const token = await AsyncStorage.getItem("authToken");
 
     if (!token) {
-      toast.show("No token found. Please log in.");
+      // Toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please login again",
+      });
       return;
     }
 
@@ -253,7 +260,7 @@ const selectlocation = () => {
       setPickupdate(res.data.date);
       setPickuploaction(res.data.baggage.pickUpLocation);
       setOrderId(orderIdFromRes);
-      setUserId(userIdFromRes);
+      setUserId(userIdFromRes); 
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
 
@@ -261,10 +268,18 @@ const selectlocation = () => {
      
       );
 
-      toast.show(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: res.data.message,});
+
+        return true;
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "error occurred");
+    }
+    finally {
+      setLoading(false);
     }
   };
 
@@ -397,7 +412,7 @@ const selectlocation = () => {
                 if (paymentUrl) {
                   router.push({
                     pathname: "/home/payment",
-                    params: { paymentUrl },
+                    params: { paymentUrl ,orderId },
                   });
                 } else {
                   console.error("No payment URL found");
@@ -482,13 +497,13 @@ const selectlocation = () => {
         color="#6B7280"
         className="ml-2"
       />
-       <Ionicons
+       {/* <Ionicons
             name="search-outline"
             size={26}
             color="#194F90"
             onPress={searchLocation}
             className="bg-[#194F901A] p-2 rounded-xl"
-          />
+          /> */}
     </View>
   )}
   renderItem={(item, index, isSelected) => (
@@ -517,14 +532,45 @@ const selectlocation = () => {
   }}
   showsVerticalScrollIndicator={false}
 />
+
+<TouchableOpacity
+    onPress={searchLocation}
+
+>
+
+<Ionicons
+    name="search-outline"
+    size={26}
+    color="#194F90"
+    style={{
+      backgroundColor: '#194F901A',
+      padding: 8,
+      borderRadius: 12,
+      marginLeft: 8,
+    }}
+    />
+    </TouchableOpacity>
+
+
 </View>
+  
+    {formik.touched.pickUpLocation &&
+                    formik.errors.pickUpLocation && (
+                      <Text className="text-red-500 w-[90%] mx-auto">
+                        {formik.errors.pickUpLocation}
+                      </Text>
+                    )}
+  
+
+
         <View  className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${showSuggestions?"-z-10 ":""}`}>
           <TextInput
             placeholder={
               applanguage === "eng"
                 ? Translations.eng.pick_up_timings
                 : Translations.arb.pick_up_timings
-            }
+            } 
+
             className="flex-1 h-[30px]"
             placeholderTextColor="#2D2A29"
             value={time}
@@ -536,22 +582,42 @@ const selectlocation = () => {
             color="#194F90"
             className="bg-[#194F901A] p-2 rounded-xl"
           />
-        </View>
+        </View> 
 
-        <TouchableOpacity
-          onPress={() => {
-            formik.handleSubmit();
+      
 
-            locationrefRBSheet.current.open();
-          }}
-          className={`bg-[#FFB800] rounded-lg py-4 mt-2 ${showSuggestions?"-z-10":""}`}
-        >
-          <Text className="text-center text-black font-semibold text-base">
-            {applanguage === "eng"
-              ? Translations.eng.submit
-              : Translations.arb.submit}
-          </Text>
-        </TouchableOpacity>
+<TouchableOpacity
+  onPress={() => {
+    formik.handleSubmit(); // now opens RBSheet inside onSubmit
+  }}
+  className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${showSuggestions ? "-z-10" : ""}`}
+>
+
+{loading ? (
+    <Animated.View
+    style={{
+      transform: [{ translateX }],
+      width: 100,
+      height: 100,
+      alignSelf: "center",
+    }}
+    
+  >
+    <Image
+      source={flightloader}
+      style={{ width: 100, height: 100 }}
+      resizeMode="contain"
+      
+    />
+  </Animated.View>
+  
+  ) : (
+  <Text className="text-center text-black font-semibold text-base">
+    {applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit}
+  </Text>
+  )}
+</TouchableOpacity>
+
       </View>
       {/* Safe Area Content */}
       {/* <ScrollView className="flex-1" contentContainerStyle={{}}>
@@ -572,11 +638,7 @@ const selectlocation = () => {
               longitudeDelta: 0.01,
             }}
           >
-            {/* {latitude && longitude && (
-              <Marker
-                coordinate={{ longitude: longitude, latitude: latitude }}
-              />
-            )} */}
+           
 
 <Marker
     coordinate={{
@@ -589,6 +651,27 @@ const selectlocation = () => {
           <Text>Loading Map...</Text> // Show a placeholder while location is being fetched
         )}
       </View>
+
+{/* <View style={styles.mapContainer}>
+  {!loading ? (
+    <>
+      <MapView
+        style={styles.map}
+        region={region}
+        onRegionChangeComplete={onRegionChangeComplete}
+        showsUserLocation={true}
+      />
+
+      <View style={styles.centerMarker}>
+        <Ionicons name="location-sharp" size={32} color="#194F90" />
+      </View>
+    </>
+  ) : (
+    <Text>Loading Map...</Text>
+  )}
+</View> */}
+
+
 
       {/* <Image source={mapimg} className="h-full " /> */}
     </View>
@@ -608,25 +691,13 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  centerMarker: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginLeft: -16,  // half of icon width
+    marginTop: -32,   // adjust based on icon height
+    zIndex: 10,
+  }
 });
 
-//   initialRegion={{
-//     latitude: 37.78825,
-//     longitude: -122.4324,
-//     latitudeDelta: 0.1,
-//     longitudeDelta: 0.1,
-//   }}
-
-{
-  /* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
-    <TextInput
-      placeholder="Drop Off Location"
-      className="flex-1 h-[30px]"
-      onChangeText={formik.handleChange("dropOffLocation")}
-      onBlur={formik.handleBlur("dropOffLocation")}
-      value={formik.values.dropOffLocation}
-      placeholderTextColor="#2D2A29"
-    />
-  <Ionicons name="search-outline" size={26} color="#194F90" className="bg-[#194F901A] p-2 rounded-xl"/>
-  </View> */
-}

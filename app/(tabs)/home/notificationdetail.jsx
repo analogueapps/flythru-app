@@ -11,8 +11,8 @@ import { Calendar } from "lucide-react-native";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { NOTIFICATION } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 
 const notificationdetail = () => {
@@ -21,7 +21,6 @@ const notificationdetail = () => {
     const { applanguage } = langaugeContext()
     const { notifId } = useLocalSearchParams(); 
     const [notification, setNotification] = useState(null);
-        const toast = useToast()
 
         const fetchNotifications = async () => {
           const userId = await AsyncStorage.getItem("authUserId");
@@ -40,7 +39,12 @@ const notificationdetail = () => {
             setNotification(foundNotif);
           } catch (error) {
             console.error("Error fetching notification:", error);
-            toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+            // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+            Toast.show({
+              type: "error",
+              text1: "Error",
+              text2: error?.response?.data?.message || "Failed to fetch notifications",
+            });
           }
         };
         

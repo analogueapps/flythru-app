@@ -17,9 +17,8 @@ import SvgApple from "../../assets/svgs/AppleIcon";
 import images from "../../constants/images";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
-import { LOGIN_API, OAUTH, SIGN_UP_API } from "../../network/apiCallers";
+import { LOGIN_API, OAUTH, RESEND_OTP, SIGN_UP_API } from "../../network/apiCallers";
 import loginSchema from "../../yupschema/loginSchema";
-import { useToast } from "react-native-toast-notifications";
 import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
@@ -28,6 +27,8 @@ import signupSchema from "../../yupschema/signupSchema";
 import { AlertTriangle, X, Eye, EyeOff } from "lucide-react-native"; // Optional, or use FontAwesome if preferred
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // import GoogleAuth from "../../googleAuth";
+import Toast from 'react-native-toast-message';
+
 import auth, {
   firebase,
   getAuth,
@@ -44,12 +45,12 @@ const Index = () => {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const widthAnim = useRef(new Animated.Value(0)).current;
-  const toast = useToast();
   const [fcm,setFcm]=useState("")
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
 const [authPopupMessage, setAuthPopupMessage] = useState("");
 const [loading, setLoading] = useState(false);
 
+const [verifytoken, setVerifytoken] = useState("");
 
   const { setUserEmail, SaveMail } = useAuth();
   const { applanguage } = langaugeContext();
@@ -138,7 +139,10 @@ await SaveMail(user.email);
       router.push("/home");
     } catch (error) {
       // console.error("Google Sign-In Error:", error);
-      toast.show("Please select a login method" );
+      Toast.show({
+        type: 'error',
+        text1: error.message || 'Google Sign-In failed',
+      });
     }
   };
 
@@ -223,7 +227,10 @@ await SaveMail(user.email);
       const res = await SIGN_UP_API(values);
 
       console.log("verification code sent", res.data.message);
-      toast.show(res.data.message);
+      Toast.show({
+        type: 'success',
+        text1: res.data.message || 'Verification code sent',
+      });
       router.push({
         pathname: "/verifyotp",
         params: { token: res.data.token },
@@ -232,12 +239,18 @@ await SaveMail(user.email);
       console.log("message response //////", res);
     } catch (error) {
       console.log("Error signing up:", error?.response);
-      toast.show(error?.response?.data?.message || error?.response?.data?.errors);
+      Toast.show({
+        type: 'error',
+        text1: error?.response?.data?.message || 'Login failed',
+      });
+      
     }
     finally{
       setLoading(false);
     }
   };
+
+
 
   // login handler
 
@@ -246,8 +259,8 @@ await SaveMail(user.email);
       // email: "",
       // password: "",
 
-      email: "tarunok@gmail.com",
-      password: "Tarun12@123",
+      email: "tarunokokok@gmail.com",
+      password: "Tarun@12",
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -257,6 +270,7 @@ await SaveMail(user.email);
         ...values,
         email: values.email.toLowerCase(),
       };
+      
       console.log("login values", modifiedValues);
       await LoginHandler(modifiedValues);
       await SaveMail(modifiedValues.email);
@@ -270,11 +284,17 @@ await SaveMail(user.email);
       password:values.password,
       fcmToken:fcm
     }
+
+    if (values.email) await AsyncStorage.setItem("user_email", values.email);
+    setUserEmail(values.email);
+    
+    
     try {
       const res = await LOGIN_API(data,values);
       console.log("Login successful", res.data);
       router.push("/home");
-      toast.show(res.data.message);
+      Toast.show({  type: 'success', // or 'info', 'error'
+        text1: res.data.message || 'Login successful',});
     } catch (error) {
       console.log("Error logging in:", error);
 
@@ -283,18 +303,29 @@ await SaveMail(user.email);
           error.response.status === 400 &&
           error?.response?.data?.isAuthenticated === false
         ) {
+          const token = error?.response?.data?.token;
+        
           setAuthPopupMessage(error?.response?.data?.message);
           setAuthPopupVisible(true);
-      
-          // Auto-hide after 3 seconds and then navigate
+          setVerifytoken("jajajajajajajajaja", token); // You can still keep this for later use
+        
+          // ✅ Use token directly here — not verifytoken
+          resendOtpHandler(token);
+        
           setTimeout(() => {
             setAuthPopupVisible(false);
-            router.push("/verifyotp");
+            router.push({
+              pathname: "/verifyotp",
+              // You can also pass token via params if needed later
+              // params: { token },
+            });
           }, 2000);
-      
-        } else {
+        }
+         else {
           console.log("error loginnnnnggggg", error?.response);
-          toast.show(error?.response?.data?.message || error?.response?.data?.errors);
+          // Toast.show(error?.response?.data?.message || error?.response?.data?.errors);
+          Toast.show({  type: 'error', // or 'info', 'error'
+            text1: error?.response?.data?.message || error?.response?.data?.errors,});
         }
       }
     }
@@ -303,37 +334,52 @@ await SaveMail(user.email);
     }
   };
 
+  // resend otp handler
+
+  
+  const resendOtpHandler = async (verifytoken) => {
+   
+
+    const token = await AsyncStorage.getItem("authToken");
+    console.log("resend method",verifytoken)
+    if (!verifytoken) {
+      Toast.show("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const res = await RESEND_OTP(verifytoken); // Pass token to API caller
+      console.log(res);
+      // Toast.show({
+      //   type: 'success',
+      //   text1: res.data.message || 'OTP resent successfully',
+      // });
+      setResentOtpMsg(true);
+    } catch (error) {
+      console.log("Error sending code:", error?.response);
+      setApiErr(error?.response?.data?.message || "Failed to resend OTP");
+    }
+  };
+
+
+
   const oauthHandler = async (oAuthToken) => {
     try {
       const res = await OAUTH(oAuthToken);
 
       console.log("response of oauthhhhhh", res.data.message);
-      toast.show("Signup successful");
+      Toast.show("Signup successful");
      
       console.log("message response //////", res);
     } catch (error) {
       console.log("Error signing up:", error?.response);
-      toast.show(error?.response?.data?.message || error?.response?.data?.errors);
+      Toast.show(error?.response?.data?.message || error?.response?.data?.errors);
     }
   };
 // Update code ...
 
 
-const handleSkipLogin = async () => {
-  try {
-    // Set guest flag
-    await AsyncStorage.setItem("isGuestUser", "true");
 
-    // Make sure no old user ID or token is kept
-    await AsyncStorage.removeItem("authUserId");
-    await AsyncStorage.removeItem("authToken");
-
-    // Navigate to home or wherever the guest should go
-    router.replace("/home");
-  } catch (error) {
-    console.error("Error handling guest login:", error);
-  }
-};
 
   return (
     <SafeAreaView className="flex-1">

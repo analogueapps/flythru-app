@@ -16,7 +16,6 @@ import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
 import { ALL_FLIGHTS, ALL_FLIGHTS_CLIENT } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import ShimmerPlaceHolder, {
   createShimmerPlaceholder,
 } from "react-native-shimmer-placeholder";
@@ -29,11 +28,11 @@ import axios from "axios";
 import { LOCAL_URL } from "../../../network/environment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightlogo from "../../../assets/images/flight.png";
+import Toast from "react-native-toast-message";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
   const { flightNumber, departureDate } = useLocalSearchParams();
-  const toast = useToast();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
@@ -53,6 +52,10 @@ const Search = () => {
       setIsLoggedIn(!!token);
       setLoginChecked(true); // ✅ ensure login state is ready
     };
+
+    useEffect(() => {
+      console.log("yayayayayayaya",departureDate)
+    },[])
     
   
   // useFocusEffect for re-checking when screen gains focus
@@ -175,7 +178,12 @@ const Search = () => {
         .then(response => {
           console.log("API Response:", response.data);
           if (response.data.error) {
-            toast.show(response.data.error);
+            // Toast.show(response.data.error);
+            Toast.show({
+              type: "error",
+              text1: "Error",
+              text2: response.data.error,
+            });
             return [];
           }
           return mapFlights(response.data);
@@ -487,7 +495,9 @@ const Search = () => {
                     console.log("Navigating to baggage...");
                     router.push({
                       pathname: "/home/baggage",
-                      params: { flightData: JSON.stringify(flight) },
+                      params: { flightData: JSON.stringify(flight),
+                        departureDate: departureDate
+                       },
                     });
                   } else {
                     console.log("User not logged in, showing popup");
@@ -586,8 +596,12 @@ const Search = () => {
                     console.log("Navigating to baggage...");
                     router.push({
                       pathname: "/home/baggage",
-                      params: { flightData: JSON.stringify(flight) },
+                      params: {
+                        flightData: JSON.stringify(flight),
+                        departureDate: departureDate, // ✅ needs to be INSIDE params
+                      },
                     });
+                    
                   } else {
                     console.log("User not logged in, showing popup");
                     setShowLoginPopup(true);
@@ -609,7 +623,7 @@ const Search = () => {
                     <Text className="text-gray-600">
                       {flight.airline?.name || "Unknown Airline"}
                       {" "}
-                      ({flight.airline?.iata || "N/A"})
+                      {/* ({flight.airline?.iata || "N/A"}) */}
                     </Text>
                     <Text className="text-[#164F90] text-lg font-bold">
                       {flight.flight?.number || "N/A"}

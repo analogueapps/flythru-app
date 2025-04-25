@@ -68,6 +68,8 @@ export const LOGIN_API = async (data) => {
     if (token && userId) {
       await saveToken(token);
       await saveUserId(userId);
+
+      
     }
 
     return res;
@@ -194,22 +196,15 @@ export const DELETE_ACCOUNT = async (data, token) => {
 
 
 
-export const VERIFY_ORDER = async (orderId , baggageId , userId, token) => {
-  console.log("verify params details", orderId , baggageId , userId );
+export const VERIFY_ORDER = async (orderId , paymentId) => {
+  console.log("verify params details", orderId , paymentId);
 
+  const data = {
+    orderId: orderId, 
+    paymentId: paymentId
+  };
   return await axios.post(
-    `${LOCAL_URL}/payment/bipassed-verifyOrder`,
-    {
-      userId,
-      baggageId,
-      orderId
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      }
-    }
+    `${LOCAL_URL}/payment/bipassed-verifyOrder`,data
   );
 };
 

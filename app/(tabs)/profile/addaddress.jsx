@@ -5,8 +5,10 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Animated,
+  Easing,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -17,18 +19,46 @@ import dp from "../../../assets/images/dpfluthru.jpg";
 import { Calendar } from "lucide-react-native";
 import Send from "../../../assets/svgs/send";
 import { ADD_ADDRESS } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import { useFormik } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import addaddresSchema from "../../../yupschema/addressSchema";
+import flightloader from "../../../assets/images/flightloader.gif";
+import Toast from "react-native-toast-message";
 
 
 const addaddress = () => {
   const insets = useSafeAreaInsets();
-  const toast = useToast();
   const { applanguage } = langaugeContext()
+const [loading, setLoading] = useState(false);
+
+    const translateX = useRef(new Animated.Value(0)).current;
+    
+  
+  const startAnimation = () => {
+      translateX.setValue(-40); // Reset position
+    
+      Animated.loop(
+        Animated.timing(translateX, {
+          toValue: 100, // How far to move
+          duration: 3000, // Slower movement
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+    
+    // Run it when loading starts
+    useEffect(() => {
+      if (loading) {
+        startAnimation();
+      } else {
+        translateX.stopAnimation();
+        translateX.setValue(0); // Reset to start
+      }
+    }, [loading]);
+  
 
 
   const formik = useFormik({
@@ -49,20 +79,39 @@ const addaddress = () => {
   });
 
   const handleAddress = async (values) => {
+    setLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        toast.show("No token found. Please log in.");
+        // Toast.show("No token found. Please log in.");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Please login again",
+        });
         return;
       }
 
       const res = await ADD_ADDRESS(values, token);
       console.log("Address saved successfully", res.data);
-      toast.show("Address saved successfully");
+      // Toast.show("Address saved successfully");
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Address saved successfully",
+      });
       router.back();
     } catch (error) {
       console.log("Error:", error.response);
-      toast.show(error?.response?.data?.message || "Failed to submit address");
+      // Toast.show(error?.response?.data?.message || "Failed to submit address");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error?.response?.data?.message || "Failed to submit address",
+    })
+  }
+    finally { 
+      setLoading(false);
     }
   };
 
@@ -229,13 +278,33 @@ const addaddress = () => {
         </View>
       </ScrollView>
       <TouchableOpacity
-        className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg"
+        className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
         onPress={() =>{ 
           formik.handleSubmit()
         }}
       >
+         {loading ? (
+            <Animated.View
+            style={{
+              transform: [{ translateX }],
+
+              width: 100,
+              height: 100,
+              alignSelf: "center",
+            }}
+          >
+            <Image
+              source={flightloader}
+              style={{ width: 100, height: 100 }}
+              resizeMode="contain"
+              
+            />
+          </Animated.View>
+          
+          ) : (
         <Text className="font-bold text-center text-black " >{applanguage==="eng"?Translations.eng.save:Translations.arb.save
               }</Text>
+            )}
       </TouchableOpacity>
     </View>
   );

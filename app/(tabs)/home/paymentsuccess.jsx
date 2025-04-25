@@ -1,16 +1,22 @@
 import { View, Text, Image } from "react-native";
 import React, { useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import paysuccess from "../../../assets/images/paysuccess.gif";
 
 const PaymentSuccess = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+    const {paymentId , orderId} = useLocalSearchParams();
+  
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace("/activities/bookingdetails");
+      router.replace({
+        pathname: "/activities/bookingdetails",
+        params: { orderId , paymentId}, // ✅ Send orderId
+      });
+      console.log("Order ID and payemnt id:", orderId , paymentId); // Log the orderId
     }, 3000); // 3 seconds
 
     return () => clearTimeout(timeout); // cleanup on unmount

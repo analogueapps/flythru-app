@@ -25,9 +25,12 @@ import DateTimePicker from "@react-native-community/datetimepicker"; // Import D
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useFocusEffect } from "expo-router";
-import { ALL_BANNERS, ALL_FLIGHTS, NOTIFICATION } from "../../../network/apiCallers";
+import {
+  ALL_BANNERS,
+  ALL_FLIGHTS,
+  NOTIFICATION,
+} from "../../../network/apiCallers";
 import { useFormik } from "formik";
-import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { AllflightSchema } from "../../../yupschema/allFlightSchema";
@@ -35,6 +38,7 @@ import Fromto from "../../../assets/svgs/fromto";
 import HomeCal from "../../../assets/homecalender";
 import Homecal from "../../../assets/homecalender";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 
 const Index = () => {
@@ -45,31 +49,30 @@ const Index = () => {
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [fromValue, setFromValue] = useState("");
-const [toValue, setToValue] = useState("");
+  const [toValue, setToValue] = useState("");
 
+  // Swap function
+  const handleSwap = () => {
+    const temp = fromValue;
+    setFromValue(toValue);
+    setToValue(temp);
+  };
 
-// Swap function
-const handleSwap = () => {
-  const temp = fromValue;
-  setFromValue(toValue);
-  setToValue(temp);
-};
-
-
-  const toast = useToast();
-  const { applanguage } = langaugeContext()
+  const { applanguage } = langaugeContext();
 
   useFocusEffect(
     useCallback(() => {
       const checkNotificationStatus = async () => {
         try {
           const userId = await AsyncStorage.getItem("authUserId");
-          const hasVisited = await AsyncStorage.getItem("hasVisitedNotifications");
-  
+          const hasVisited = await AsyncStorage.getItem(
+            "hasVisitedNotifications"
+          );
+
           const res = await NOTIFICATION(userId);
           console.log("userId", userId);
           const hasNotifications = res?.data?.userNotifications?.length > 0;
-  
+
           if (hasNotifications && hasVisited !== "true") {
             setHasUnreadNotifications(true);
           } else {
@@ -80,11 +83,10 @@ const handleSwap = () => {
           setHasUnreadNotifications(false);
         }
       };
-  
+
       checkNotificationStatus();
     }, [])
   );
-
 
   useEffect(() => {
     (async () => {
@@ -132,16 +134,15 @@ const handleSwap = () => {
       console.log("Error creating calendar:", error);
     }
   };
- 
+
   const formik = useFormik({
     initialValues: {
-      departureDate: "2025-04-29",
+      departureDate: "2025-05-05",
       flightNumber: "",
-   
     },
     validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
-    validateOnBlur: false,   // Disable auto-validation on blur
+    validateOnBlur: false, // Disable auto-validation on blur
     onSubmit: async (values) => {
       console.log("Submitting values:", values);
       router.push({
@@ -149,12 +150,10 @@ const handleSwap = () => {
         params: {
           departureDate: values.departureDate,
           flightNumber: values.flightNumber,
-        
         },
       });
     },
   });
-  
 
   // const allbanners = async () => {
   //   try {
@@ -178,15 +177,14 @@ const handleSwap = () => {
   //   }
   // };
 
-
   const allbanners = async () => {
     try {
       const res = await ALL_BANNERS();
       console.log("API Response:", res);
-  
+
       if (res?.data?.allBanners && Array.isArray(res.data.allBanners)) {
         setBanners(res.data.allBanners);
-  
+
         const firstBanner = res.data.allBanners[0];
         if (firstBanner) {
           setbannerPicture(firstBanner.bannerSignedUrl); // Use signed URL
@@ -199,13 +197,11 @@ const handleSwap = () => {
       setBanners([]);
     }
   };
-  
 
   useEffect(() => {
     allbanners();
   }, []);
 
-  
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -233,54 +229,59 @@ const handleSwap = () => {
         />
         <TouchableOpacity
           className="bg-white rounded-full p-2"
-          onPress={() => { setHasUnreadNotifications(false);
-            router.push("/home/notification")}}
+          onPress={() => {
+            setHasUnreadNotifications(false);
+            router.push("/home/notification");
+          }}
         >
-         {hasUnreadNotifications && (
-    <View className="absolute bg-red-500 rounded-full w-3 h-3 top-0 right-0" />
-  )}
+          {hasUnreadNotifications && (
+            <View className="absolute bg-red-500 rounded-full w-3 h-3 top-0 right-0" />
+          )}
           <Bell color="black" size={18} />
         </TouchableOpacity>
       </View>
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
         <TouchableOpacity
-         onPress={() => {setShowDatePicker(true);
-          console.log("calender pressed")
-        }}
-        className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+          onPress={() => {
+            setShowDatePicker(true);
+            console.log("calender pressed");
+          }}
+          className="flex-row my-2 justify-between items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50"
+        >
           <TextInput
-          placeholder={
-            applanguage === "eng"
-              ? Translations.eng.departure_date
-              : Translations.arb.departure_date
-          }   
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.departure_date
+                : Translations.arb.departure_date
+            }
             onChangeText={formik.handleChange("departureDate")}
             onBlur={formik.handleBlur("departureDate")}
-            value={formik.values.departureDate} 
+            value={formik.values.departureDate}
             name="departureDate"
-            className="flex-1 h-[30px]"
+            className="flex h-[30px]"
             placeholderTextColor="#2D2A29"
           />
           <TouchableOpacity
             className=""
-            onPress={() => {setShowDatePicker(true);
-              console.log("calender pressed")
+            onPress={() => {
+              setShowDatePicker(true);
+              console.log("calender pressed");
             }}
-          > 
+          >
             <Homecal size={24} color="#6B7280" />
           </TouchableOpacity>
         </TouchableOpacity>
 
-          {formik.touched.departureDate && formik.errors.departureDate && (
-                          <Text className="text-red-500 w-[90%] mx-auto">
-                            {formik.errors.departureDate}
-                          </Text>
-                        )}
+        {formik.touched.departureDate && formik.errors.departureDate && (
+          <Text className="text-red-500 w-[90%] mx-auto">
+            {formik.errors.departureDate}
+          </Text>
+        )}
 
         {showDatePicker && (
           <DateTimePicker
-          value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
-          mode="date"
+            value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
+            mode="date"
             display="default"
             onChange={handleDateChange}
             minimumDate={new Date()}
@@ -288,12 +289,12 @@ const handleSwap = () => {
         )}
 
         <TextInput
-        maxLength={8}
+          maxLength={8}
           placeholder={
             applanguage === "eng"
               ? Translations.eng.flight_number
               : Translations.arb.flight_number
-          }   
+          }
           onChangeText={formik.handleChange("flightNumber")}
           onBlur={formik.handleBlur("flightNumber")}
           value={formik.values.flightNumber}
@@ -302,106 +303,110 @@ const handleSwap = () => {
           placeholderTextColor="#2D2A29"
         />
 
-{formik.touched.flightNumber && formik.errors.flightNumber && (
-                          <Text className="text-red-500 w-[90%] mx-auto">
-                            {formik.errors.flightNumber}
-                          </Text>
-                        )}
+        {formik.touched.flightNumber && formik.errors.flightNumber && (
+          <Text className="text-red-500 w-[90%] mx-auto">
+            {formik.errors.flightNumber}
+          </Text>
+        )}
 
-<TextInput
-  placeholder={
-    applanguage === "eng"
-      ? Translations.eng.from
-      : Translations.arb.from
-  }
-  value={fromValue}
-  onChangeText={(text) => setFromValue(text)}
-  className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-  placeholderTextColor="#2D2A29"
-/>
-
-<TouchableOpacity
-  className="z-[100] absolute right-10 top-[203px]"
-  onPress={handleSwap}
->
-  <Fromto size={20} color="#6B7280" />
-</TouchableOpacity>
-
-<TextInput
-  placeholder={
-    applanguage === "eng"
-      ? Translations.eng.to
-      : Translations.arb.to
-  }
-  value={toValue}
-  onChangeText={(text) => setToValue(text)}
-  className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-  placeholderTextColor="#2D2A29"
-/>
+        <TextInput
+          placeholder={
+            applanguage === "eng"
+              ? Translations.eng.from
+              : Translations.arb.from
+          }
+          value={fromValue}
+          onChangeText={(text) => setFromValue(text)}
+          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+          placeholderTextColor="#2D2A29"
+        />
 
         <TouchableOpacity
-       onPress={async () => {
-        await formik.validateForm(); // Validate form
-        const { departureDate, flightNumber  } = formik.values;
-    
-        if (!departureDate && !flightNumber ) {
-          formik.setErrors({
-            departureDate: "Please fill at least one field",
-            flightNumber: "Please fill at least one field",
-            airPortName: "Please fill at least one field",
-            city: "Please fill at least one field"
-          });
-          toast.show("Please fill in at least one field");
-        } else {
-          formik.handleSubmit();
-          createNewCalendar();
-        }
-      }}
+          className="z-[100] absolute right-10 top-[203px]"
+          onPress={handleSwap}
+        >
+          <Fromto size={20} color="#6B7280" />
+        </TouchableOpacity>
+
+        <TextInput
+          placeholder={
+            applanguage === "eng" ? Translations.eng.to : Translations.arb.to
+          }
+          value={toValue}
+          onChangeText={(text) => setToValue(text)}
+          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+          placeholderTextColor="#2D2A29"
+        />
+
+        <TouchableOpacity
+          onPress={async () => {
+            await formik.validateForm(); // Validate form
+            const { departureDate, flightNumber } = formik.values;
+
+            if (!departureDate && !flightNumber) {
+              formik.setErrors({
+                departureDate: "Please fill at least one field",
+                flightNumber: "Please fill at least one field",
+                airPortName: "Please fill at least one field",
+                city: "Please fill at least one field",
+              });
+              Toast.show({
+                type: "error",
+                text1:
+                  applanguage === "eng"
+                    ? Translations.eng.fill_one_field
+                    : Translations.arb.fill_one_field,
+              });
+            } else {
+              formik.handleSubmit();
+              createNewCalendar();
+            }
+          }}
           className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
         >
           <Text className="text-center text-black font-semibold text-base">
-          {  applanguage==="eng"?Translations.eng.search:Translations.arb.search
-                          }
+            {applanguage === "eng"
+              ? Translations.eng.search
+              : Translations.arb.search}
           </Text>
         </TouchableOpacity>
       </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
         <View className="flex-1 items-center justify-center mt-64 mx-6 ">
-    {/* Ad Card */}
-{Array.isArray(banners) && banners.length > 0 && (
-  <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
-    {applanguage === "eng" ? Translations.eng.ad : Translations.arb.ad}
-  </Text>
-)}
+          {/* Ad Card */}
+          {Array.isArray(banners) && banners.length > 0 && (
+            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
+              {applanguage === "eng"
+                ? Translations.eng.ad
+                : Translations.arb.ad}
+            </Text>
+          )}
 
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">
-          
-
-{Array.isArray(banners) && banners.length > 0 ? (
-  banners.map((banner, index) => (
-    <TouchableOpacity
-      key={index}
-      onPress={() => banner.link && Linking.openURL(banner.link)} // Open link if exists
-    >
-      <Image
-        source={{
-          uri: banner.bannerSignedUrl, // ✅ Use the unique signed URL here
-        }}
-        className="h-[100px] w-full mb-3 rounded-xl"
-        resizeMode="cover"
-      />
-    </TouchableOpacity>
-  ))
-) : (
- <Image
- source={icongrey}
- className="h-20 mt-24 w-full"
- resizeMode="contain"
- />
-)}
-
+            {Array.isArray(banners) && banners.length > 0 ? (
+              banners.map((banner, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => banner.link && Linking.openURL(banner.link)} // Open link if exists
+                >
+                  <Image
+                    source={{
+                      uri: banner.bannerSignedUrl, // ✅ Use the unique signed URL here
+                    }}
+                    className="h-[100px] w-full mb-3 rounded-xl"
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Image
+                source={icongrey}
+                className="h-20 mt-24 w-full"
+                resizeMode="contain"
+              />
+            )}
           </View>
 
           {/* <Text className="text-[#164F90] my-4 font-bold text-[16px] self-start">

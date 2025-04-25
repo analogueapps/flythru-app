@@ -1,55 +1,57 @@
-import { View, Text } from "react-native";
-import React, { useEffect } from "react";
-import SvgActivities from "../assets/svgs/bottomTabs/Activities";
-import { Redirect, router } from "expo-router";
+import { View, Text, Image, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNetwork } from "../UseContext/NetworkContext";
+import flash from "../assets/images/flash.png";
 
+export default function Index() {
+  const { width } = Dimensions.get("window");
+  const [showFlash, setShowFlash] = useState(true);
 
-const Index = () => {
+  useEffect(() => {
+    const showSplashThenNavigate = async () => {
+      // Show flash for 3 seconds
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      setShowFlash(false);
 
+      // Then redirect to correct screen
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+        console.log("Stored token:", token);
+        if (token) {
+          router.replace("/home");
+        } else {
+          router.replace("/(auth)");
+        }
+      } catch (error) {
+        console.error("Navigation error:", error);
+      }
+    };
 
-  return (
-   
-    <View>
-      <Redirect href={"/(auth)"} />
-      {/* <Redirect href={"/verifyotp"} /> */}
+    showSplashThenNavigate();
+  }, []);
 
-    </View>
-  );
-};
-export default Index;
+  if (showFlash) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <Image
+          source={flash}
+          style={{ width: width * 0.9, height: width * 0.9 }}
+          resizeMode="contain"
+        />
+        <Text className="text-[#164F90] font-bold text-6xl text-left">
+          Book Services
+        </Text>
+        <Text className="text-[#164F90] font-bold text-[2.7rem] text-left">
+          for Hassle-free Trip
+        </Text>
+        <Text className="text-left text-xl text-[#3E3E3E]">
+          Find your flight in just one click to book services.
+        </Text>
+      </View>
+    );
+  }
 
-
-  // const {isConnected}=useNetwork()
-  // useEffect(()=>{
-  //     async function checkToken() {
-  //       const token = await AsyncStorage.getItem("authToken")
-  //       console.log("connected value",isConnected)
-  //       if(!isConnected)
-  //       {
-  //         router.push("/nointernet")
-  //       }
-  //       else if ( token){
-  //           router.replace("/home")
-  //       }
-  //       else{
-  //         router.replace("/(auth)")
-  //       }
-  //     }
-  //     checkToken()
-  // },[isConnected])
-
-  // useEffect(()=>{
-  //       async function checkToken() {
-  //         const token = await AsyncStorage.getItem("authToken")
-        
-  //         if ( token){
-  //             router.replace("/home/selectlocation")
-  //         }
-  //         else{
-  //           router.replace("/(auth)")
-  //         }
-  //       }
-  //       checkToken()
-  //     },[])
+  // While routing is happening (optional fallback)
+  return <View className="flex-1 bg-white" />;
+}

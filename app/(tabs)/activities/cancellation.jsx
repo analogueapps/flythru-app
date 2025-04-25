@@ -18,15 +18,14 @@ import { Calendar } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFormik } from "formik";
 import { CANCELLATION } from "../../../network/apiCallers";
-import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import cancellationSchema from "../../../yupschema/cancellationSchema";
 import Translations from "../../../language";
+import Toast from "react-native-toast-message";
 
 const cancellation = () => {
   const insets = useSafeAreaInsets();
   const {bookingId} = useLocalSearchParams()
-  const toast = useToast()
     const [apiErr, setApiErr] = useState("");
     const { applanguage } = langaugeContext()
 
@@ -48,14 +47,21 @@ const cancellation = () => {
   const cancellationBookingHandler = async (bookingId , values) => {
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please login again",
+      });
       return;
     }
 
     try {
       const res = await CANCELLATION(values, token , bookingId);
       console.log(res.data.message);
-      toast.show(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
       console.log("booking details" , bookingId);
 
       

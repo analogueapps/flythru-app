@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity ,Animated ,Easing , ScrollView, TextInput } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -13,21 +13,22 @@ import Filledstar from "../../../assets/svgs/filledstar";
 import Emptystar from "../../../assets/svgs/emptystar";
 import { FEEDBACK } from "../../../network/apiCallers";
 import { useFormik } from "formik";
-import { useToast } from "react-native-toast-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import feedbackSchema from "../../../yupschema/feedbackSchema";
+import flightloader from "../../../assets/images/flightloader.gif";
+import Toast from "react-native-toast-message";
 
 
 const feedback = () => {
 
     const insets = useSafeAreaInsets();
     const [selectedStars, setSelectedStars] = useState(0); 
-    const toast = useToast()
     const { applanguage } = langaugeContext()
     const [userName, setUserName] = useState('');
     const [errormsg, setErrormessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
 
 
@@ -39,6 +40,33 @@ const feedback = () => {
       formik.setFieldTouched("ratingStars", true);
     };
     
+
+    const translateX = useRef(new Animated.Value(0)).current;
+    
+  
+  const startAnimation = () => {
+      translateX.setValue(-40); // Reset position
+    
+      Animated.loop(
+        Animated.timing(translateX, {
+          toValue: 100, // How far to move
+          duration: 3000, // Slower movement
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ).start();
+    };
+    
+    // Run it when loading starts
+    useEffect(() => {
+      if (loading) {
+        startAnimation();
+      } else {
+        translateX.stopAnimation();
+        translateX.setValue(0); // Reset to start
+      }
+    }, [loading]);
+  
     
     const formik = useFormik({
       initialValues: {
@@ -59,21 +87,29 @@ const feedback = () => {
     
 
     const handleFeedback = async (values) => {
+      setLoading(true);
       try {
         const token = await AsyncStorage.getItem('authToken');
         if (!token) {
-          toast.show("No token found. Please log in."); 
+          Toast.show("No token found. Please log in."); 
           return;
         }
     
         const res = await FEEDBACK(values, token);
         console.log("Feedback sent successfully", res.data.message);
-        toast.show(res.data.message);
+        Toast.show({
+          type: "success",
+          text1: res.data.message,
+        })
+
         router.push("/profile");
       } catch (error) {
         console.log("Error:", error);
         // toast.show(error?.response?.data?.message || "Failed to submit feedback");
         setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
+      }
+      finally {
+        setLoading(false);
       }
     };
     
@@ -185,11 +221,32 @@ const feedback = () => {
       </View>
      
     </ScrollView>
-    <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
+    <TouchableOpacity className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
     onPress={formik.handleSubmit}
     >
+
+        {loading ? (
+                  <Animated.View
+                  style={{
+                    transform: [{ translateX }],
+      
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
+                    
+                  />
+                </Animated.View>
+                
+                ) : (
                 <Text className="font-bold text-center text-black ">{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
               }</Text>
+            )}
               </TouchableOpacity>
   </View>
   );

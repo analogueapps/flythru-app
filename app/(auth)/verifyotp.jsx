@@ -9,12 +9,12 @@ import flightloader from "../../assets/images/flightload.gif";
 
 import { RESEND_OTP, VERIFY_OTP } from "../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useToast } from "react-native-toast-notifications";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
 import { otpValidationSchema } from "../../yupschema/otpSchema";
 import { useLocalSearchParams } from "expo-router";
 import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
+import Toast from "react-native-toast-message";
 
 const verifyotp = () => {
   const [codes, setCodes] = useState(Array(4).fill(""));
@@ -22,13 +22,13 @@ const verifyotp = () => {
   const refs = [useRef(null), useRef(null), useRef(null), useRef(null)];
   const [apiErr, setApiErr] = useState("");
   const [resentOtpMsg, setResentOtpMsg] = useState(false);
-  const toast = useToast();
+  const {verifytoken} = useLocalSearchParams()
   const { applanguage } = langaugeContext();
 const [loading, setLoading] = useState(false);
 
   const params = useLocalSearchParams();
   const restoken = params.token;
-  console.log("Received Token:", restoken);
+  console.log("Received Token:", restoken); 
   const [fcm,setFcm]=useState("")
 
   const [timer, setTimer] = useState(5);
@@ -117,7 +117,7 @@ const [loading, setLoading] = useState(false);
     setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show("No token found. Please log in.");
       return;
     }
     const data={
@@ -127,7 +127,11 @@ const [loading, setLoading] = useState(false);
     try {
       const res = await VERIFY_OTP(data, token);
       console.log(res.data.message);
-      toast.show(res.data.message);
+      Toast.show({
+        text: res.data.message,
+        duration: 2000,
+        type: "success",
+      });
       router.push("/home");
     } catch (error) {
       console.log("Error sending code:", error?.response);
@@ -141,27 +145,33 @@ const [loading, setLoading] = useState(false);
 
   const resendOtpHandler = async (restoken) => {
     if (!restoken) {
-      toast.show("Token is missing. Please try again.");
+      Toast.show("Token is missing. Please try again.");
       return;
     }
 
     const token = await AsyncStorage.getItem("authToken");
     console.log("resend method",token)
     if (!token) {
-      toast.show("No token found. Please log in.");
+      Toast.show("No token found. Please log in.");
       return;
     }
 
     try {
       const res = await RESEND_OTP(token); // Pass token to API caller
       console.log(res);
-      toast.show(res.data.message);
+      Toast.show({
+        text: res.data.message,
+        duration: 2000,
+        type: "success",
+      });
       setResentOtpMsg(true);
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Failed to resend OTP");
     }
   };
+
+  
 
  
 
@@ -255,19 +265,7 @@ const [loading, setLoading] = useState(false);
               )}
             </View>
 
-            {/* Resend OTP */}
-            {/* <TouchableOpacity
-              className="self-end mt-4"
-              onPress={() => resendOtpHandler(restoken)}
-            >
-              <Text className="text-[#575757] text-[12px] relative right-14">
-                {applanguage === "eng"
-                  ? Translations.eng.resend_otp
-                  : Translations.arb.resend_otp}
-              </Text>
-            </TouchableOpacity> */}
-
-            {/*  Trigger Formik submission */}
+          
             <TouchableOpacity
             disabled={loading}
               onPress={handleSubmit} //  Use handleSubmit instead of router.push
@@ -308,7 +306,7 @@ const [loading, setLoading] = useState(false);
         : `0.${timer} ثانية `}
     </Text>
   ) : (
-    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken);
+    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken || verifytoken);
                                       handleResend}}>
       <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
         {applanguage === "eng"

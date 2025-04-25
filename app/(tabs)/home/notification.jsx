@@ -12,7 +12,7 @@ import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import { NOTIFICATION } from "../../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useToast } from "react-native-toast-notifications";
+import Toast from "react-native-toast-message";
 
 
 const notification = () => {
@@ -21,7 +21,6 @@ const notification = () => {
     const { applanguage } = langaugeContext()
     const [notifications , setNotifications] = useState([])
     const [notiId , setNotiId] = useState({})
-    const toast = useToast()
 
     //  const fetchNotifications = async () => {
     //       const token = await AsyncStorage.getItem('authToken');
@@ -57,7 +56,12 @@ if (res?.data?.userNotifications) {
 
       } catch (error) {
         console.error("Error fetching notifications:", error);
-        toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+        // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: error?.response?.data?.message || "Failed to fetch notifications",
+        });
       }
     };
         useEffect(() => {
