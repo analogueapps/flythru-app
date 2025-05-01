@@ -215,13 +215,7 @@ const Index = () => {
       email: "",
       password: "",
 
-<<<<<<< HEAD
-      email: "taruntej.2002@gmail.com",
-      password: "Tarun@12",
-=======
-      // email: "tarunok@gmail.com",
-      // password: "Tarun@12",
->>>>>>> 8ef76d1cc14ca9f8d035b51df1a6996857b7eae4
+    
     },
     validationSchema: signupSchema(applanguage),
     validateOnChange: true,
@@ -269,13 +263,6 @@ const Index = () => {
       email: "",
       password: "",
 
-<<<<<<< HEAD
-      email: "taruntej.2002@gmail.com",
-      password: "Tarun@12",
-=======
-      // email: "tarun99@gmail.com",
-      // password: "Tarun@12",
->>>>>>> 8ef76d1cc14ca9f8d035b51df1a6996857b7eae4
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -408,13 +395,9 @@ const Index = () => {
       });
     }
   };
-<<<<<<< HEAD
 
   // Update code ...
 
-=======
-//Rohith Madipelly
->>>>>>> 8ef76d1cc14ca9f8d035b51df1a6996857b7eae4
   return (
     <SafeAreaView className="flex-1">
       {/* {authPopupVisible && (
