@@ -10,13 +10,18 @@
     },
     "preview": {
       "distribution": "internal"
-      
     },
     "production": {
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "ff@flythru.net",
+        "ascAppId": "6744433387",
+        "appleTeamId": "JZH9UGK87Z"
+      }
+    }
   }
 }
