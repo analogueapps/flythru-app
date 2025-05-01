@@ -10,11 +10,12 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SplashScreen from "expo-splash-screen";
 import { NotificationProvider } from "../UseContext/notifications";
-import { NetworkProvider } from "../UseContext/NetworkContext";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { FlightProvider } from "../UseContext/useFlightContext";
 import Toast from "react-native-toast-message";
+import { NetworkProvider } from "../UseContext/NetworkContext";
+import { NetworkErrorModal } from "./networkmodel";
 
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
@@ -106,8 +107,9 @@ const _layout = () => {
           </AuthProvider>
         </LanguageContext>
       </NotificationProvider>
-    </NetworkProvider>
+      <NetworkErrorModal/>
 
+</NetworkProvider>
 
                     </>
     

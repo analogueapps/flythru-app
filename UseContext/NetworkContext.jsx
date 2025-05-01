@@ -1,43 +1,55 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import NetInfo from "@react-native-community/netinfo";
-import { usePathname, useRouter } from "expo-router";
 
 export const NetworkContext = createContext();
-
 export const useNetwork = () => useContext(NetworkContext);
-
+// In NetworkContext.js
 export const NetworkProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(null);
-  const [networkType, setNetworkType] = useState(null);
-  const router = useRouter();
-  const pathname = usePathname(); // <- Get current route
-
-  //   useEffect(() => {
-  //     const unsubscribe = NetInfo.addEventListener((state) => {
-  //       setIsConnected(state.isConnected);
-  //       setNetworkType(state.type);
-  //     });
-
-  //     return () => unsubscribe();
-  //   }, []);
+  const [showModal, setShowModal] = useState(false);
+  const [manualClose, setManualClose] = useState(false);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
-      console.log("-0-0",state.isConnected)
-      //   setShowModal(state.isConnected === false); // Show modal if disconnected
+      // Only auto-show modal if not manually closed and connection is lost
+      if (!manualClose && state.isConnected === false) {
+        setShowModal(true);
+      }
     });
 
     return () => unsubscribe();
-  }, []);
-  // useEffect(() => {
-  //   if (!isConnected) {
-  //     router.push("/nointernet");
-  //   }
-  // }, [isConnected]);
+  }, [manualClose]);
+
+  const CheckNetwork = async () => {
+    const state = await NetInfo.fetch();
+    setIsConnected(state.isConnected);
+    if (!state.isConnected && !manualClose) {
+      setShowModal(true);
+    }
+    return state.isConnected;
+  };
+
   return (
-    <NetworkContext.Provider value={{ isConnected, networkType }}>
+    <NetworkContext.Provider
+      value={{ 
+        isConnected, 
+        showModal, 
+        setShowModal, 
+        CheckNetwork,
+        setManualClose
+      }}
+    >
       {children}
     </NetworkContext.Provider>
   );
 };
+
+//   return (
+//     <NetworkContext.Provider
+//       value={{ isConnected, showModal, setShowModal, CheckNetwork }}
+//     >
+//       {children}
+//     </NetworkContext.Provider>
+//   );
+// };

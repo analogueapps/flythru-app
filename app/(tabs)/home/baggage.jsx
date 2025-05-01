@@ -376,14 +376,14 @@ const baggage = () => {
                   className="mr-2"
                   onPress={() => numberOfPersons("decrease")}
                 >
-                  <Minus color={"#194F90"} size={17} />
+                  <Minus color={"#194F90"} size={20} />
                 </TouchableOpacity>
                 <Text className="text-[#194f90]">{persons}</Text>
                 <TouchableOpacity
                   className="ml-3"
                   onPress={() => numberOfPersons("increase")}
                 >
-                  <Plus color={"#194F90"} size={17} />
+                  <Plus color={"#194F90"} size={20} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -405,7 +405,7 @@ const baggage = () => {
                 <TouchableOpacity className="mr-2 ">
                   <Minus
                     color={"#194F90"}
-                    size={17}
+                    size={20}
                     onPress={() => numberOfBags("decreasebags")}
                   />
                 </TouchableOpacity>
@@ -413,7 +413,7 @@ const baggage = () => {
                 <TouchableOpacity className="ml-3">
                   <Plus
                     color={"#194F90"}
-                    size={17}
+                    size={20}
                     onPress={() => numberOfBags("increasebags")}
                   />
                 </TouchableOpacity>

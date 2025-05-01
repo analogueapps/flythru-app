@@ -31,7 +31,7 @@ const Address = () => {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Please login again",
+        text2: "Please login to add address",
       });
       return;
     }
@@ -73,7 +73,7 @@ const Address = () => {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Please login again",
+        text2: "Please login to add address",
       });
       return;
     }

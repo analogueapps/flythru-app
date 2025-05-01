@@ -3,14 +3,14 @@ import { TextInput, View } from "react-native";
 
 const OTPinput = ({ codes, refs, errorMessages, onChangeCode , onKeyPress }) => {
   return (
-    <View className="flex flex-row self-start justify-center mt-8">
-      {codes.map((code, index) => (
+<View className="flex flex-row justify-center items-center mt-8 w-[90%] mx-auto">
+{codes.map((code, index) => (
         <TextInput
           key={index}
           autoComplete="one-time-code"
           enterKeyHint="next"
           keyboardType="numeric"
-          className={`text-[16px] h-[50px] w-[62px] rounded-lg bg-[#ededed] mr-4 px-2 py-1 text-center border-[#e0e0e0] focus:bg-white  border focus:border-[#0A80FB] ${
+          className={`text-[16px] h-[50px] w-[62px] rounded-lg bg-[#ededed] mx-2 px-2 py-1 text-center border-[#e0e0e0] focus:bg-white  border focus:border-[#0A80FB] ${
             errorMessages !== undefined
               ? "border border-[#ef4444] text-[#ef4444]"
               : "text-[#000]"

@@ -17,7 +17,12 @@ import SvgApple from "../../assets/svgs/AppleIcon";
 import images from "../../constants/images";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
-import { LOGIN_API, OAUTH, RESEND_OTP, SIGN_UP_API } from "../../network/apiCallers";
+import {
+  LOGIN_API,
+  OAUTH,
+  RESEND_OTP,
+  SIGN_UP_API,
+} from "../../network/apiCallers";
 import loginSchema from "../../yupschema/loginSchema";
 import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext } from "../../customhooks/languageContext";
@@ -27,7 +32,7 @@ import signupSchema from "../../yupschema/signupSchema";
 import { AlertTriangle, X, Eye, EyeOff } from "lucide-react-native"; // Optional, or use FontAwesome if preferred
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // import GoogleAuth from "../../googleAuth";
-import Toast from 'react-native-toast-message';
+import Toast from "react-native-toast-message";
 
 import auth, {
   firebase,
@@ -45,12 +50,13 @@ const Index = () => {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const widthAnim = useRef(new Animated.Value(0)).current;
-  const [fcm,setFcm]=useState("")
+  const [fcm, setFcm] = useState("");
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
-const [authPopupMessage, setAuthPopupMessage] = useState("");
-const [loading, setLoading] = useState(false);
+  const [authPopupMessage, setAuthPopupMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-const [verifytoken, setVerifytoken] = useState("");
+  const [verifytoken, setVerifytoken] = useState("");
 
   const { setUserEmail, SaveMail } = useAuth();
   const { applanguage } = langaugeContext();
@@ -61,7 +67,7 @@ const [verifytoken, setVerifytoken] = useState("");
 
   const startAnimation = () => {
     translateX.setValue(-30); // Reset position
-  
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: 100, // How far to move
@@ -71,7 +77,7 @@ const [verifytoken, setVerifytoken] = useState("");
       })
     ).start();
   };
-  
+
   // Run it when loading starts
   useEffect(() => {
     if (loading) {
@@ -81,18 +87,14 @@ const [verifytoken, setVerifytoken] = useState("");
       translateX.setValue(0); // Reset to start
     }
   }, [loading]);
-  
-  
 
-  
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
         "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
-
-      });
+    });
   }, []);
-  
+
   const signInWithGoogle = async () => {
     try {
       // Ensure Google Play Services is available
@@ -115,33 +117,36 @@ const [verifytoken, setVerifytoken] = useState("");
       const googleCredential = GoogleAuthProvider.credential(
         userInfo.data.idToken
       );
+      console.log("user id token", userInfo.data.idToken);
       // Sign in with Firebase using the Google credential
       const userCredential = await signInWithCredential(auth, googleCredential);
+
       console.log("Firebase User:", userCredential.user);
 
       const firebaseUser = userCredential.user;
-const firebaseIdToken = await firebaseUser.getIdToken();
-console.log("Firebase ID Token:", firebaseIdToken);
+      const firebaseIdToken = await firebaseUser.getIdToken();
+      console.log("Firebase ID Token:", firebaseIdToken);
 
+      // await oauthHandler({ oAuthToken: firebaseIdToken });
+      await oauthHandler(firebaseIdToken);
 
-await oauthHandler({ oAuthToken: firebaseIdToken });
+      router.push("/home");
+      // Handle successful sign-in
+      const user = userCredential.user;
+      console.log("Signed in as:", user.email);
 
-router.push("/home");
-// Handle successful sign-in
-const user = userCredential.user;
-console.log("Signed in as:", user.email);
-
-// Optionally save user email or perform further actions
-// setUserEmail(user.email);
-await SaveMail(user.email);
+      // Optionally save user email or perform further actions
+      // setUserEmail(user.email);
+      await SaveMail(user.email);
+      await checkLoginStatus(); // 👈 Add this
 
       // Redirect to the home screen
       router.push("/home");
     } catch (error) {
       // console.error("Google Sign-In Error:", error);
       Toast.show({
-        type: 'error',
-        text1: error.message || 'Google Sign-In failed',
+        type: "error",
+        text1: error.message || "Google Sign-In failed",
       });
     }
   };
@@ -153,7 +158,8 @@ await SaveMail(user.email);
       formik.resetForm();
     }
   }, [activeTab]);
-  
+
+  // tab animation
 
   const animateTab = (tab) => {
     const toValue = tab === "login" ? 0 : 1;
@@ -185,19 +191,22 @@ await SaveMail(user.email);
     ]).start();
   };
 
-    useFocusEffect(useCallback(()=> 
-      {
-        getToken()
-      },[]))
-      const getToken = async () => {
-        try {
-          const fcmToken = await registerForPushNotificationsAsync();
-          console.log("fcm", fcmToken);
-          setFcm(fcmToken);
-        } catch (error) {
-          console.error("Push notification error:", error);
-        }
-      };
+  // tab amination end
+
+  useFocusEffect(
+    useCallback(() => {
+      getToken();
+    }, [])
+  );
+  const getToken = async () => {
+    try {
+      const fcmToken = await registerForPushNotificationsAsync();
+      console.log("fcm", fcmToken);
+      setFcm(fcmToken);
+    } catch (error) {
+      console.error("Push notification error:", error);
+    }
+  };
 
   // signup handler
 
@@ -206,7 +215,7 @@ await SaveMail(user.email);
       // email: "",
       // password: "",
 
-      email: "tarunok1234@gmail.com",
+      email: "taruntej.2002@gmail.com",
       password: "Tarun@12",
     },
     validationSchema: signupSchema(applanguage),
@@ -215,7 +224,7 @@ await SaveMail(user.email);
     onSubmit: async (values) => {
       const modifiedValues = {
         ...values,
-        email: values.email.toLowerCase()
+        email: values.email.toLowerCase(),
       };
       await SignupHandler(modifiedValues);
     },
@@ -228,8 +237,8 @@ await SaveMail(user.email);
 
       console.log("verification code sent", res.data.message);
       Toast.show({
-        type: 'success',
-        text1: res.data.message || 'Verification code sent',
+        type: "success",
+        text1: res.data.message || "Verification code sent",
       });
       router.push({
         pathname: "/verifyotp",
@@ -240,17 +249,13 @@ await SaveMail(user.email);
     } catch (error) {
       console.log("Error signing up:", error?.response);
       Toast.show({
-        type: 'error',
-        text1: error?.response?.data?.message || 'Login failed',
+        type: "error",
+        text1: error?.response?.data?.message || "Login failed",
       });
-      
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
-
-
 
   // login handler
 
@@ -259,7 +264,7 @@ await SaveMail(user.email);
       // email: "",
       // password: "",
 
-      email: "tarunokokok@gmail.com",
+      email: "taruntej.2002@gmail.com",
       password: "Tarun@12",
     },
     validationSchema: loginSchema(applanguage),
@@ -270,7 +275,7 @@ await SaveMail(user.email);
         ...values,
         email: values.email.toLowerCase(),
       };
-      
+
       console.log("login values", modifiedValues);
       await LoginHandler(modifiedValues);
       await SaveMail(modifiedValues.email);
@@ -279,22 +284,25 @@ await SaveMail(user.email);
 
   const LoginHandler = async (values) => {
     setLoading(true);
-    const data={
-      email:values.email,
-      password:values.password,
-      fcmToken:fcm
-    }
+    const data = {
+      email: values.email,
+      password: values.password,
+      fcmToken: fcm,
+    };
 
     if (values.email) await AsyncStorage.setItem("user_email", values.email);
     setUserEmail(values.email);
-    
-    
+
     try {
-      const res = await LOGIN_API(data,values);
+      const res = await LOGIN_API(data, values);
       console.log("Login successful", res.data);
-      router.push("/home");
-      Toast.show({  type: 'success', // or 'info', 'error'
-        text1: res.data.message || 'Login successful',});
+      await AsyncStorage.setItem("authToken", res.data.token);
+
+      router.replace("/home");
+      Toast.show({
+        type: "success", // or 'info', 'error'
+        text1: res.data.message || "Login successful",
+      });
     } catch (error) {
       console.log("Error logging in:", error);
 
@@ -304,14 +312,14 @@ await SaveMail(user.email);
           error?.response?.data?.isAuthenticated === false
         ) {
           const token = error?.response?.data?.token;
-        
+
           setAuthPopupMessage(error?.response?.data?.message);
           setAuthPopupVisible(true);
           setVerifytoken("jajajajajajajajaja", token); // You can still keep this for later use
-        
+
           // ✅ Use token directly here — not verifytoken
           resendOtpHandler(token);
-        
+
           setTimeout(() => {
             setAuthPopupVisible(false);
             router.push({
@@ -320,28 +328,26 @@ await SaveMail(user.email);
               // params: { token },
             });
           }, 2000);
-        }
-         else {
+        } else {
           console.log("error loginnnnnggggg", error?.response);
           // Toast.show(error?.response?.data?.message || error?.response?.data?.errors);
-          Toast.show({  type: 'error', // or 'info', 'error'
-            text1: error?.response?.data?.message || error?.response?.data?.errors,});
+          Toast.show({
+            type: "error", // or 'info', 'error'
+            text1:
+              error?.response?.data?.message || error?.response?.data?.errors,
+          });
         }
       }
-    }
-    finally{
+    } finally {
       setLoading(false);
     }
   };
 
   // resend otp handler
 
-  
   const resendOtpHandler = async (verifytoken) => {
-   
-
     const token = await AsyncStorage.getItem("authToken");
-    console.log("resend method",verifytoken)
+    console.log("resend method", verifytoken);
     if (!verifytoken) {
       Toast.show("No token found. Please log in.");
       return;
@@ -361,25 +367,39 @@ await SaveMail(user.email);
     }
   };
 
-
+  const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+    if (token) {
+      // Navigate to home directly if token exists
+      router.replace("/home");
+    
+  };
+    console.log("Token in checkLoginStatus:", token); // Ensure the token is saved
+    setIsLoggedIn(!!token); // Update the login status
+  };
 
   const oauthHandler = async (oAuthToken) => {
     try {
       const res = await OAUTH(oAuthToken);
+      console.log("OAuth response:", res);
 
-      console.log("response of oauthhhhhh", res.data.message);
-      Toast.show("Signup successful");
-     
-      console.log("message response //////", res);
+      // Call checkLoginStatus to update the UI after OAuth login
+      await checkLoginStatus(); // Ensure the login status is updated after OAuth
+
+      Toast.show({
+        type: "success",
+        text1: res.data.message || "OAuth successful",
+      });
     } catch (error) {
       console.log("Error signing up:", error?.response);
-      Toast.show(error?.response?.data?.message || error?.response?.data?.errors);
+      Toast.show({
+        type: "error",
+        text1: error?.response?.data?.message || "OAuth failed",
+      });
     }
   };
-// Update code ...
 
-
-
+  // Update code ...
 
   return (
     <SafeAreaView className="flex-1">
@@ -553,31 +573,28 @@ await SaveMail(user.email);
                   disabled={loading}
                   className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
                 >
-                   {loading ? (
-    <Animated.View
-    style={{
-      transform: [{ translateX }],
-      width: 100,
-      height: 100,
-      alignSelf: "center",
-    }}
-    
-  >
-    <Image
-      source={flightloader}
-      style={{ width: 100, height: 100 }}
-      resizeMode="contain"
-      
-    />
-  </Animated.View>
-  
-  ) : (
-                  <Text className="text-center  text-[#08203C] font-bold text-lg">
-                    {applanguage === "eng"
-                      ? Translations.eng.log_in
-                      : Translations.arb.log_in}
-                  </Text>
-  )}
+                  {loading ? (
+                    <Animated.View
+                      style={{
+                        transform: [{ translateX }],
+                        width: 100,
+                        height: 100,
+                        alignSelf: "center",
+                      }}
+                    >
+                      <Image
+                        source={flightloader}
+                        style={{ width: 100, height: 100 }}
+                        resizeMode="contain"
+                      />
+                    </Animated.View>
+                  ) : (
+                    <Text className="text-center  text-[#08203C] font-bold text-lg">
+                      {applanguage === "eng"
+                        ? Translations.eng.log_in
+                        : Translations.arb.log_in}
+                    </Text>
+                  )}
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
@@ -698,37 +715,34 @@ await SaveMail(user.email);
                   </Text>
                 )}
 
-<TouchableOpacity
-  onPress={formik.handleSubmit}
-  disabled={loading}
-  className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
->
-  {loading ? (
-    <Animated.View
-    style={{
-      transform: [{ translateX }],
-      width: 100,
-      height: 100,
-      alignSelf: "center",
-    }}
-    
-  >
-    <Image
-      source={flightloader}
-      style={{ width: 100, height: 100 }}
-      resizeMode="contain"
-      
-    />
-  </Animated.View>
-  
-  ) : (
-    <Text className="text-[#08203C] font-bold text-lg">
-      {applanguage === "eng"
-        ? Translations.eng.sign_up
-        : Translations.arb.sign_up}
-    </Text>
-  )}
-</TouchableOpacity>
+                <TouchableOpacity
+                  onPress={formik.handleSubmit}
+                  disabled={loading}
+                  className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
+                >
+                  {loading ? (
+                    <Animated.View
+                      style={{
+                        transform: [{ translateX }],
+                        width: 100,
+                        height: 100,
+                        alignSelf: "center",
+                      }}
+                    >
+                      <Image
+                        source={flightloader}
+                        style={{ width: 100, height: 100 }}
+                        resizeMode="contain"
+                      />
+                    </Animated.View>
+                  ) : (
+                    <Text className="text-[#08203C] font-bold text-lg">
+                      {applanguage === "eng"
+                        ? Translations.eng.sign_up
+                        : Translations.arb.sign_up}
+                    </Text>
+                  )}
+                </TouchableOpacity>
 
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
@@ -754,8 +768,6 @@ await SaveMail(user.email);
                   </TouchableOpacity> */}
                 </View>
                 <TouchableOpacity
-
-                
                   className="self-center"
                   // onPress={() => router.push("/home")}
                   onPress={async () => {
@@ -769,7 +781,7 @@ await SaveMail(user.email);
                     // Navigate to home
                     router.push("/home");
                   }}
->
+                >
                   <Text className="text-[#0F7BE6] text-lg">
                     {applanguage === "eng"
                       ? Translations.eng.skip_signin

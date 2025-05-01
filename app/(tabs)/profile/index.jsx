@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Animated,
+  AppState,
   Easing,
   Dimensions,
   TextInput,
@@ -111,6 +112,9 @@ const index = () => {
   const logoutrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");
   const [loading, setLoading] = useState(false);
+  const [shouldOpenSheet, setShouldOpenSheet] = useState(false);
+  const [accountDeleted, setAccountDeleted] = useState(false);
+  const [selectedRadioReason, setSelectedRadioReason] = useState("");
 
   const { applanguage } = langaugeContext();
   const router = useRouter();
@@ -159,11 +163,12 @@ const index = () => {
   
   
 
-  const checkLoginStatus = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-    console.log("Token in checkLoginStatus:", token); // ✅ debug
-    setIsLoggedIn(!!token);
-  };
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem("authToken");
+      console.log("Token in checkLoginStatus:", token); // Debugging
+      setIsLoggedIn(!!token);  // Will correctly set the logged-in status
+    };
+    
   
   // useFocusEffect for re-checking when screen gains focus
   useFocusEffect(
@@ -187,25 +192,6 @@ const index = () => {
     },
   });
 
-  // const logoutapi = async () => {
-  //   const token = await AsyncStorage.getItem("authToken");
-
-  //   if (!token) {
-  //     toast.show("Logged out successfully");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await LOGOUT(token);
-  //     console.log(res);
-  //     router.replace("/(auth)");
-  //     toast.show(res.data.message);
-  //     console.log(res.data.message);
-  //   } catch (error) {
-  //     console.log("Error sending code:", error?.response?.data?.message);
-  //     toast.show(error?.response?.data?.message || "error occured");
-  //   }
-  // };
 
   const logoutapi = async () => {
     setLoading(true)
@@ -243,45 +229,14 @@ const index = () => {
         "userEmail",
         // Add any other keys you store
       ]);
+      setIsLoggedIn(false); // 👈 Ensure UI updates to "Login"
+
   
       // Navigate to the auth screen
       router.replace("/(auth)");
     }
   };
   
-
-  const deleteaccount = async (values) => {
-    setLoading(true)
-
-    const token = await AsyncStorage.getItem("authToken");
-
-    if (!token) {
-      Toast.show("No token found. Please log in.");
-      return;
-    }
-
-    try {
-      const res = await DELETE_ACCOUNT(values, token);
-      console.log(res);
-      router.push("/(auth)");
-      // Toast.show(res.data.message);
-      Toast.show({
-        type: "success",
-        text1: res.data.message,
-      });
-    } catch (error) {
-      console.log("Error sending code:", error?.response?.data?.message);
-      // Toast.show(error?.response?.data?.message || "error occured");
-      Toast.show({
-        type: "error",
-        text1: error?.response?.data?.message || "error occured",
-      })
-    }
-    finally{
-      setLoading(false)
-    }
-  };
-
   const onSignOut = async () => {
     try {
       await handleSignOut();
@@ -291,6 +246,10 @@ const index = () => {
       console.log("Error", error.message); // or toast.show(...)
     }
   };
+
+
+  
+  
   const handleLogout = () => {
     return (
       <RBSheet
@@ -383,7 +342,48 @@ const index = () => {
     );
   };
 
+
+  const deleteaccount = async (values) => {
+
+
+    const finalReason = formik.values.reasonForDeleteAccount;
+
+    setLoading(true)
+
+    const token = await AsyncStorage.getItem("authToken");
+
+    if (!token) {
+      Toast.show("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const res = await DELETE_ACCOUNT(values, token);
+      console.log(res);
+      setAccountDeleted(true); // prevent reuse
+    drefRBSheet.current?.close(); 
+      router.push("/(auth)");
+      // Toast.show(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
+    } catch (error) {
+      console.log("Error sending code:", error?.response?.data?.message);
+      // Toast.show(error?.response?.data?.message || "error occured");
+      Toast.show({
+        type: "error",
+        text1: error?.response?.data?.message || "error occured",
+      })
+    }
+    finally{
+      setLoading(false)
+    }
+  };
+
   const handleDelete = () => {
+    if (accountDeleted) return null; // Prevent rendering if already deleted
+
     return (
       <RBSheet
         ref={drefRBSheet}
@@ -444,9 +444,13 @@ const index = () => {
             <View className=" items-center py-4">
               <RadioButtonGroup
                 containerStyle={{ marginBottom: 10 }}
-                selected={current}
+                // selected={current}
+                selected={selectedRadioReason}
+
                 // onSelected={(value) => setCurrent(value)}
                 onSelected={(value) => {
+                  setSelectedRadioReason(value);
+                
                   const reasonMap = {
                     "1": Translations.eng.reason_service_not_good,
                     "2": Translations.eng.reason_no_proper_customer_care,
@@ -454,10 +458,21 @@ const index = () => {
                     "4": Translations.eng.reason_poor_experience,
                   };
                 
-                  const selectedReason = applanguage === "eng" ? reasonMap[value] : Object.values(Translations.arb)[parseInt(value) - 1];
+                  const selectedReason =
+                    applanguage === "eng"
+                      ? reasonMap[value]
+                      : {
+                          "1": Translations.arb.reason_service_not_good,
+                          "2": Translations.arb.reason_no_proper_customer_care,
+                          "3": Translations.arb.reason_driver_rude,
+                          "4": Translations.arb.reason_poor_experience,
+                        }[value];
                 
+                  // ✅ Set in Formik but don't show in the input
                   formik.setFieldValue("reasonForDeleteAccount", selectedReason);
                 }}
+                
+                
                 
                 radioBackground="#4E4848"
               >
@@ -552,9 +567,14 @@ const index = () => {
 
               <TextInput
                 numberOfLines={7}
-                onChangeText={formik.handleChange("reasonForDeleteAccount")}
+                onChangeText={(text) => {
+                  // If user types manually, deselect radio
+                  setSelectedRadioReason("");
+                  formik.setFieldValue("reasonForDeleteAccount", text);
+                }}
+                // onChangeText={formik.handleChange("reasonForDeleteAccount")}
                 onBlur={formik.handleBlur("reasonForDeleteAccount")}
-                value={formik.values.reasonForDeleteAccount}
+                value={selectedRadioReason ? "" : formik.values.reasonForDeleteAccount}
                 className="bg-white rounded-lg p-3 border-[#EDF1F3] border-[1px]"
                 placeholder={
                   applanguage === "eng"
@@ -608,6 +628,32 @@ const index = () => {
       </RBSheet>
     );
   };
+
+    useEffect(() => {
+      const subscription = AppState.addEventListener('change', (nextAppState) => {
+        if (nextAppState !== 'active') {
+          drefRBSheet.current?.close(); // ✅ close sheet when app goes background
+          setShouldOpenSheet(false); // ✅ also reset the open flag
+        }
+      });
+    
+      return () => {
+        subscription.remove(); // Clean up listener
+      };
+    }, []);
+
+    useEffect(() => {
+      const subscription = AppState.addEventListener('change', (nextAppState) => {
+        if (nextAppState !== 'active') {
+          logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
+          setShouldOpenSheet(false); // ✅ also reset the open flag
+        }
+      });
+    
+      return () => {
+        subscription.remove(); // Clean up listener
+      };
+    }, []);
 
   return (
     <View className="flex-1">
@@ -806,7 +852,8 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+
+          {isLoggedIn && <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => drefRBSheet.current.open()}
           >
@@ -820,6 +867,7 @@ const index = () => {
             </View>
             <Rightarrow />
           </TouchableOpacity>
+}
 
           <TouchableOpacity
   className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"

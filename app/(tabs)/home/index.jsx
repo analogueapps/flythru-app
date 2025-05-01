@@ -39,6 +39,7 @@ import HomeCal from "../../../assets/homecalender";
 import Homecal from "../../../assets/homecalender";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import { useAuth } from "../../../UseContext/AuthContext";
 
 
 const Index = () => {
@@ -50,6 +51,7 @@ const Index = () => {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
+  const {loadToken}=useAuth()
 
   // Swap function
   const handleSwap = () => {
@@ -62,8 +64,10 @@ const Index = () => {
 
   useFocusEffect(
     useCallback(() => {
+
       const checkNotificationStatus = async () => {
         try {
+          await loadToken()
           const userId = await AsyncStorage.getItem("authUserId");
           const hasVisited = await AsyncStorage.getItem(
             "hasVisitedNotifications"
@@ -137,7 +141,7 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      departureDate: "2025-05-05",
+      departureDate: "2025-06-05",
       flightNumber: "",
     },
     validationSchema: AllflightSchema(applanguage),
@@ -155,27 +159,7 @@ const Index = () => {
     },
   });
 
-  // const allbanners = async () => {
-  //   try {
-  //     const res = await ALL_BANNERS();
-  //     console.log("API Response:", res);
-
-  //     if (res?.data?.allBanners && Array.isArray(res.data.allBanners)) {
-  //       console.log("BANNERSSSSSSSSSSSS", res.data);
-
-  //       setBanners(res.data.allBanners);
-
-  //       setbannerPicture(res?.data?.allBanners[0]?.bannerSignedUrl);
-  //       console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhh",bannerPicture)
-  //     } else {
-  //       console.log("Unexpected response format:", res.data);
-  //       setBanners([]);
-  //     }
-  //   } catch (error) {
-  //     console.log("Error fetching banners:", error);
-  //     setBanners([]);
-  //   }
-  // };
+  
 
   const allbanners = async () => {
     try {
@@ -249,11 +233,8 @@ const Index = () => {
           className="flex-row my-2 justify-between items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50"
         >
           <TextInput
-            placeholder={
-              applanguage === "eng"
-                ? Translations.eng.departure_date
-                : Translations.arb.departure_date
-            }
+            placeholder="yyyy-mm-dd"
+        
             onChangeText={formik.handleChange("departureDate")}
             onBlur={formik.handleBlur("departureDate")}
             value={formik.values.departureDate}
@@ -289,7 +270,7 @@ const Index = () => {
         )}
 
         <TextInput
-          maxLength={8}
+          maxLength={6}
           placeholder={
             applanguage === "eng"
               ? Translations.eng.flight_number
@@ -353,9 +334,8 @@ const Index = () => {
               Toast.show({
                 type: "error",
                 text1:
-                  applanguage === "eng"
-                    ? Translations.eng.fill_one_field
-                    : Translations.arb.fill_one_field,
+                 " Please fill at least one field"
+                    ,
               });
             } else {
               formik.handleSubmit();
@@ -409,50 +389,7 @@ const Index = () => {
             )}
           </View>
 
-          {/* <Text className="text-[#164F90] my-4 font-bold text-[16px] self-start">
-            Today Active Flights
-          </Text> */}
-          {/* Flight Card */}
-          {/* {Array.from({ length: 5 }).map((_, index) => (
-            <View
-              key={index}
-              className="bg-white w-full  rounded-xl shadow-md border border-gray-100 mb-3"
-            >
-              <View className="flex-row items-start  py-6 px-4 ">
-                <TempAirWaysLogo />
-                <View className=" ml-2 flex flex-col items-start gap-y-1">
-                  <Text className="text-gray-600">Turkish AIRWAYS</Text>
-                  <Text className="text-[#164F90]">582041B</Text>
-                </View>
-              </View>
-              <View className="flex-1 h-[1px] border-t border-dashed border-[#cdcdcd] relative" />
-              <View className="flex-row justify-between items-center py-6 px-5">
-                <View>
-                  <Text className="text-2xl font-bold text-[#003C71]">
-                    14:30
-                  </Text>
-                  <Text className="text-gray-500">HYD</Text>
-                </View>
-                <View className="flex-1 items-center">
-                  <View className="w-full flex-row items-center justify-center mt-6">
-                    <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
-                      <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
-                        <FontAwesome5 name="plane" size={16} color="#164F90" />
-                      </View>
-                    </View>
-                    
-                  </View>
-                  <Text className="text-gray-500 text-sm mt-3">5h30m</Text>
-                </View>
-                <View>
-                  <Text className="text-2xl font-bold text-[#003C71]">
-                    20:00
-                  </Text>
-                  <Text className="text-gray-500 self-end">DUB</Text>
-                </View>
-              </View>
-            </View>
-          ))} */}
+
         </View>
       </ScrollView>
     </View>

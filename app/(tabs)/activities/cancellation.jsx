@@ -57,12 +57,13 @@ const cancellation = () => {
 
     try {
       const res = await CANCELLATION(values, token , bookingId);
-      console.log(res.data.message);
       Toast.show({
         type: "success",
-        text1: res.data.message,
+        text1:"Booking cancelled successfully",
+        text2: `Your amount will be refunded within "2" days`,
       });
       console.log("booking details" , bookingId);
+      console.log("cancelllllllaaaaaaaaaaaaaaaaaa", res.data.message);
 
       
     } catch (error) {
@@ -148,7 +149,9 @@ const cancellation = () => {
         </View>
       </ScrollView>
       <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
-      onPress={()=> formik.handleSubmit()}
+      onPress={()=> {formik.handleSubmit();
+        router.dismissAll();
+      }}
       >
         <Text className="font-bold text-center text-black ">
         {

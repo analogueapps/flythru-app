@@ -10,6 +10,7 @@ import {
   Easing,
   Dimensions,
   Linking,
+  AppState,
   FlatList,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
@@ -41,14 +42,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import selectlocationSchema from "../../../yupschema/selectLocationSchema";
-import SelectDropdown from 'react-native-select-dropdown'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import SelectDropdown from "react-native-select-dropdown";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useRouter } from "expo-router";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import flightloader from "../../../assets/images/flightload.gif";
-
-
 
 const selectlocation = () => {
   const insets = useSafeAreaInsets();
@@ -70,7 +69,7 @@ const selectlocation = () => {
   const parsedBaggagePictures = baggagePictures
     ? JSON.parse(decodeURIComponent(baggagePictures))
     : [];
-    const [markerCoords, setMarkerCoords] = useState(null);
+  const [markerCoords, setMarkerCoords] = useState(null);
 
   const [addresses, setAddresses] = useState([]);
   const [filteredAddresses, setFilteredAddresses] = useState([]);
@@ -78,17 +77,34 @@ const selectlocation = () => {
   const [orderId, setOrderId] = useState(null);
   const [userId, setUserId] = useState(null);
   const [baggageId, setBaggageId] = useState(null);
+  const [shouldOpenSheet, setShouldOpenSheet] = useState(false);
 
   const [region, setRegion] = useState(null);
-const [address, setAddress] = useState('');
-const [loading, setLoading] = useState(false);
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [hasVisited, setHasVisited] = useState(false);
+
+useEffect(() => {
+  const checkVisit = async () => {
+    const value = await AsyncStorage.getItem('hasVisitedLocationSheet');
+    if (value !== 'true') {
+      // First time visit
+      locationrefRBSheet.current?.open();
+      await AsyncStorage.setItem('hasVisitedLocationSheet', 'true');
+    }
+    setHasVisited(true); // Mark visited (used if needed elsewhere)
+  };
+
+  checkVisit();
+}, []);
 
 
- const translateX = useRef(new Animated.Value(0)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
 
   const startAnimation = () => {
     translateX.setValue(-30); // Reset position
-  
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: 100, // How far to move
@@ -98,7 +114,7 @@ const [loading, setLoading] = useState(false);
       })
     ).start();
   };
-  
+
   // Run it when loading starts
   useEffect(() => {
     if (loading) {
@@ -109,41 +125,38 @@ const [loading, setLoading] = useState(false);
     }
   }, [loading]);
 
-useEffect(() => {
-  if (latitude && longitude) {
-    setRegion({
-      latitude: parseFloat(latitude),
-      longitude: parseFloat(longitude),
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
-    setLoading(false);
-  }
-}, [latitude, longitude]);
+  useEffect(() => {
+    if (latitude && longitude) {
+      setRegion({
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      setLoading(false);
+    }
+  }, [latitude, longitude]);
 
-
-const onRegionChangeComplete = async (newRegion) => {
-  setRegion(newRegion);
-  try {
-    const [geo] = await Location.reverseGeocodeAsync({
-      latitude: newRegion.latitude,
-      longitude: newRegion.longitude,
-    });
-    const formattedAddress = `${geo.name || ''} ${geo.street || ''}, ${geo.city || ''}`;
-    setAddress(formattedAddress);
-    formik.setFieldValue("pickUpLocation", formattedAddress);
-  } catch (error) {
-    console.error("Reverse Geocode Error", error);
-  }
-};
-
-
-  
-
+  const onRegionChangeComplete = async (newRegion) => {
+    setRegion(newRegion);
+    try {
+      const [geo] = await Location.reverseGeocodeAsync({
+        latitude: newRegion.latitude,
+        longitude: newRegion.longitude,
+      });
+      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${
+        geo.city || ""
+      }`;
+      setAddress(formattedAddress);
+      formik.setFieldValue("pickUpLocation", formattedAddress);
+    } catch (error) {
+      console.error("Reverse Geocode Error", error);
+    }
+  };
 
   const searchLocation = async () => {
     const text = formik.values.pickUpLocation;
-  
+
     if (text.length > 2) {
       try {
         const results = await Location.geocodeAsync(text);
@@ -157,15 +170,13 @@ const onRegionChangeComplete = async (newRegion) => {
     }
   };
 
-
-
   const handleLocationInput = (text) => {
     formik.setFieldValue("pickUpLocation", text);
   };
 
   useEffect(() => {
     const fetchAddresses = async () => {
-      const token = await AsyncStorage.getItem('authToken');
+      const token = await AsyncStorage.getItem("authToken");
       if (!token) {
         // Toast.show("No token found. Please log in.");
         Toast.show({
@@ -175,27 +186,27 @@ const onRegionChangeComplete = async (newRegion) => {
         });
         return;
       }
-  
+
       try {
         const res = await ALL_ADDRESS(token);
         const raw = res?.data?.addresses || [];
-  
-        const mapped = raw.map(addr => ({
+
+        const mapped = raw.map((addr) => ({
           label: `${addr.addressData}, ${addr.city}, ${addr.state}`,
           value: addr.id, // or addr._id if that's your backend key
           fullData: addr, // optional, if you want original data
         }));
-  
+
         setAddresses(mapped); // ✅ Clean array now
       } catch (error) {
         console.log("Error fetching addresses:", error);
         setAddresses([]);
       }
     };
-  
+
     fetchAddresses();
   }, []);
-  
+
   const formik = useFormik({
     initialValues: {
       pickUpLocation: "",
@@ -226,9 +237,23 @@ const onRegionChangeComplete = async (newRegion) => {
       }
 
       // await paymentApi(requestData);
-
     },
   });
+
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState !== 'active') {
+        locationrefRBSheet.current?.close(); // ✅ close sheet when app goes background
+        setShouldOpenSheet(false); // ✅ also reset the open flag
+      }
+    });
+  
+    return () => {
+      subscription.remove(); // Clean up listener
+    };
+  }, []);
+  
 
   // pament api handler
 
@@ -260,25 +285,31 @@ const onRegionChangeComplete = async (newRegion) => {
       setPickupdate(res.data.date);
       setPickuploaction(res.data.baggage.pickUpLocation);
       setOrderId(orderIdFromRes);
-      setUserId(userIdFromRes); 
+      setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
 
-      console.log("okieeeeeeeeeeeeeee", paymentUrl
-     
-      );
+      console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
       Toast.show({
         type: "success",
         text1: "Success",
-        text2: res.data.message,});
+        text2: res.data.message,
+      });
 
-        return true;
+      return true;
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "error occurred");
-    }
-    finally {
+      if (error?.response?.data?.message === "User details are missing.") {
+        Toast.show({
+          type: "error",
+          text1: "Session Expired",
+          text2: "Please update your profile details.",
+        });
+        router.replace("/home/editpro");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -311,8 +342,134 @@ const onRegionChangeComplete = async (newRegion) => {
     fetchUserName();
   }, []);
 
-  const handlelocation = () => {
-    return (
+//   const handlelocation = () => {
+//     if (hasVisited) return null; // Don't open it again
+
+//   AsyncStorage.setItem('hasVisitedLocationSheet', 'true'); // Mark as visited
+//   locationrefRBSheet.current?.open(); // Open the sheet only first time
+
+//     return (
+//       <RBSheet
+//         ref={locationrefRBSheet}
+//         closeOnDragDown={true}
+//         closeOnPressMask={true}
+//         draggable={true}
+//         height={Dimensions.get("window").height / 2}
+//         customStyles={{
+//           wrapper: {
+//             backgroundColor: "transparent",
+//           },
+//           draggableIcon: {
+//             backgroundColor: "#000",
+//           },
+//         }}
+//       >
+//         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+//           <View className="flex flex-row justify-between items-center my-7 gap-2">
+//             <View className="flex flex-row ">
+//               {/* <Image
+//                 source={dp}
+//                 className="h-16 w-16 rounded-full mr-4"
+//                 resizeMode="cover" 
+//               /> */}
+
+//               <View>
+//                 <Text className=" text-3xl font-thin">{userName}</Text>
+//                 {/* <Text>Dubai</Text> */}
+//               </View>
+//             </View>
+
+//             <View>
+//               <Text className="text-[#164F90] text-2xl font-bold">
+//                 {applanguage === "eng"
+//                   ? Translations.eng.total
+//                   : Translations.arb.total}{" "}
+//                 : {price}
+//               </Text>
+//               <Text>
+//                 {pickupdate} {time}{" "}
+//               </Text>
+//             </View>
+//           </View>
+
+//           <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
+//           <Image
+//   source={verticalline}
+//   className="h-28 -mt-3" // add negative margin-top
+//   resizeMode="contain"
+// />
+
+
+//             <View className="flex-col gap-5">
+//               <View className="flex-col gap-3">
+//                 <Text className="text-[#164F90] text-xl font-bold">
+//                   {applanguage === "eng"
+//                     ? Translations.eng.pick_up
+//                     : Translations.arb.pick_up}{" "}
+//                 </Text>
+//                 <Text className="text-lg">{pickuploaction}</Text>
+//               </View>
+
+//               <View className="flex-col gap-3">
+//                 <Text className="text-[#164F90] text-xl font-bold">
+//                   {applanguage === "eng"
+//                     ? Translations.eng.drop_off
+//                     : Translations.arb.drop_off}{" "}
+//                 </Text>
+//                 <Text className="text-lg">Airport</Text>
+//               </View>
+//             </View>
+//           </View>
+
+//           <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
+
+//           <View className="flex flex-row justify-center">
+//             <SwipeButton
+//               title="Swipe Right to Book"
+//               thumbIconBackgroundColor="#FFB648"
+//               thumbIconWidth={65}
+//               thumbIconBorderColor="#FFB800"
+//               thumbIconComponent={() => (
+//                 <AntDesign name="arrowright" size={24} color="black" />
+//               )}
+//               railBackgroundColor="white"
+//               railBorderColor="#A6A6A6"
+//               railFillBackgroundColor="#FFB800"
+//               railFillBorderColor="#FFB800"
+//               titleColor="#000"
+//               titleFontSize={16}
+//               containerStyles={{
+//                 width: "95%", // Ensure the button is wide enough
+//                 alignSelf: "center", // Center it horizontally
+//               }}
+//               onSwipeSuccess={() => {
+//                 console.log("Booking Confirmed!");
+//                 if (paymentUrl) {
+//                   router.push({
+//                     pathname: "/home/payment",
+//                     params: { paymentUrl, orderId },
+//                   });
+//                 } else {
+//                   console.error("No payment URL found");
+//                 }
+//               }}
+//             />
+//           </View>
+//         </View>
+//       </RBSheet>
+//     );
+//   };
+
+
+  
+
+  useEffect(() => {
+    console.log("pickUpLocation updated:", formik.values.pickUpLocation);
+  }, [formik.values.pickUpLocation]);
+  return (
+    <View className="flex-1">
+      {/* Header Background Image */}
+      {/* {handlelocation()} */}
       <RBSheet
         ref={locationrefRBSheet}
         closeOnDragDown={true}
@@ -325,7 +482,7 @@ const onRegionChangeComplete = async (newRegion) => {
           },
           draggableIcon: {
             backgroundColor: "#000",
-          },
+          }, 
         }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
@@ -357,11 +514,12 @@ const onRegionChangeComplete = async (newRegion) => {
           </View>
 
           <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
-            <Image
-              source={verticalline}
-              className="h-36"
-              resizeMode="contain"
-            />
+          <Image
+  source={verticalline}
+  className="h-28 -mt-3" // add negative margin-top
+  resizeMode="contain"
+/>
+
 
             <View className="flex-col gap-5">
               <View className="flex-col gap-3">
@@ -405,34 +563,21 @@ const onRegionChangeComplete = async (newRegion) => {
                 width: "95%", // Ensure the button is wide enough
                 alignSelf: "center", // Center it horizontally
               }}
-             
-
               onSwipeSuccess={() => {
                 console.log("Booking Confirmed!");
                 if (paymentUrl) {
                   router.push({
                     pathname: "/home/payment",
-                    params: { paymentUrl ,orderId },
+                    params: { paymentUrl, orderId },
                   });
                 } else {
                   console.error("No payment URL found");
                 }
               }}
-              
             />
           </View>
         </View>
       </RBSheet>
-    );
-  };
-
-  useEffect(() => {
-    console.log("pickUpLocation updated:", formik.values.pickUpLocation);
-  }, [formik.values.pickUpLocation]);
-  return (
-    <View className="flex-1">
-      {/* Header Background Image */}
-      {handlelocation()}
       <View>
         <Image
           source={images.HeaderImg2}
@@ -464,113 +609,130 @@ const onRegionChangeComplete = async (newRegion) => {
           </Text>
         </View>
       </View>
-      <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
-        
-
-      <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-1 bg-gray-50">
-
-      <TextInput
-            placeholder={
-              applanguage === "eng"
-                ? Translations.eng.select_location
-                : Translations.arb.select_location
-            }
-            className="flex-1 h-[30px]"
-            placeholderTextColor="#2D2A29"
-            value={formik.values.pickUpLocation}
-            // onChangeText={(text) => formik.setFieldValue("pickUpLocation", text)}
-            onChangeText={handleLocationInput}
-          />
-       
-
-      <SelectDropdown
-  data={addresses.length > 0 ? addresses : [{ label: 'No address found', disabled: true }]}
-  onSelect={(selectedItem, index) => {
-    formik.setFieldValue("pickUpLocation", selectedItem.label);
-  }}
-  renderButton={(selectedItem, isOpened) => (
-    <View className="flex-row items-center rounded-xl  justify-between my-2">
-     
-      <Icon
-        name={isOpened ? 'chevron-up' : 'chevron-down'}
-        size={16}
-        color="#6B7280"
-        className="ml-2"
-      />
-       {/* <Ionicons
-            name="search-outline"
-            size={26}
-            color="#194F90"
-            onPress={searchLocation}
-            className="bg-[#194F901A] p-2 rounded-xl"
-          /> */}
-    </View>
-  )}
-  renderItem={(item, index, isSelected) => (
-    <View
-      className={`px-4 py-3 w-full ${
-        isSelected ? 'bg-gray-200' : 'bg-white'
-      }`}
-      dropdownStyle={{
-        borderRadius: 12,
-        backgroundColor: '#F9FAFB',
-        borderColor: '#D1D5DB',
-        borderWidth: 1,
-        width: '100%', // Set to 100% or any custom width based on the desired design
-        maxWidth: '100%' // Prevent it from exceeding the parent container
+      <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg"
+       style={{
+        elevation: 9, // 👈 Android shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.50,
+        shadowRadius: 3.84,
       }}
-    
-    >
-      <Text className="text-base text-gray-900">{item.label}</Text>
-    </View>
-  )}
-  dropdownStyle={{
-    borderRadius: 12,
-    backgroundColor: '#F9FAFB',
-    borderColor: '#D1D5DB',
-    borderWidth: 1,
-  }}
-  showsVerticalScrollIndicator={false}
-/>
+      >
+  
 
-<TouchableOpacity
-    onPress={searchLocation}
+<View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
 
->
-
-<Ionicons
-    name="search-outline"
-    size={26}
-    color="#194F90"
-    style={{
-      backgroundColor: '#194F901A',
-      padding: 8,
-      borderRadius: 12,
-      marginLeft: 8,
+<SelectDropdown
+    data={
+      addresses.length > 0
+        ? addresses
+        : [{ label: "No address found", disabled: true }]
+    }
+    onSelect={(selectedItem, index) => {
+      if (!selectedItem.disabled) {
+        formik.setFieldValue("pickUpLocation", selectedItem.label);
+      }
     }}
+    buttonStyle={{
+      width: 40,    // 👈 Keep button small so that icon fits
+      height: 30,
+      backgroundColor: "transparent",
+      padding: 0,
+      margin: 0,
+    }}
+    renderButton={(selectedItem, isOpened) => (
+      <TouchableOpacity className="flex-row items-center justify-center">
+        <Icon
+          name={isOpened ? "chevron-up" : "chevron-down"}
+          size={20}
+          color="#6B7280"
+          backgroundColor="#194F901A"
+          className="mr-2 rounded-lg"
+        />
+      </TouchableOpacity>
+    )}
+    renderItem={(item, index, isSelected) => (
+      <View
+        className={`px-4 py-3 w-full ${
+          isSelected ? "bg-gray-200" : "bg-white"
+        }`}
+      >
+        <Text
+          className={`text-base ${
+            item.disabled ? "text-gray-400" : "text-gray-900"
+          }`}
+        >
+          {item.label}
+        </Text>
+      </View>
+    )}
+    dropdownOverlayStyle={{
+      // backgroundColor: "transparent",
+      backgroundColor: "#194F901A",
+      justifyContent: "center",
+      alignItems: "center",
+      flex: 1,
+    }}
+    dropdownStyle={{
+      borderRadius: 12,
+      backgroundColor: "#194F901A",
+      borderColor: "#D1D5DB",
+      borderWidth: 1,
+      width: "70%",     // ✅ dropdown is centered with 90% width
+      maxWidth: "70%",
+      alignSelf: "center",
+    }}
+    showsVerticalScrollIndicator={false}
+  />
+  <TextInput
+    placeholder={
+      applanguage === "eng"
+        ? Translations.eng.select_location
+        : Translations.arb.select_location
+    }
+    className="flex-1 h-[30px]"
+    placeholderTextColor="#2D2A29"
+    value={formik.values.pickUpLocation}
+    onChangeText={handleLocationInput}
+  />
+
+
+
+  <TouchableOpacity onPress={searchLocation}>
+    <Ionicons
+      name="search-outline"
+      size={26}
+      color="#194F90"
+      style={{
+        backgroundColor: "#194F901A",
+        padding: 8,
+        borderRadius: 12,
+        marginLeft: 8,
+      }}
     />
-    </TouchableOpacity>
-
-
+  </TouchableOpacity>
 </View>
-  
-    {formik.touched.pickUpLocation &&
-                    formik.errors.pickUpLocation && (
-                      <Text className="text-red-500 w-[90%] mx-auto">
-                        {formik.errors.pickUpLocation}
-                      </Text>
-                    )}
-  
 
 
-        <View  className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${showSuggestions?"-z-10 ":""}`}>
+
+
+        {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
+          <Text className="text-red-500 w-[90%] mx-auto">
+            {formik.errors.pickUpLocation}
+          </Text>
+        )}
+
+        <View
+          className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${
+            showSuggestions ? "-z-10 " : ""
+          }`}
+        >
           <TextInput
             placeholder={
               applanguage === "eng"
                 ? Translations.eng.pick_up_timings
                 : Translations.arb.pick_up_timings
-            } 
-
+            }
             className="flex-1 h-[30px]"
             placeholderTextColor="#2D2A29"
             value={time}
@@ -582,42 +744,39 @@ const onRegionChangeComplete = async (newRegion) => {
             color="#194F90"
             className="bg-[#194F901A] p-2 rounded-xl"
           />
-        </View> 
+        </View>
 
-      
-
-<TouchableOpacity
-  onPress={() => {
-    formik.handleSubmit(); // now opens RBSheet inside onSubmit
-  }}
-  className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${showSuggestions ? "-z-10" : ""}`}
->
-
-{loading ? (
-    <Animated.View
-    style={{
-      transform: [{ translateX }],
-      width: 100,
-      height: 100,
-      alignSelf: "center",
-    }}
-    
-  >
-    <Image
-      source={flightloader}
-      style={{ width: 100, height: 100 }}
-      resizeMode="contain"
-      
-    />
-  </Animated.View>
-  
-  ) : (
-  <Text className="text-center text-black font-semibold text-base">
-    {applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit}
-  </Text>
-  )}
-</TouchableOpacity>
-
+        <TouchableOpacity
+          onPress={() => {
+            formik.handleSubmit(); // now opens RBSheet inside onSubmit
+          }}
+          className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${
+            showSuggestions ? "-z-10" : ""
+          }`}
+        >
+          {loading ? (
+            <Animated.View
+              style={{
+                transform: [{ translateX }],
+                width: 100,
+                height: 100,
+                alignSelf: "center",
+              }}
+            >
+              <Image
+                source={flightloader}
+                style={{ width: 100, height: 100 }}
+                resizeMode="contain"
+              />
+            </Animated.View>
+          ) : (
+            <Text className="text-center text-black font-semibold text-base">
+              {applanguage === "eng"
+                ? Translations.eng.submit
+                : Translations.arb.submit}
+            </Text>
+          )}
+        </TouchableOpacity>
       </View>
       {/* Safe Area Content */}
       {/* <ScrollView className="flex-1" contentContainerStyle={{}}>
@@ -638,21 +797,19 @@ const onRegionChangeComplete = async (newRegion) => {
               longitudeDelta: 0.01,
             }}
           >
-           
-
-<Marker
-    coordinate={{
-      latitude: markerCoords?.latitude || latitude,
-      longitude: markerCoords?.longitude || longitude,
-    }}
-  />
+            <Marker
+              coordinate={{
+                latitude: markerCoords?.latitude || latitude,
+                longitude: markerCoords?.longitude || longitude,
+              }}
+            />
           </MapView>
         ) : (
           <Text>Loading Map...</Text> // Show a placeholder while location is being fetched
         )}
       </View>
 
-{/* <View style={styles.mapContainer}>
+      {/* <View style={styles.mapContainer}>
   {!loading ? (
     <>
       <MapView
@@ -670,8 +827,6 @@ const onRegionChangeComplete = async (newRegion) => {
     <Text>Loading Map...</Text>
   )}
 </View> */}
-
-
 
       {/* <Image source={mapimg} className="h-full " /> */}
     </View>
@@ -692,12 +847,11 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   centerMarker: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginLeft: -16,  // half of icon width
-    marginTop: -32,   // adjust based on icon height
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginLeft: -16, // half of icon width
+    marginTop: -32, // adjust based on icon height
     zIndex: 10,
-  }
+  },
 });
-

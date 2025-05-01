@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 // Add to your imports
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STATUS } from "../network/apiCallers";
 
 const AuthContext = createContext();
 
@@ -9,6 +10,27 @@ export const AuthProvider = ({ children }) => {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
+
+  const [inactiveModalVisible, setInactiveModalVisible] = useState(false);
+
+  const checkUserStatus = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    if (!token) return;
+
+    try {
+      const res = await STATUS(token);
+      if (res.data?.status !== "Active") {
+        setInactiveModalVisible(true);
+      }
+    } catch (error) {
+      console.log("Error checking user status:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
+  
 
   const loadToken = async () => {
     const token = await AsyncStorage.getItem("authToken");
@@ -27,6 +49,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadToken();
   }, []);
+
 
   const login = async (token) => {
     await AsyncStorage.setItem("authToken", token);
@@ -55,6 +78,10 @@ export const AuthProvider = ({ children }) => {
         SaveName,
         userPhone,
         SavePhone,
+        loadToken,
+        checkUserStatus,
+        inactiveModalVisible,
+        setInactiveModalVisible,
       }}
     >
       {children}

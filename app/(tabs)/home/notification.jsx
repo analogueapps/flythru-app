@@ -22,6 +22,17 @@ const notification = () => {
     const [notifications , setNotifications] = useState([])
     const [notiId , setNotiId] = useState({})
 
+    const formatTime = (isoString) => {
+      const date = new Date(isoString);
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = ((hours + 11) % 12 + 1); // Convert to 12-hour format
+      const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${formattedHours}:${formattedMinutes} ${ampm}`;
+    };
+    
+
     //  const fetchNotifications = async () => {
     //       const token = await AsyncStorage.getItem('authToken');
     //       if (!token) {
@@ -140,8 +151,8 @@ if (res?.data?.userNotifications) {
         <Text className="text-lg font-bold">{notif.title}</Text>
         <Text>{notif.body}</Text>
       </View>
-      <Text>{notif.data?.daysAgo || "Just now"}</Text>
-    </TouchableOpacity>
+      <Text>{formatTime(notif.createdAt)}</Text>
+      </TouchableOpacity>
   ))
 ) : (
   <Text className="text-center text-gray-500"> {applanguage==="eng"?Translations.eng.no_notifications_available:Translations.arb.no_notifications_available

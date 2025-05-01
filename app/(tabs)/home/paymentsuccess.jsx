@@ -13,8 +13,9 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.replace({
-        pathname: "/activities/bookingdetails",
-        params: { orderId , paymentId}, // ✅ Send orderId
+        pathname: "/home/bookingd",
+        params: { orderId , paymentId , fromSelectLocation: "true"},
+        
       });
       console.log("Order ID and payemnt id:", orderId , paymentId); // Log the orderId
     }, 3000); // 3 seconds

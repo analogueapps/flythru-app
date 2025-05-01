@@ -14,7 +14,6 @@ const Chat = () => {
         {/* Show loader when loading is true */}
         <WebView
           source={{
-            // uri: "https://tawk.to/chat/67c935007390f819097769cb/1ilkve2kk",
             uri:"https://tawk.to/chat/6805eba46d34aa190b05621b/1ipbi0vk3",
           }}
           style={{ flex: 1 }}

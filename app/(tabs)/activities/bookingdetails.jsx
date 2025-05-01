@@ -6,6 +6,8 @@ import { ChevronLeft, Plus, Minus } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";  
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import dp from "../../../assets/images/dpfluthru.jpg"
 import call from "../../../assets/images/call.png"
@@ -28,6 +30,15 @@ const bookingdetails = () => {
   // const { bookingId } = useLocalSearchParams(); 
     const { applanguage } = langaugeContext()
 const [verifiedBookingId, setVerifiedBookingId] = useState(null);
+const [isLoading, setIsLoading] = useState(true);
+
+// Simulate data load or wrap actual fetching logic
+useEffect(() => {
+  if (bookingData) {
+    setIsLoading(false);
+  }
+}, [bookingData]);
+
 
 
 useEffect(() => {
@@ -83,6 +94,7 @@ useEffect(() => {
         console.log("Fetching details for bookingId:", id);
         const res = await BOOKING_DETAILS(id, token);
         setBookingData(res.data);
+        console.log("Booking details response:", res.data);
       } catch (error) {
         Toast.show({
           type: "error",
@@ -120,12 +132,26 @@ useEffect(() => {
         className="p-6 absolute w-full mt-5"
       >
         <View className="flex-row  items-center mt-5">
+         
+       { isFromSelectLocation ? (
           <TouchableOpacity
-            onPress={() => router.back()}
+          onPress={() => {
+            router.dismissAll(); // <-- this clears the current stack history
+            router.replace("/(tabs)/home");
+          }}          
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
           >
             <ChevronLeft color="black" size={18} />
           </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+          onPress={() => router.back()}
+          className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
+        >
+          <ChevronLeft color="black" size={18} />
+        </TouchableOpacity>
+        )
+}
           <Text className="text-[18px] text-white ml-3" style={{fontFamily: "CenturyGothic"}}>{
                 applanguage==="eng"?Translations.eng.booking_details:Translations.arb.booking_details
               }</Text>
@@ -138,7 +164,43 @@ useEffect(() => {
           maxHeight: "79%",
         }}
       >
-        <ScrollView className="" showsVerticalScrollIndicator={false}>
+
+{!bookingData ? (
+  // SHIMMER PLACEHOLDER
+  <View className="p-5 bg-[#164F901A] border-[#00000026] rounded-2xl border-[1px] w-[90%] self-center mt-[20px]">
+    <ShimmerPlaceHolder
+      LinearGradient={LinearGradient}
+      style={{ height: 30, width: 180, marginBottom: 15, borderRadius: 8 }}
+    />
+    <ShimmerPlaceHolder
+      LinearGradient={LinearGradient}
+      style={{ height: 1, marginBottom: 15 }}
+    />
+
+    {[1, 2, 3, 4].map((_, i) => (
+      <ShimmerPlaceHolder
+        key={i}
+        LinearGradient={LinearGradient}
+        style={{ height: 20, width: '100%', marginBottom: 15, borderRadius: 6 }}
+      />
+    ))}
+
+    <ShimmerPlaceHolder
+      LinearGradient={LinearGradient}
+      style={{ height: 60, width: '100%', marginVertical: 20, borderRadius: 10 }}
+    />
+    <ShimmerPlaceHolder
+      LinearGradient={LinearGradient}
+      style={{ height: 120, width: '100%', marginBottom: 20, borderRadius: 10 }}
+    />
+    <ShimmerPlaceHolder
+      LinearGradient={LinearGradient}
+      style={{ height: 40, width: '100%', borderRadius: 10 }}
+    />
+  </View>
+) : (
+  // ACTUAL DATA RENDER
+  <ScrollView className="" showsVerticalScrollIndicator={false}>
           <View className="p-5 bg-[#164F901A] border-[#00000026] rounded-2xl border-[1px] flex-col gap-5">
             <Text className="text-[#164F90] text-2xl font-bold">
             {
@@ -164,7 +226,7 @@ useEffect(() => {
               <Text className="text-[#164F90] text-xl">{
                 applanguage==="eng"?Translations.eng.time:Translations.arb.time
               }</Text>
-              <Text className="text-[#164F90] text-xl font-bold">{bookingData?.time}
+              <Text className="text-[#164F90] text-xl font-bold">{bookingData?.booking?.pickUpTimings || bookingData?.booking?.time}
               </Text>
             </View> 
 
@@ -184,14 +246,15 @@ useEffect(() => {
           <View className="flex flex-row justify-between items-center my-7 gap-2">
             <View className="flex flex-row ">
 
-            <Image
-              source={dp}
-              className="h-16 w-16 rounded-full mr-4"
-              resizeMode="cover"
-            />
+            {bookingData?.booking?.driver?.driverName && <Image
+  source={{ uri: bookingData?.booking?.driver?.driverSignedUrl }}
+  className="h-16 w-16 rounded-full mr-4"
+  resizeMode="cover"
+/>
+}
 
             <View>
-              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.driver?.driverName || "-"}</Text>
+              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.booking?.driver?.driverName}</Text>
               <Text>{bookingData?.driver?.driverAddress}</Text>
               </View>
 
@@ -199,7 +262,7 @@ useEffect(() => {
             <View>
               <Text className="bg-[#FFB648] p-2 rounded-md px-6">{
                 applanguage==="eng"?Translations.eng.status:Translations.arb.status
-              } : {bookingData?.booking?.bookingStatus}</Text>
+              } : {bookingData?.booking?.updateStatus || "-"}</Text>
 
             </View>
           </View>
@@ -224,7 +287,12 @@ useEffect(() => {
             <Text className="text-[#164F90] text-xl font-bold">{
                 applanguage==="eng"?Translations.eng.drop_off:Translations.arb.drop_off
               }</Text>
-            <Text className="text-lg">{bookingData?.booking?.dropOffLocation || "-"}</Text>
+            <Text className="text-lg">
+              {/* {bookingData?.booking?.dropOffLocation || "-"} */}
+              {
+                applanguage==="eng"?Translations.eng.airport:Translations.arb.airport
+              }
+              </Text>
             </View>
           </View>
 
@@ -241,7 +309,7 @@ useEffect(() => {
             />
           <Text className="text-xl">{
                 applanguage==="eng"?Translations.eng.contact_info:Translations.arb.contact_info
-              } : {bookingData?.driver?.phoneNumber} </Text>
+              } : {bookingData?.booking?.driver?.phoneNumber || "-"} </Text>
           </View>
 
           <View className="flex-row">
@@ -255,6 +323,75 @@ useEffect(() => {
               } : {bookingData?.booking?.orderId || "-"}</Text>
           </View>
         </View>
+
+        {(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" && 
+        
+        <Text className="text-red-500 text-center mt-4">
+         This booking is cancelled
+        </Text>
+        }
+
+
+{isFromSelectLocation ? (
+    <TouchableOpacity
+
+    onPress={() => {
+      router.dismissAll(); // <-- this clears the current stack history
+      router.replace("/(tabs)/home");
+    }}
+        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
+    >
+        <Text className="text-center text-black font-semibold">
+        {
+            applanguage==="eng"?Translations.eng.go_back:Translations.arb.go_back
+        }
+        </Text>
+    </TouchableOpacity>
+) : ( 
+   <TouchableOpacity
+  disabled={(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"}
+  onPress={() => 
+      router.push({
+          pathname: "/activities/cancellation",
+          params: { bookingId: bookingId },
+      })
+  }
+  className={`border-2 rounded-xl py-4 my-5 ${
+    (bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"
+      ? "border-gray-400 bg-gray-200"
+      : "border-[#164F90]"
+  }`}
+>
+  <Text className={`text-center font-semibold ${
+    (bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"
+      ? "text-gray-400"
+      : "text-black"
+  }`}>
+    {
+      applanguage === "eng"
+        ? Translations.eng.cancelslot
+        : Translations.arb.cancelslot
+    }
+  </Text>
+</TouchableOpacity>
+
+)}
+
+
+        </ScrollView>
+)}
+
+       
+       
+      </View>
+    </View>
+  );
+};
+
+export default bookingdetails;
+
+
+
 
 
        {/* Modify Slot Button */}
@@ -287,43 +424,3 @@ onPress={() => // Example navigation code
               }        </Text>
     </TouchableOpacity>
 )} */}
-
-{isFromSelectLocation ? (
-    <TouchableOpacity
-        onPress={() => router.back()}
-        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
-    >
-        <Text className="text-center text-black font-semibold">
-        {
-            applanguage==="eng"?Translations.eng.go_back:Translations.arb.go_back
-        }
-        </Text>
-    </TouchableOpacity>
-) : (
-    <TouchableOpacity
-        onPress={() => 
-            router.push({
-                pathname: "/activities/cancellation",
-                params: { bookingId: bookingId },
-                
-            })
-        }
-        className="border-2 border-[#164F90] rounded-xl py-4 my-5"
-    >
-        <Text className="text-center text-black font-semibold">
-        {
-            applanguage==="eng"?Translations.eng.cancelslot:Translations.arb.cancelslot
-        }
-        </Text>
-    </TouchableOpacity>
-)}
-
-
-        </ScrollView>
-       
-      </View>
-    </View>
-  );
-};
-
-export default bookingdetails;

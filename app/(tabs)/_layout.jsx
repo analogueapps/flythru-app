@@ -1,6 +1,6 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { Tabs, usePathname } from "expo-router";
+import { router, Tabs, usePathname } from "expo-router";
 import SvgHome from "../../assets/svgs/bottomTabs/Home";
 import SvgServices from "../../assets/svgs/bottomTabs/Services";
 import SvgActivities from "../../assets/svgs/bottomTabs/Activities";
@@ -8,9 +8,7 @@ import SvgProfile from "../../assets/svgs/bottomTabs/Profile";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
 
-
 const _layout = () => {
-
   const pathname = usePathname();
 
   // Define routes where tabs should be hidden
@@ -22,6 +20,9 @@ const _layout = () => {
     "/home/selectlocation",
     "/home/slots",
     "/home/payment",
+    "/home/bookingd",
+    "/home/editpro",
+
     "/home/paymentsuccess",
     "/home/paymentfailed",
     "/activities/bookingdetails",
@@ -43,8 +44,7 @@ const _layout = () => {
 
   // Check if current path is in the hideTabsRoutes list
   const shouldHideTabs = hideTabsRoutes.includes(pathname);
-  const { applanguage } = langaugeContext()
-
+  const { applanguage } = langaugeContext();
 
   return (
     <Tabs
@@ -53,73 +53,66 @@ const _layout = () => {
         tabBarInactiveTintColor: "#9B9E9F",
         tabBarHideOnKeyboard: true,
         tabBarStyle: shouldHideTabs
-        ? { display: "none" }
-        : {
-            height: 70,
-            paddingBottom: 10,
-            paddingTop: 5,
-            backgroundColor: "#FFFFFF",
-          },
-      
-      
+          ? { display: "none" }
+          : {
+              height: 70,
+              paddingBottom: 10,
+              paddingTop: 5,
+              backgroundColor: "#FFFFFF",
+            },
       }}
     >
       <Tabs.Screen
-             name="home"
-             options={{
-               headerShown: false,
-               tabBarLabel:
+        name="home"
+        options={{
+          headerShown: false,
+          tabBarLabel:
             applanguage === "eng"
               ? Translations.eng.home
               : Translations.arb.home,
-               tabBarIcon: ({ color }) => <SvgHome color={color} height={30} width={30}/>,
-             }}
-           />
+          tabBarIcon: ({ color }) => (
+            <SvgHome color={color} height={30} width={30} />
+          ),
+        }}
+      />
 
-<Tabs.Screen
+      <Tabs.Screen
         name="services"
         options={{
-      
           headerShown: false,
           tabBarLabel:
-          applanguage === "eng"
-            ? Translations.eng.services
-            : Translations.arb.services,
+            applanguage === "eng"
+              ? Translations.eng.services
+              : Translations.arb.services,
           tabBarIcon: ({ color }) => <SvgServices color={color} />,
         }}
       />
 
-
-
-
-
-<Tabs.Screen
+      <Tabs.Screen
         name="activities"
         options={{
           headerShown: false,
           tabBarLabel:
-          applanguage === "eng"
-            ? Translations.eng.activities
-            : Translations.arb.activities,
+            applanguage === "eng"
+              ? Translations.eng.activities
+              : Translations.arb.activities,
           tabBarIcon: ({ color }) => <SvgActivities color={color} />,
+          tabBarButton:(props) => (
+            <TouchableOpacity {...props} onPress={()=>props.onPress()}/>)
         }}
       />
 
-     
-<Tabs.Screen
+      <Tabs.Screen
         name="profile"
         options={{
           headerShown: false,
           tabBarLabel:
-          applanguage === "eng"
-            ? Translations.eng.profile
-            : Translations.arb.profile,
+            applanguage === "eng"
+              ? Translations.eng.profile
+              : Translations.arb.profile,
           tabBarIcon: ({ color }) => <SvgProfile color={color} />,
         }}
       />
-      
-    
-    
     </Tabs>
   );
 };

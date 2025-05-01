@@ -26,7 +26,7 @@ const slots = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selected, setSelected] = React.useState("");
   const [timeslot, setTimeslots] = useState([]);
-  const { flightData , departureDate } = useLocalSearchParams();
+  const { flightData, departureDate } = useLocalSearchParams();
   // const { departureDate } = useFlightContext();
 
   const flight = JSON.parse(flightData);
@@ -43,79 +43,89 @@ const slots = () => {
     : [];
 
 
+  // useEffect(() => {
+  //   if (flight?.departure?.scheduled) {
+  //     const extractedDate = new Date(flight.departure.scheduled);
+
+  //     if (!isNaN(extractedDate.getTime())) {
+  //       // ✅ Ensure it's a valid date
+  //       // setdepDate(new Date(departureDate));
+  //       if (departureDate) {
+  //         const parsedDate = new Date(departureDate);
+  //         if (!isNaN(parsedDate)) {
+  //           setdepDate(parsedDate);
+  //         } else {
+  //           console.error("Invalid departureDate format:", departureDate);
+  //         }
+  //       }
+
+  //       console.log("deppppppaaaa Date:", departureDate);
+  //     } else {
+  //       console.error("Invalid departure date:", flight.departure.scheduled);
+  //     }
+  //   }
+  // }, [flight?.departure?.scheduled]);
 
   useEffect(() => {
     console.log("🛫 departureDate from context:", departureDate);
   }, [departureDate]);
-  
-
   useEffect(() => {
-    if (flight?.departure?.scheduled) {
-      const extractedDate = new Date(flight.departure.scheduled);
-      
-      if (!isNaN(extractedDate.getTime())) { // ✅ Ensure it's a valid date
-        // setdepDate(new Date(departureDate));
-        if (departureDate) {
-          const parsedDate = new Date(departureDate);
-          if (!isNaN(parsedDate)) {
-            setdepDate(parsedDate);
-          } else {
-            console.error("Invalid departureDate format:", departureDate);
-          }
-        }
-        
-        console.log("deppppppaaaa Date:", departureDate);
+    if (departureDate) { 
+      const parsedDepartureDate = new Date(departureDate);
+      if (!isNaN(parsedDepartureDate.getTime())) {
+        setdepDate(parsedDepartureDate);
       } else {
-        console.error("Invalid departure date:", flight.departure.scheduled);
+        console.error("Invalid departureDate format:", departureDate);
       }
     }
-  }, [flight?.departure?.scheduled]);
+  }, [departureDate]);
   
   
+  useEffect(() => {
+    console.log("👀 depDate inside useEffect:", depDate);
+    if (depDate) {
+      console.log("✅ departure date for picker:", depDate);
+    } else {
+      console.log("❌ depDate is still empty or invalid");
+    }
+  }, [depDate]);
+  
+  useEffect(() => {
+    console.log("🚨 depDate useEffect running...");
+    console.log("depDate value:", depDate);
+    console.log("depDate is instanceof Date:", depDate instanceof Date);
+    console.log("depDate isNaN:", isNaN(depDate));
+  }, [depDate]);
+  
 
-  console.log("///////////////////", flight?.departure?.scheduled.split("T")[0]);
 
-  // const alltimeslots = async () => {
-  //   try {
-  //     const res = await ALL_TIME_SLOTS();
-  //     console.log("API Response:", res);
+  console.log(
+    "///////////////////",
+    flight?.departure?.scheduled.split("T")[0]
+  );
 
-  //     if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
-  //       // Map to key-value pairs, using timeSlot as value
-  //       const formattedSlots = res.data.allTimeSlots.map((slot, index) => ({
-  //         key: slot._id, // Use unique ID as key
-  //         value: slot.timeSlot, // ✅ Use timeSlot as the value
-  //       }));
-  //       setTimeslots(formattedSlots); // ✅ Set state properly
-  //     } else {
-  //       console.log("Unexpected response format:", res.data);
-  //       setTimeslots([]); // ✅ Set empty state if no data
-  //     }
-  //   } catch (error) {
-  //     console.log("Error fetching timeslots:", error);
-  //     setTimeslots([]); // ✅ Handle error state
-  //   }
-  // };
-
+  
   const alltimeslots = async (selectedDate = null) => {
     try {
       const res = await ALL_TIME_SLOTS();
       if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
         let filteredSlots = res.data.allTimeSlots;
-  
+
         if (selectedDate) {
-          const selectedISO = new Date(selectedDate).toISOString().split("T")[0];
+          const selectedISO = new Date(selectedDate)
+            .toISOString()
+            .split("T")[0];
           filteredSlots = filteredSlots.filter((slot) => {
             const slotDate = new Date(slot.date).toISOString().split("T")[0];
             return slotDate === selectedISO;
           });
         }
-  
+
         const formattedSlots = filteredSlots.map((slot) => ({
           key: slot._id,
           value: slot.timeSlot,
         }));
-  
+
         setTimeslots(formattedSlots);
       } else {
         setTimeslots([]);
@@ -125,17 +135,17 @@ const slots = () => {
       setTimeslots([]);
     }
   };
-  
 
   useEffect(() => {
- 
-    console.log("flightsaaaaaa////////////",flight)
+    console.log("flightsaaaaaa////////////", flight);
   }, []);
+  
 
-  useFocusEffect(useCallback(()=>
-  {
-    alltimeslots();
-  },[]))
+  useFocusEffect(
+    useCallback(() => {
+      alltimeslots();
+    }, [])
+  );
 
   const baggaevalues = { personsCount, baggagePictures, baggageCount };
 
@@ -195,7 +205,6 @@ const slots = () => {
       alltimeslots(formattedDate); // 🔁 Call with selected date
     }
   };
-  
 
   const createNewCalendar = async () => {
     try {
@@ -220,6 +229,11 @@ const slots = () => {
       console.log("Error creating calendar:", error);
     }
   };
+
+  // Inside your component:
+
+  
+// Then render:
 
   return (
     <View className="flex-1">
@@ -256,7 +270,10 @@ const slots = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white"> {flight?.departure?.iata ?? "--"}</Text>
+            <Text className="text-2xl font-bold text-white">
+              {" "}
+              {flight?.departure?.iata ?? "--"}
+            </Text>
             <Text className="text-white">Departure</Text>
           </View>
           <View className="flex-1 items-center px-2">
@@ -269,7 +286,10 @@ const slots = () => {
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white"> {flight?.arrival?.iata ?? "--"}</Text>
+            <Text className="text-2xl font-bold text-white">
+              {" "}
+              {flight?.arrival?.iata ?? "--"}
+            </Text>
             <Text className="text-white">Arrival</Text>
           </View>
         </View>
@@ -291,57 +311,76 @@ const slots = () => {
               ? Translations.eng.pick_up_date
               : Translations.arb.pick_up_date}
           </Text>
-          <View className=" flex-row my-4 items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
+          <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          className=" flex-row my-4 justify-between items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]">
             <TextInput
               placeholder={
                 applanguage === "eng"
                   ? Translations.eng.select_date
                   : Translations.arb.select_date
               }
-              className="flex-1 h-[30px]"
+              className="flex h-[30px] "
               placeholderTextColor="#2D2A29"
               onChangeText={formik.handleChange("date")}
               onBlur={formik.handleBlur("date")}
               value={formik.values.date}
               name="date"
             />
-           <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-  <View style={{ backgroundColor: "#194F901A", padding: 8, borderRadius: 12 }}>
-    <AntDesign
-      name="calendar"
-      size={26}
-      color="#194F90"
-    />
-  </View>
-</TouchableOpacity>
+            <TouchableOpacity 
+            onPress={() => setShowDatePicker(true)}
+            >
+              <View
+                style={{
+                  backgroundColor: "#194F901A",
+                  padding: 8,
+                  borderRadius: 12,
+                }}
+              >
+                <AntDesign name="calendar" size={26} color="#194F90" />
+              </View>
+            </TouchableOpacity>
+            </TouchableOpacity>
 
-{showDatePicker && (
-  <DateTimePicker
-    value={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure a valid date is used
-    mode="date"
-    minimumDate={new Date()} // 👈 today's date
-    maximumDate={depDate instanceof Date && !isNaN(depDate) ? depDate : undefined} // 👈 departure date
-    display="default"
-    onChange={(event, selectedDate) => {
-      setShowDatePicker(false);
-      if (selectedDate) {
-        const formattedDate = selectedDate.toISOString().split("T")[0];
-        setSelectedDate(formattedDate);
-        formik.setFieldValue("date", formattedDate);
-        alltimeslots(formattedDate); // 👈 Load slots based on selected date
-      }
-    }}
-  />
-)}
+            {showDatePicker && (
+              <DateTimePicker
+                value={
+                  depDate instanceof Date && !isNaN(depDate)
+                    ? depDate
+                    : new Date()
+                } // Ensure a valid date is used
+                mode="date"
+                minimumDate={new Date()} // 👈 today's date
+                maximumDate={
+                  depDate instanceof Date && !isNaN(depDate)
+                    ? depDate
+                    : undefined
+                } // 👈 departure date
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (selectedDate) {
+                    const formattedDate = selectedDate
+                      .toISOString()
+                      .split("T")[0];
+                    setSelectedDate(formattedDate);
+                    formik.setFieldValue("date", formattedDate);
+                    alltimeslots(formattedDate); // 👈 Load slots based on selected date
+                  }
+                }}
+              />
+            )}
 
- 
-          </View>
 
-  {formik.touched.date && formik.errors.date && (
-                  <Text className="text-red-500 w-[90%] mx-auto mb-2">
-                    {formik.errors.date}
-                  </Text>
-                )}
+
+
+
+
+          {formik.touched.date && formik.errors.date && (
+            <Text className="text-red-500 w-[90%] mx-auto mb-2">
+              {formik.errors.date}
+            </Text>
+          )}
           <Text
             className="font-bold text-xl text-[#164F90]"
             style={{ fontFamily: "CenturyGothic" }}
@@ -383,11 +422,11 @@ const slots = () => {
             }}
           />
 
-{formik.touched.time && formik.errors.time && (
-                  <Text className="text-red-500 w-[90%] mx-auto">
-                    {formik.errors.time}
-                  </Text>
-                )}
+          {formik.touched.time && formik.errors.time && (
+            <Text className="text-red-500 w-[90%] mx-auto">
+              {formik.errors.time}
+            </Text>
+          )}
 
           {/* Continue Button */}
           <TouchableOpacity
@@ -411,9 +450,8 @@ const slots = () => {
 
 export default slots;
 
-
-
-     {/* {showDatePicker && (
+{
+  /* {showDatePicker && (
   <DateTimePicker
     value={depDate instanceof Date && !isNaN(depDate) ? depDate : new Date()} // Ensure a valid date is used
     mode="date"
@@ -429,4 +467,10 @@ export default slots;
       }
     }}
   />
-)} */}
+)} */
+}
+
+
+
+
+

@@ -5,7 +5,9 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  Animated,Easing
+  Animated,
+  Easing,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -17,7 +19,7 @@ import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg";
 import { Calendar } from "lucide-react-native";
 import { useAuth } from "../../../UseContext/AuthContext";
-import { EDIT_PROFILE } from "../../../network/apiCallers";
+import { EDIT_PROFILE, GET_PROFILE } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
@@ -29,17 +31,17 @@ import Toast from "react-native-toast-message";
 const editprofile = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
-const [loading, setLoading] = useState(false);
-const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true); // 👈 for page loader
 
-  // console.log("userEmailaaaaaaaaaa" , userEmail)
+  const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
+    useAuth();
 
-    const translateX = useRef(new Animated.Value(0)).current;
-  
+  const translateX = useRef(new Animated.Value(0)).current;
 
-const startAnimation = () => {
+  const startAnimation = () => {
     translateX.setValue(-40); // Reset position
-  
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: 100, // How far to move
@@ -49,7 +51,7 @@ const startAnimation = () => {
       })
     ).start();
   };
-  
+
   // Run it when loading starts
   useEffect(() => {
     if (loading) {
@@ -60,63 +62,73 @@ const startAnimation = () => {
     }
   }, [loading]);
 
-
-
   const formik = useFormik({
     initialValues: {
       name: userName || "",
       email: userEmail || "",
       phoneNumber: userPhone || "",
     },
-    
-    enableReinitialize: true, // ✅ Ensure reinitialization when values change
+
+    enableReinitialize: true,
     validationSchema: editprofileSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values submitted edit profile:", values);
       await editprofilehandler(values);
-      router.push("/profile");
     },
   });
 
-  const saveUserName = async (name) => {
-    if (name) {
-      // Check if name is not null or undefined
-      try {
-        await AsyncStorage.setItem("user_name", name);
-        console.log("User name saved successfully");
-      } catch (error) {
-        console.error("Error saving user name:", error);
-      }
-    } else {
-      console.error("Invalid name: Cannot save null or undefined value");
-    }
-  };
+  useEffect(() => {
+    fetchProfileData();
+  }, []); 
 
-  const saveUserData = async (name, phoneNumber, email) => {
-    try {
-      if (email) {
-        if (name) {
-          await AsyncStorage.setItem(`user_name_${email}`, name);
-        }
-        if (phoneNumber) {
-          await AsyncStorage.setItem(`user_phone_${email}`, phoneNumber);
-        }
-      } else {
-        console.warn("No email provided — cannot save user data.");
-      }
-    } catch (error) {
-      console.error("Error saving user data:", error);
-    }
-  };
-  
   useEffect(() => {
     if (userEmail) {
-      console.log("userEmail:", userEmail);
-      formik.setFieldValue("email", userEmail); // ✅ Set email value after userEmail is available
+      formik.setFieldValue("email", userEmail);
     }
   }, [userEmail]);
+
+  const fetchProfileData = async () => {
+    setInitialLoading(true);
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Please login again",
+        });
+        return;
+      }
+
+      const response = await GET_PROFILE(token);
+      const { userDetails } = response.data;
+       
+      // Update form values with fetched data
+      formik.setValues({
+        name: userDetails.name || "",
+        email: userDetails.email || userEmail || "",
+        phoneNumber: userDetails.phoneNumber?.toString() || userPhone || "",
+      });
+
+      // Update context with fresh data
+      SaveName(userDetails.name || "");
+      SavePhone(userDetails.phoneNumber?.toString() || "");
+      if (userDetails.email) SaveMail(userDetails.email);
+
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to load profile data",
+      });
+    } 
+    finally {
+      setInitialLoading(false);
+    } 
+  };
 
   const editprofilehandler = async (values) => {
     setLoading(true);
@@ -131,45 +143,37 @@ const startAnimation = () => {
       console.log(res.data.message);
       Toast.show({
         type: "success",
-        text1: res.data.message, 
+        text1: res.data.message,
       });
-      // Update formik values after save
-      formik.setValues(values);
-      await saveUserData(values.name, values.phoneNumber ); // Local storage
-      SaveName(values.name); // Context update
-      SavePhone(values.phoneNumber); // Context update
-          } catch (error) {
-      console.log("Error sending code:", error?.response);
-    }
-    finally {
+      
+      // Update context with new values
+      SaveName(values.name);
+      SavePhone(values.phoneNumber);
+      
+      // Optionally refresh profile data
+      await fetchProfileData();
+      
+      router.push("/profile");
+    } catch (error) {
+      console.log("Error updating profile:", error?.response);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.response?.data?.message || "Failed to update profile",
+      });
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const loadProfileData = async () => {
-      const token = await AsyncStorage.getItem("authToken");
-      const email = await AsyncStorage.getItem("user_email"); // Or use from context
-    
-      if (!token || !email) {
-        formik.setFieldValue("name", "");
-        formik.setFieldValue("phoneNumber", "");
-        return;
-      }
-    
-      try {
-        const storedName = await AsyncStorage.getItem("user_name");
-        const storedPhone = await AsyncStorage.getItem("user_phone");
-    
-        if (storedName) formik.setFieldValue("name", storedName);
-        if (storedPhone) formik.setFieldValue("phoneNumber", storedPhone);
-      } catch (error) {
-        console.error("Error loading user data:", error);
-      }
-    };
-
-    loadProfileData();
-  }, []);
+  if (initialLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#0b005c" />
+      </View>
+    );
+  }
+  
 
   return (
     <View className="flex-1">
@@ -218,16 +222,14 @@ const startAnimation = () => {
                 : Translations.arb.name}
             </Text>
             <TextInput
-            
               className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
               placeholder={
                 applanguage === "eng"
                   ? Translations.eng.name_placeholder
                   : Translations.arb.name_placeholder
               }
-              // onChangeText={formik.handleChange("name")}
               onChangeText={(text) => {
-                const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+                const cleanedText = text.replace(/\s{2,}/g, " ");
                 formik.setFieldValue("name", cleanedText);
               }}
               onBlur={formik.handleBlur("name")}
@@ -272,19 +274,17 @@ const startAnimation = () => {
                 : Translations.arb.phone_number}
             </Text>
             <TextInput
-            maxLength={8}
-             keyboardType="number-pad"
+              maxLength={8}
+              keyboardType="number-pad"
               className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
               placeholder={
                 applanguage === "eng"
                   ? Translations.eng.phone_placeholder
                   : Translations.arb.phone_placeholder
               }
-              // onChangeText={formik.handleChange("phoneNumber")}
               onChangeText={(text) => {
-                const cleanedText = text.replace(/\s{2,}/g, " ");
-                const cleanednum = text.replace(/[^0-9]/g, ""); // Replace multiple spaces with one
-                formik.setFieldValue("phoneNumber", cleanedText , cleanednum);
+                const cleanedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                formik.setFieldValue("phoneNumber", cleanedText);
               }}
               onBlur={formik.handleBlur("phoneNumber")}
               value={formik.values.phoneNumber}
@@ -298,15 +298,12 @@ const startAnimation = () => {
       </ScrollView>
 
       <TouchableOpacity
-      disabled={loading}
+        disabled={loading}
         className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
-        onPress={() => {
-          saveUserName(formik.values.name);
-          formik.handleSubmit();
-        }}
+        onPress={formik.handleSubmit}
       >
-         {loading ? (
-            <Animated.View
+        {loading ? (
+          <Animated.View
             style={{
               transform: [{ translateX }],
               width: 100,
@@ -318,18 +315,14 @@ const startAnimation = () => {
               source={flightloader}
               style={{ width: 100, height: 100 }}
               resizeMode="contain"
-              
             />
           </Animated.View>
-          
-          ) : (
-        <Text className="font-bold text-center text-black ">
-          {" "}
-          {applanguage === "eng"
-            ? Translations.eng.save
-            : Translations.arb.save}
-        </Text>
-          )}
+        ) : (
+          <Text className="font-bold text-center text-black ">
+            {" "}
+            {applanguage === "eng" ? Translations.eng.save : Translations.arb.save}
+          </Text>
+        )}
       </TouchableOpacity>
     </View>
   );

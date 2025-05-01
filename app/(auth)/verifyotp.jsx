@@ -28,10 +28,10 @@ const [loading, setLoading] = useState(false);
 
   const params = useLocalSearchParams();
   const restoken = params.token;
-  console.log("Received Token:", restoken); 
+  // console.log("Received Token:", restoken); 
   const [fcm,setFcm]=useState("")
 
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   
   const translateX = useRef(new Animated.Value(0)).current;
@@ -75,7 +75,7 @@ const [loading, setLoading] = useState(false);
   
   const handleResend = () => {
     if (isTimerRunning) return; // prevent if still timing
-    setTimer(5);
+    setTimer(60);
     setIsTimerRunning(true);
     resendOtpHandler(restoken);
   };
@@ -91,6 +91,7 @@ const [loading, setLoading] = useState(false);
     validateOnBlur: true,
     onSubmit: async (values) => {
       await verifyOtpHandler(values);
+    
     },
   });
 
@@ -126,13 +127,16 @@ const [loading, setLoading] = useState(false);
     }
     try {
       const res = await VERIFY_OTP(data, token);
+      await AsyncStorage.setItem("authToken", res.data.token); // Ensure this token is being returned and stored
+
       console.log(res.data.message);
       Toast.show({
         text: res.data.message,
         duration: 2000,
         type: "success",
+        text1: "Signup Successful",
       });
-      router.push("/home");
+      router.replace("/home");
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Invalid OTP");
@@ -163,6 +167,7 @@ const [loading, setLoading] = useState(false);
         text: res.data.message,
         duration: 2000,
         type: "success",
+        text1: "OTP Resent",
       });
       setResentOtpMsg(true);
     } catch (error) {
@@ -200,6 +205,8 @@ const [loading, setLoading] = useState(false);
       refs[index + 1]?.current?.focus();
     }
   };
+
+  
   
 
   return (
@@ -241,8 +248,8 @@ const [loading, setLoading] = useState(false);
             )}
 
             {/* OTP Input */}
-            <View className="self-start w-full">
-              <OTPinput   
+            <View className="w-[90%] mx-auto flex items-center justify-center ">
+            <OTPinput   
               
                 codes={codes}
                 refs={refs}

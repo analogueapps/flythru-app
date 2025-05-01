@@ -116,7 +116,7 @@ const ContactUs = () => {
             {/* <Image source={mail} className="h-8 w-8" resizeMode="contain" /> */}
 
             {/* <Mail/> */}
-            <View className="w-12 h-12 bg-red-100 flex justify-center items-center">
+            <View className="w-12 h-12  flex justify-center items-center">
   <Mail width={26} height={26} />
 </View>
 
@@ -134,7 +134,7 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             {/* <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" /> */}
-            <View className="w-12 h-12 bg-red-100 self-center justify-center items-center">
+            <View className="w-12 h-12  self-center justify-center items-center">
   <Whatsappicon  className="w-12 h-12"/>
 </View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
@@ -150,7 +150,7 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             {/* <Image source={call} className="h-8 w-8" resizeMode="contain" /> */}
-            <View className="w-12 h-12 bg-red-100 self-center justify-center items-center">
+            <View className="w-12 h-12  self-center justify-center items-center">
   <Call  className="w-12 h-12"/>
 </View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.call:Translations.arb.call
