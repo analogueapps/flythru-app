@@ -105,27 +105,77 @@ const slots = () => {
   );
 
   
+  // const alltimeslots = async (selectedDate = null) => {
+  //   try {
+  //     const res = await ALL_TIME_SLOTS();
+  //     if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
+  //       let filteredSlots = res.data.allTimeSlots;
+
+  //       if (selectedDate) {
+  //         const selectedISO = new Date(selectedDate)
+  //           .toISOString()
+  //           .split("T")[0];
+  //         filteredSlots = filteredSlots.filter((slot) => {
+  //           const slotDate = new Date(slot.date).toISOString().split("T")[0];
+  //           return slotDate === selectedISO;
+  //         });
+  //       }
+
+  //       const formattedSlots = filteredSlots.map((slot) => ({
+  //         key: slot._id,
+  //         value: slot.timeSlot,
+  //       }));
+
+  //       setTimeslots(formattedSlots);
+  //     } else {
+  //       setTimeslots([]);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching timeslots:", error);
+  //     setTimeslots([]);
+  //   }
+  // };
+
   const alltimeslots = async (selectedDate = null) => {
     try {
       const res = await ALL_TIME_SLOTS();
       if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
         let filteredSlots = res.data.allTimeSlots;
-
+  
         if (selectedDate) {
-          const selectedISO = new Date(selectedDate)
-            .toISOString()
-            .split("T")[0];
+          const selectedISO = new Date(selectedDate).toISOString().split("T")[0];
           filteredSlots = filteredSlots.filter((slot) => {
             const slotDate = new Date(slot.date).toISOString().split("T")[0];
-            return slotDate === selectedISO;
+            return slotDate === selectedISO && slot.isActive; // Only active slots
           });
+  
+          // ✅ 6-hour filter logic
+          if (flight?.departure?.scheduled && flight?.departure?.date) {
+            const scheduledFlightDate = new Date(
+              `${flight.departure.date}T${flight.departure.scheduled}`
+            );
+            const selectedDateObj = new Date(selectedDate);
+  
+            filteredSlots = filteredSlots.filter((slot) => {
+              const slotDateTime = new Date(`${selectedDate}T${slot.timeSlot}`);
+  
+              // If selected date is before the flight date, keep all slots
+              if (selectedDateObj < new Date(flight.departure.date)) {
+                return true;
+              }
+  
+              const diffMs = scheduledFlightDate - slotDateTime;
+              const diffHours = diffMs / (1000 * 60 * 60);
+              return diffHours >= 6; // Only keep slots at least 6 hours before flight
+            });
+          }
         }
-
+  
         const formattedSlots = filteredSlots.map((slot) => ({
           key: slot._id,
           value: slot.timeSlot,
         }));
-
+  
         setTimeslots(formattedSlots);
       } else {
         setTimeslots([]);
@@ -135,6 +185,7 @@ const slots = () => {
       setTimeslots([]);
     }
   };
+  
 
   useEffect(() => {
     console.log("flightsaaaaaa////////////", flight);
