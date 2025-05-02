@@ -10,6 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [authToken, setAuthToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [inactiveModalVisible, setInactiveModalVisible] = useState(false);
 

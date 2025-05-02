@@ -212,9 +212,12 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      // email: "",
+      // password: "",
 
+
+ email: "taruntej.2002@gmail.com",
+      password: "Tarun@12",
     
     },
     validationSchema: signupSchema(applanguage),
@@ -260,8 +263,11 @@ const Index = () => {
 
   const loginFormik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      // email: "",
+      // password: "",
+
+      email: "taruntej.2002@gmail.com",
+      password:"Tarun@12",
 
     },
     validationSchema: loginSchema(applanguage),
@@ -293,7 +299,6 @@ const Index = () => {
     try {
       const res = await LOGIN_API(data, values);
       console.log("Login successful", res.data);
-      await AsyncStorage.setItem("authToken", res.data.token);
 
       router.replace("/home");
       Toast.show({
@@ -343,26 +348,24 @@ const Index = () => {
   // resend otp handler
 
   const resendOtpHandler = async (verifytoken) => {
-    const token = await AsyncStorage.getItem("authToken");
     console.log("resend method", verifytoken);
     if (!verifytoken) {
-      Toast.show("No token found. Please log in.");
+      Toast.show({ type: "error", text1: "No token found. Please log in." });
       return;
     }
-
+  
     try {
-      const res = await RESEND_OTP(verifytoken); // Pass token to API caller
-      console.log(res);
-      // Toast.show({
-      //   type: 'success',
-      //   text1: res.data.message || 'OTP resent successfully',
-      // });
+      const res = await RESEND_OTP(verifytoken); // Only one API call here
+      console.log("OTP resend success:", res.data);
       setResentOtpMsg(true);
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Failed to resend OTP");
     }
   };
+
+  
+  
 
   const checkLoginStatus = async () => {
       const token = await AsyncStorage.getItem("authToken");

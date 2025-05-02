@@ -93,6 +93,8 @@ const editprofile = () => {
     setInitialLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
+      console.log("Token:", token);
+      
       if (!token) {
         Toast.show({
           type: "error",

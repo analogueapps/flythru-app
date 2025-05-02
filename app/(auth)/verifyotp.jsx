@@ -90,6 +90,8 @@ const [loading, setLoading] = useState(false);
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
+      console.log("Submitting OTP with values:", values);
+
       await verifyOtpHandler(values);
     
     },
@@ -118,9 +120,13 @@ const [loading, setLoading] = useState(false);
     setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      Toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "No token found. Please log in again.",
+      });
       return;
     }
+    
     const data={
       otp:values.otp,
       fcmToken:fcm
@@ -131,11 +137,11 @@ const [loading, setLoading] = useState(false);
 
       console.log(res.data.message);
       Toast.show({
-        text: res.data.message,
-        duration: 2000,
         type: "success",
-        text1: "Signup Successful",
+        text1: res.data.message || "Signup Successful",
       });
+      console.log("OTP verified response", res.data);
+
       router.replace("/home");
     } catch (error) {
       console.log("Error sending code:", error?.response);
@@ -176,6 +182,11 @@ const [loading, setLoading] = useState(false);
     }
   };
 
+  useEffect(() => {
+    resendOtpHandler(verifytoken || restoken); // ✅ use the actual token value
+  }, []);
+  
+  
   
 
  
@@ -314,7 +325,7 @@ const [loading, setLoading] = useState(false);
     </Text>
   ) : (
     <TouchableOpacity onPress={()=>{resendOtpHandler(restoken || verifytoken);
-                                      handleResend}}>
+                                      handleResend()}}>
       <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
         {applanguage === "eng"
           ? Translations.eng.resend_otp
