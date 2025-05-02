@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@react-native-community/cli": "^18.0.0",
     "babel-plugin-module-resolver": "^5.0.2"
   },
   "private": true,
