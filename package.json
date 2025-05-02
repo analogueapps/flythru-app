@@ -38,7 +38,6 @@
     "expo-splash-screen": "~0.29.24",
     "expo-status-bar": "~2.0.1",
     "expo-web-browser": "~14.0.2",
-    "firebase": "^11.5.0",
     "formik": "^2.4.6",
     "i18next": "^24.2.2",
     "lodash": "^4.17.21",

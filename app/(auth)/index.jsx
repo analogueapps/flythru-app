@@ -34,16 +34,17 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // import GoogleAuth from "../../googleAuth";
 import Toast from "react-native-toast-message";
 
-import auth, {
-  firebase,
-  getAuth,
-  GoogleAuthProvider,
-  signInWithCredential,
-} from "@react-native-firebase/auth";
+// import auth, {
+//   firebase,
+//   getAuth,
+//   GoogleAuthProvider,
+//   signInWithCredential,
+// } from "@react-native-firebase/auth";
 import { useNotification } from "../../UseContext/notifications";
 import { getApp } from "@react-native-firebase/app";
 import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, GoogleAuthProvider, signInWithCredential } from "@react-native-firebase/auth";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("signup");
