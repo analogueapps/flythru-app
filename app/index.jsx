@@ -6,6 +6,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import flash from "../assets/images/flash.png";
 import { NetworkContext } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
+import { FirebaseApp, initializeApp } from '@react-native-firebase/app';
+
+const app = initializeApp(); // Optional, if not automatically initialized
 
 export default function Index() {
   const { width } = Dimensions.get("window");
