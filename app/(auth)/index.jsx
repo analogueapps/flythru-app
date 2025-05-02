@@ -300,11 +300,11 @@ const Index = () => {
       const res = await LOGIN_API(data, values);
       console.log("Login successful", res.data);
 
-      router.replace("/home");
       Toast.show({
-        type: "success", // or 'info', 'error'
-        text1: res.data.message || "Login successful",
+        type: "success",
+        text1: res?.data?.message?.trim() || "Login successful",
       });
+      router.replace("/home");
     } catch (error) {
       console.log("Error logging in:", error);
 
@@ -319,6 +319,8 @@ const Index = () => {
           setAuthPopupVisible(true);
           setVerifytoken("jajajajajajajajaja", token); // You can still keep this for later use
 
+          await AsyncStorage.setItem("authToken", token); // ✅ Save the token
+
           // ✅ Use token directly here — not verifytoken
           resendOtpHandler(token);
 
@@ -327,17 +329,21 @@ const Index = () => {
             router.push({
               pathname: "/verifyotp",
               // You can also pass token via params if needed later
-              // params: { token },
+              params: { token },
             });
           }, 2000);
         } else {
           console.log("error loginnnnnggggg", error?.response);
           // Toast.show(error?.response?.data?.message || error?.response?.data?.errors);
           Toast.show({
-            type: "error", // or 'info', 'error'
+            type: "error",
             text1:
-              error?.response?.data?.message || error?.response?.data?.errors,
+              error?.response?.data?.message ||
+              (typeof error?.response?.data?.errors === "string"
+                ? error.response.data.errors
+                : "Something went wrong. Please try again."),
           });
+          
         }
       }
     } finally {

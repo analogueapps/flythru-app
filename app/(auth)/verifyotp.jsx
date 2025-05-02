@@ -25,6 +25,7 @@ const verifyotp = () => {
   const {verifytoken} = useLocalSearchParams()
   const { applanguage } = langaugeContext();
 const [loading, setLoading] = useState(false);
+const { token } = useLocalSearchParams();
 
   const params = useLocalSearchParams();
   const restoken = params.token;
@@ -75,9 +76,10 @@ const [loading, setLoading] = useState(false);
   
   const handleResend = () => {
     if (isTimerRunning) return; // prevent if still timing
+    resendOtpHandler(restoken || token); // Trigger API only here
+
     setTimer(60);
     setIsTimerRunning(true);
-    resendOtpHandler(restoken);
   };
   
 
@@ -153,27 +155,63 @@ const [loading, setLoading] = useState(false);
     }
   };
 
-  const resendOtpHandler = async (restoken) => {
-    if (!restoken) {
-      Toast.show("Token is missing. Please try again.");
-      return;
-    }
+  // const resendOtpHandler = async (restoken) => {
+  //   if (!restoken) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "Token is missing. Please try again.",
+  //     });
+  //     return;
+  //   }
+  
+  //   const token = await AsyncStorage.getItem("authToken");
+  //   console.log("resend method",token)
+  //   if (!token) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "No token found. Please log in.",
+  //     });
+  //     return;
+  //   }
 
-    const token = await AsyncStorage.getItem("authToken");
-    console.log("resend method",token)
+  //   try {
+  //     const res = await RESEND_OTP(token); // Pass token to API caller
+  //     console.log(res);
+  //     const message = res?.data?.message?.trim();
+
+  //   Toast.show({
+  //     type: "success",
+  //     text1: message && message.length > 0 ? message : "OTP Resent",
+  //     duration: 2000,
+  //   });
+  //     setResentOtpMsg(true);
+  //   } catch (error) {
+  //     console.log("Error sending code:", error?.response);
+  //     setApiErr(error?.response?.data?.message || "Failed to resend OTP");
+  //   }
+  // };
+
+  const resendOtpHandler = async (token) => {
+    console.log("resend method token:", token);
+
+    
+  
     if (!token) {
-      Toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "error",
+        text1: "Token is missing. Please try again.",
+      });
       return;
     }
-
+  
     try {
-      const res = await RESEND_OTP(token); // Pass token to API caller
-      console.log(res);
+      const res = await RESEND_OTP(token); // Use the passed token directly
+      console.log("OTP resend success:", res.data);
+  
       Toast.show({
-        text: res.data.message,
-        duration: 2000,
         type: "success",
-        text1: "OTP Resent",
+        text1: res?.data?.message?.trim() || "OTP Resent",
+        duration: 2000,
       });
       setResentOtpMsg(true);
     } catch (error) {
@@ -181,13 +219,9 @@ const [loading, setLoading] = useState(false);
       setApiErr(error?.response?.data?.message || "Failed to resend OTP");
     }
   };
+  
 
-  useEffect(() => {
-    resendOtpHandler(verifytoken || restoken); // ✅ use the actual token value
-  }, []);
-  
-  
-  
+ 
 
  
 
@@ -324,7 +358,7 @@ const [loading, setLoading] = useState(false);
         : `0.${timer} ثانية `}
     </Text>
   ) : (
-    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken || verifytoken);
+    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken || token);
                                       handleResend()}}>
       <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
         {applanguage === "eng"

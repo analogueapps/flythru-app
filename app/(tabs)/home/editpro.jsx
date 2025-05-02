@@ -68,7 +68,7 @@ import {
   
       enableReinitialize: true,
       validationSchema: editprofileSchema(applanguage),
-      validateOnChange: true,
+      validateOnChange: true, 
       validateOnBlur: true,
       onSubmit: async (values) => {
         console.log("values submitted edit profile:", values);
@@ -140,8 +140,11 @@ import {
         });
         
         // Update context with new values
-        SaveName(values.name);
-        SavePhone(values.phoneNumber);
+        await SaveName(values.name);
+        await SavePhone(values.phoneNumber);
+
+        await AsyncStorage.setItem("user_name", values.name);
+
         
         // Optionally refresh profile data
         await fetchProfileData();

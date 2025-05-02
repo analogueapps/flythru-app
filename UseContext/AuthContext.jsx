@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [authToken, setAuthToken] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const [inactiveModalVisible, setInactiveModalVisible] = useState(false);
 
@@ -39,13 +38,13 @@ export const AuthProvider = ({ children }) => {
     const storedName = await AsyncStorage.getItem("user_name");
     const storedPhone = await AsyncStorage.getItem("user_phone");
 
+      console.log("Stored Name:", storedName);
     if (token) {
       setAuthToken(token);
     }
     if (storedName) setUserName(storedName);
     if (storedPhone) setUserPhone(storedPhone);
 
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -67,8 +66,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const SaveMail = (value) => setUserEmail(value || "");
-  const SaveName = (value) => setUserName(value || "");
-  const SavePhone = (value) => setUserPhone(value || "");
+
+  const SaveName = async (value) => {
+    const nameToSave = value || "";
+    console.log("Saving user name:", nameToSave);
+    setUserName(nameToSave);
+    await AsyncStorage.setItem("user_name", nameToSave);
+  };
+  
+  const SavePhone = async (value) => {
+    const phoneToSave = value || "";
+    setUserPhone(phoneToSave);
+    await AsyncStorage.setItem("user_phone", phoneToSave);
+  };
+  
+  
 
   return (
     <AuthContext.Provider

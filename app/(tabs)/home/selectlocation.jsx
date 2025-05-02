@@ -304,8 +304,7 @@ useEffect(() => {
       if (error?.response?.data?.message === "User details are missing.") {
         Toast.show({
           type: "error",
-          text1: "Session Expired",
-          text2: "Please update your profile details.",
+          text1: "Please update your profile details.",
         });
         router.replace("/home/editpro");
       }
@@ -318,26 +317,42 @@ useEffect(() => {
     console.log(date, time);
   }, [date, time]);
 
+  // const getUserName = async () => {
+  //   try {
+  //     const name = await AsyncStorage.getItem("user_name");
+  //     if (name !== null) {
+  //       console.log("Retrieved user name:", name);
+  //       return name;
+  //     } else {
+  //       console.log("No user name found.");
+  //       return "";
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to retrieve the user name:", error);
+  //     return "";
+  //   }
+  // };
+
   const getUserName = async () => {
     try {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("All AsyncStorage Keys:", keys); // See if 'user_name' exists
+  
       const name = await AsyncStorage.getItem("user_name");
-      if (name !== null) {
-        console.log("Retrieved user name:", name);
-        return name;
-      } else {
-        console.log("No user name found.");
-        router.push("/profile/editprofile");
-        return "";
-      }
+      console.log("Fetched user_name:", name); // See actual fetched value
+  
+      return name ?? "";
     } catch (error) {
       console.error("Failed to retrieve the user name:", error);
       return "";
     }
   };
+  
   useEffect(() => {
     const fetchUserName = async () => {
       const name = await getUserName();
       setUserName(name);
+      console.log("User name set:", name);
     };
     fetchUserName();
   }, []);
