@@ -144,29 +144,30 @@ const slots = () => {
   
         if (selectedDate) {
           const selectedISO = new Date(selectedDate).toISOString().split("T")[0];
+          
+          // First filter by date and active status
           filteredSlots = filteredSlots.filter((slot) => {
             const slotDate = new Date(slot.date).toISOString().split("T")[0];
-            return slotDate === selectedISO && slot.isActive; // Only active slots
+            return slotDate === selectedISO && slot.isActive;
           });
   
-          // ✅ 6-hour filter logic
-          if (flight?.departure?.scheduled && flight?.departure?.date) {
-            const scheduledFlightDate = new Date(
-              `${flight.departure.date}T${flight.departure.scheduled}`
-            );
-            const selectedDateObj = new Date(selectedDate);
+          // Apply 6-hour buffer logic if we have flight departure time
+          if (flight?.departure?.scheduled) {
+            const [flightHours, flightMinutes] = flight.departure.scheduled.split(':').map(Number);
+            const flightDate = new Date(flight.departure.date);
+            flightDate.setHours(flightHours, flightMinutes, 0, 0);
   
             filteredSlots = filteredSlots.filter((slot) => {
-              const slotDateTime = new Date(`${selectedDate}T${slot.timeSlot}`);
+              const [slotHours, slotMinutes] = slot.timeSlot.split(':').map(Number);
+              const slotDateTime = new Date(selectedDate);
+              slotDateTime.setHours(slotHours, slotMinutes, 0, 0);
   
-              // If selected date is before the flight date, keep all slots
-              if (selectedDateObj < new Date(flight.departure.date)) {
-                return true;
-              }
-  
-              const diffMs = scheduledFlightDate - slotDateTime;
+              // Calculate difference in hours
+              const diffMs = flightDate - slotDateTime;
               const diffHours = diffMs / (1000 * 60 * 60);
-              return diffHours >= 6; // Only keep slots at least 6 hours before flight
+  
+              // Only keep slots that are at least 6 hours before flight
+              return diffHours >= 6;
             });
           }
         }
