@@ -27,7 +27,8 @@
             ]
           }
         ]
-      }
+      },
+       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "config": {
@@ -55,7 +56,6 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-google-signin/google-signin",
       "expo-localization",
       [
         "expo-notifications",
@@ -90,10 +90,13 @@
           "calendarPermission": "The app needs to access your calendar."
         }
       ],
-      "expo-font",
       [
         "expo-build-properties",
         {
+          "ios": {
+            "useModularHeaders": true,
+            "useFrameworks": "static" 
+          },
           "android": {
             "minSdkVersion": 26
           }
