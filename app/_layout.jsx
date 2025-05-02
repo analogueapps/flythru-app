@@ -24,8 +24,6 @@ const _layout = () => {
     CenturyGothic: require("../assets/fonts/centurygothic.ttf"),
   });
 
-  
- 
   useEffect(() => {
     async function registerForPushNotificationsAsync() {
       if (!Device.isDevice) {
@@ -57,7 +55,6 @@ const _layout = () => {
         await AsyncStorage.removeItem("hasLaunched"); // ✅ remove this in production
         const firstLaunch = await AsyncStorage.getItem("hasLaunched");
 
-
         // 🔔 Register push notifications
         await registerForPushNotificationsAsync();
       } catch (error) {
@@ -71,48 +68,40 @@ const _layout = () => {
     checkFirstTimeUser();
   }, []);
 
-
   return (
     <>
-    <NetworkProvider>
-      <NotificationProvider>
-        <LanguageContext>
-          <AuthProvider>
-            <FlightProvider>
-            
+      <NetworkProvider>
+        <NotificationProvider>
+          <LanguageContext>
+            <AuthProvider>
+              <FlightProvider>
                 <Stack>
-                  <Stack.Screen
-                    name="index"
-                    options={{ headerShown: false }}
-                    />
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
                   <Stack.Screen
                     name="(auth)"
                     options={{ headerShown: false }}
-                    />
+                  />
                   <Stack.Screen
                     name="(tabs)"
                     options={{ headerShown: false }}
-                    />
+                  />
                   <Stack.Screen
                     name="fatoorah"
                     options={{ headerShown: false }}
-                    />
+                  />
                   <Stack.Screen
                     name="nointernet"
                     options={{ headerShown: false }}
-                    />
+                  />
                 </Stack>
-    <Toast/>
-            </FlightProvider>
-          </AuthProvider>
-        </LanguageContext>
-      </NotificationProvider>
-      <NetworkErrorModal/>
-
-</NetworkProvider>
-
-                    </>
-    
+                <Toast />
+              </FlightProvider>
+            </AuthProvider>
+          </LanguageContext>
+        </NotificationProvider>
+        <NetworkErrorModal />
+      </NetworkProvider>
+    </>
   );
 };
 

@@ -145,6 +145,8 @@ export const LOGOUT = async (token) => {
   });
 };
 
+
+
 export const RESEND_OTP = async (token) => {
   console.log("token in api calls for resend otp", token);
   return await axios.post(
@@ -321,7 +323,7 @@ export const GET_PROFILE = async (token) => {
 
 export const STATUS = async (token) => {
   console.log("Fetched All address");
-  return await axios.get(`${LOCAL_URL}/user/profile`, {
+  return await axios.post(`${LOCAL_URL}/user/profile`,{}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

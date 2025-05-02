@@ -41,30 +41,30 @@ useEffect(() => {
 
 
 
-useEffect(() => {
-  console.log("Verifying order with orderId:", orderId, "and paymentId:", paymentId);
-  const verifyOrder = async () => {
-    if (!orderId || !paymentId) return;
+// useEffect(() => {
+//   console.log("Verifying order with orderId:", orderId, "and paymentId:", paymentId);
+//   const verifyOrder = async () => {
+//     if (!orderId || !paymentId) return;
 
-    try {
-      const res = await VERIFY_ORDER(orderId, paymentId);
-      console.log("Verify order response:", res.data);
+//     try {
+//       const res = await VERIFY_ORDER(orderId, paymentId);
+//       console.log("Verify order response:", res.data);
 
 
-      if (res.data) {
-        Toast.show({ type: "success", text1: res.data.message });
-        setVerifiedBookingId(res.data.bookingId);
-      } else {
-        console.log("Unexpected response format:", res);
-      }
-    } catch (error) {
-      console.log("Error verifying order:", error);
-      Toast.show({ type: "error", text1: "Verification failed" });
-    }
-  };
+//       if (res.data) {
+//         Toast.show({ type: "success", text1: res.data.message });
+//         setVerifiedBookingId(res.data.bookingId);
+//       } else {
+//         console.log("Unexpected response format:", res);
+//       }
+//     } catch (error) {
+//       console.log("Error verifying order:", error);
+//       Toast.show({ type: "error", text1: "Verification failed" });
+//     }
+//   };
 
-  verifyOrder();
-}, [orderId, paymentId]);
+//   verifyOrder();
+// }, [orderId, paymentId]);
 
 
 
