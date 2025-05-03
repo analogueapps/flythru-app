@@ -215,12 +215,12 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      // email: "",
-      // password: "",
+      email: "",
+      password: "",
 
 
- email: "taruntej.2002@gmail.com",
-      password: "Tarun@12",
+//  email: "taruntej.2002@gmail.com",
+//       password: "Tarun@12",
     
     },
     validationSchema: signupSchema(applanguage),
@@ -266,11 +266,11 @@ const Index = () => {
 
   const loginFormik = useFormik({
     initialValues: {
-      // email: "",
-      // password: "",
+      email: "",
+      password: "",
 
-      email: "taruntej.2002@gmail.com",
-      password:"Tarun@12",
+      // email: "taruntej.2002@gmail.com",
+      // password:"Tarun@12",
 
     },
     validationSchema: loginSchema(applanguage),
