@@ -194,7 +194,7 @@ const Payment = () => {
     }
 
     // Handle success cases
-    const isSuccessUrl = url.includes("/payment/success") || 
+    const isSuccessUrl =url.includes("/payment/success") || 
                         url.includes("PayInvoice/Result");
 
     if (isSuccessUrl && paymentIdRef.current && !verificationAttemptedRef.current) {
@@ -226,10 +226,10 @@ const Payment = () => {
         javaScriptEnabled
         domStorageEnabled
         startInLoadingState
-        onNavigationStateChange={(navState) => {
-          // Additional safeguard for navigation changes
-          handleUrlChange(navState.url);
-        }}
+        // onNavigationStateChange={(navState) => {
+        //   // Additional safeguard for navigation changes
+        //   handleUrlChange(navState.url);
+        // }}
       />
     </View>
   );

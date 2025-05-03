@@ -156,7 +156,7 @@ console.log("filteredSlots 1",filteredSlots);
 
   const formik = useFormik({
     initialValues: {
-      date: "",
+      date: "2025-05-03",
       time: "",
     },
     validationSchema: slotsSchema(applanguage),
