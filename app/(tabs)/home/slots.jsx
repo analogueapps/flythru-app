@@ -27,12 +27,13 @@ const slots = () => {
   const [selected, setSelected] = React.useState("");
   const [filteredSlotTimes, setFilteredSlotTimes] = useState([]);
   const [timeslot, setTimeslots] = useState([]);
+  const [filterTimeSlot, setFilterTimeSlot] = useState([]);
   const { flightData, departureDate } = useLocalSearchParams();
 
   const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
-console.log("departureDate", departureDate,flight);
+  console.log("departureDate", departureDate, flight);
   const time =
     flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
       ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${
@@ -53,9 +54,6 @@ console.log("departureDate", departureDate,flight);
     : [];
 
   useEffect(() => {
-    console.log("🛫 departureDate from context:", departureDate);
-  }, [departureDate]);
-  useEffect(() => {
     if (departureDate) {
       const parsedDepartureDate = new Date(departureDate);
       if (!isNaN(parsedDepartureDate.getTime())) {
@@ -66,91 +64,38 @@ console.log("departureDate", departureDate,flight);
     }
   }, [departureDate]);
 
-  useEffect(() => {
-    console.log("👀 depDate inside useEffect:", depDate);
-    if (depDate) {
-      console.log("✅ departure date for picker:", depDate);
-    } else {
-      console.log("❌ depDate is still empty or invalid");
-    }
-  }, [depDate]);
-
-  useEffect(() => {
-    console.log("🚨 depDate useEffect running...");
-    console.log("depDate value:", depDate);
-    console.log("depDate is instanceof Date:", depDate instanceof Date);
-    console.log("depDate isNaN:", isNaN(depDate));
-  }, [depDate]);
-
-  console.log(
-    "///////////////////",
-    flight?.departure?.scheduled.split("T")[0]
-  );
-
-  const alltimeslots = async (
-    selectedDate = null,
-    depDate = null,
-    time = null
-  ) => {
+  const alltimeslots = async () => {
     try {
       console.log("Fetching all time slots...", selectedDate, time);
 
       const res = await ALL_TIME_SLOTS();
-      console.log('res',res);
-      
+      console.log("res", res);
+
       // if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
-      if (res?.data?.allTimeSlots ) {
+      if (res?.data?.allTimeSlots) {
         let filteredSlots = res.data.allTimeSlots;
+        setTimeslots(filteredSlots);
 
-        if (selectedDate) {
-          const selectedISO = new Date(selectedDate)
-            .toISOString()
-            .split("T")[0];
-
-          filteredSlots = filteredSlots.filter((slot) => {
-            const slotDate = new Date(slot.date).toISOString().split("T")[0];
-            return slotDate === selectedISO;
-          });
-console.log("filteredSlots 1",filteredSlots);
-
-          if (depDate && time) {
-            const depDateTime = new Date(`${depDate}T${time}`);
-            const sixHoursBeforeDep = new Date(
-              depDateTime.getTime() - 6 * 60 * 60 * 1000
-            );
-
-            filteredSlots = filteredSlots.filter((slot) => {
-              const slotDateTime = new Date(`${slot.date}T${slot.timeSlot}`);
-              console.log("slotDateTime <= sixHoursBeforeDep",slotDateTime <= sixHoursBeforeDep,slotDateTime,sixHoursBeforeDep);
-              
-              return slotDateTime <= sixHoursBeforeDep;
-            });
-          }
-        }
-
-        const formattedSlots = filteredSlots.map((slot) => ({
+        const formattedSlotsdata = filteredSlots.map((slot) => ({
           key: slot._id,
           value: slot.timeSlot,
         }));
 
-        setTimeslots(formattedSlots);
+        setFilterTimeSlot([]);
       } else {
         setTimeslots([]);
+        setFilterTimeSlot([]);
       }
     } catch (error) {
       console.log("Error fetching timeslots:", error);
       setTimeslots([]);
+      setFilterTimeSlot([]);
     }
   };
 
   useEffect(() => {
-    console.log("flightsaaaaaa////////////", flight);
+    alltimeslots();
   }, []);
-
-  useEffect(() => {
-      alltimeslots();
-   
-}, []);
 
   const baggaevalues = { personsCount, baggagePictures, baggageCount };
 
@@ -358,59 +303,65 @@ console.log("filteredSlots 1",filteredSlots);
                 depDate instanceof Date && !isNaN(depDate) ? depDate : undefined
               }
               display="default"
-              // onChange={async (event, selectedDate) => {
-              //   setShowDatePicker(false);
-              //   if (!selectedDate) return;
-                
-              //   const formattedDate = selectedDate.toISOString().split("T")[0];
-              //   setSelectedDate(formattedDate);
-              //   formik.setFieldValue("date", formattedDate);
-              //   console.log("Selected date:8979799", formattedDate,timeslot);
-              //   console.log("depDate", departureDate);
-              //   console.log("time", time);
-              //   // const flightScheduledDateTime = new Date(`${departureDate}T${time}`);
-              //   const flightScheduledDateTime = new Date(`${departureDate}T${time}`);
+              onChange={async (event, selectedDate) => {
+                setShowDatePicker(false);
+                if (!selectedDate) return;
 
-              //   console.log("flightScheduledDateTime", flightScheduledDateTime);
-              //   console.log(selectedDate, "selectedDate");
-                
-              //   const selectedDateStr = selectedDate
-              //     .toISOString()
-              //     .split("T")[0];
-              //     console.log('selectedDateStr', selectedDateStr);  
-                  
+                const formattedDate = selectedDate.toISOString().split("T")[0];
+                console.log("formateDate", formattedDate);
+                setSelectedDate(formattedDate);
+                formik.setFieldValue("date", formattedDate);
+                const filteredTimeSlots = timeslot.filter((item) => {
+                  if (!item.date) return false;
+                  const itemDate = new Date(item.date)
+                    .toISOString()
+                    .split("T")[0];
+                  return itemDate === formattedDate && item.isActive;
+                });
+                console.log("check in oncjkage", departureDate);
+                console.log("sssssecccuddffj", flight.departure.scheduled);
+                const flightScheduledDateTime = new Date(
+                  `${departureDate}T${flight.departure.scheduled}:00`
+                ); // Adding :00 for seconds
 
-              //   const filteredByDate = timeslot.filter((item) => {
-              //     console.log(item, "item.date");
-                  
-              //     const itemDateStr = new Date(item.date)
-              //       .toISOString()
-              //       .split("T")[0];
-              //     return itemDateStr === selectedDateStr && item.isActive;
-              //   });
-              //   console.log(filteredByDate, "filteredByDate");
-                
-              //   const filterTimeSlotsBefore6Hours = filteredByDate.filter(slot => {
+                console.log(
+                  "Flight Scheduled DateTime:",
+                  flightScheduledDateTime
+                );
+                const givenDepartureDate = new Date(departureDate);
+                const dateformate = new Date(formattedDate);
+                const filterTimeSlotsBefore6Hours = filteredTimeSlots.filter(
+                  (slot) => {
+                    const slotDateStr = `${formattedDate}T${slot.timeSlot}`;
+                    const slotDateTime = new Date(slotDateStr);
+                    console.log(
+                      "==09-09889677656",
+                      dateformate,
+                      givenDepartureDate
+                    );
+                    // If selected date is before flight date, return all slots
+                    if (dateformate > givenDepartureDate) {
+                      return true;
+                    }
 
-              //     const slotDateStr = `${selectedDate}T${slot.value}`;
-              //     const slotDateTime = new Date(slotDateStr);
+                    const diffMs = flightScheduledDateTime - slotDateTime;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    return diffHours >= 6;
+                  }
+                );
+                // If you need to ensure it's in the local time zone, you can log it as local time
+                console.log(
+                  "Local Flight Scheduled DateTime:",
+                  filterTimeSlotsBefore6Hours
+                );
+                const data = filterTimeSlotsBefore6Hours.map((item) => ({
+                  key: item._id,
+                  value: item.timeSlot,
+                }));
 
-              //     // If selected date is before flight date, return all slots
-              //     if (selectedDate > depDate) {
-              //         return true;
-              //     }
-              //     const diffMs = flightScheduledDateTime - slotDateTime;
-              //                                       const diffHours = diffMs / (1000 * 60 * 60);
-              //                                       return diffHours >= 6;
-
-              //   }
-              //   )
-                
-              //   console.log(filterTimeSlotsBefore6Hours, "filterTimeSlotsBefore6Hours");
-                
-
-              //   setFilteredSlotTimes(filterTimeSlotsBefore6Hours);
-              // }}
+                setFilterTimeSlot(data);
+                // setFilteredSlotTimes(filterTimeSlotsBefore6Hours);
+              }}
             />
           )}
 
@@ -431,7 +382,7 @@ console.log("filteredSlots 1",filteredSlots);
           <SelectList
             setSelected={(val) => formik.setFieldValue("time", val)} // ✅ Bind to formik state
             value={formik.values.time}
-            data={timeslot}
+            data={filterTimeSlot}
             // data={filteredSlotTimes}
             save="value"
             boxStyles={{

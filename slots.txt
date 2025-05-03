@@ -1,0 +1,45 @@
+                console.log("Selected date:8979799", formattedDate, timeslot);
+                console.log("depDate", departureDate);
+                console.log("time", time);
+                // const flightScheduledDateTime = new Date(`${departureDate}T${time}`);
+                const flightScheduledDateTime = new Date(
+                  `${departureDate}T${time}`
+                );
+
+                console.log("flightScheduledDateTime", flightScheduledDateTime);
+                console.log(selectedDate, "selectedDate");
+
+                const selectedDateStr = selectedDate
+                  .toISOString()
+                  .split("T")[0];
+                console.log("selectedDateStr", selectedDateStr);
+
+                const filteredByDate = timeslot.filter((item) => {
+                  console.log(item, "item.date");
+
+                  const itemDateStr = new Date(item.date)
+                    .toISOString()
+                    .split("T")[0];
+                  return itemDateStr === selectedDateStr && item.isActive;
+                });
+                console.log(filteredByDate, "filteredByDate");
+
+                const filterTimeSlotsBefore6Hours = filteredByDate.filter(
+                  (slot) => {
+                    const slotDateStr = `${selectedDate}T${slot.value}`;
+                    const slotDateTime = new Date(slotDateStr);
+
+                    // If selected date is before flight date, return all slots
+                    if (selectedDate > depDate) {
+                      return true;
+                    }
+                    const diffMs = flightScheduledDateTime - slotDateTime;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    return diffHours >= 6;
+                  }
+                );
+
+                console.log(
+                  filterTimeSlotsBefore6Hours,
+                  "filterTimeSlotsBefore6Hours"
+                );
