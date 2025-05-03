@@ -330,9 +330,9 @@ export const STATUS = async (token) => {
   });
 };
 
-export const ALL_TIME_SLOTS = async (data) => {
+export const ALL_TIME_SLOTS = async () => {
   console.log("Fetched All time slots");
-  return await axios.get(`${LOCAL_URL}/user/timeslots`, data);
+  return await axios.get(`${LOCAL_URL}/user/timeslots`);
 };
 
 export const FEEDBACK = async (data, token) => {

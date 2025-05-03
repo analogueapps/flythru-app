@@ -53,11 +53,11 @@ export default function Index() {
           resizeMode="contain"
         />
 
-        <View className="w-[90%] mt-16">
-          <Text className="text-[#164F90] font-bold text-5xl text-left">
+        <View className="w-[90%] mt-16 bg-slate-500 pt-7">
+          <Text className="text-[#164F90] font-bold text-5xl text-left pt-2">
             Book Services
           </Text>
-          <Text className="text-[#164F90] font-bold text-6xl text-left mt-1">
+          <Text className="text-[#164F90] font-bold text-6xl text-left mt-1 pt-2">
             for Hassle-free Trip
           </Text>
           <Text className="text-[#3E3E3E] text-2xl text-left mt-2">

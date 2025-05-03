@@ -215,9 +215,10 @@ const index = () => {
     } catch (error) {
       console.log("Error during logout:", error?.response?.data?.message);
       Toast.show({
-        type: "error",
-        text1: error?.response?.data?.message || "Error occurred during logout",
+        type: "info",
+        text1: "Logged out successfully",
       });
+      
 
     } finally {
       setLoading(false)

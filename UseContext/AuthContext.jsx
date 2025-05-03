@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
       const token = await AsyncStorage.getItem("authToken");
       try {
         const res = await STATUS(token);
-        console.log("driver status", res);
+        // console.log("driver status", res);
         if (res.status === 200 && res.data.status === "Inactive") {
           Toast.show({
             type: "info",

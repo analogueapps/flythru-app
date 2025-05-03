@@ -50,7 +50,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("signup");
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const widthAnim = useRef(new Animated.Value(0)).current;
+  const widthAnim = useRef(new Animated.Value(1)).current;
   const [fcm, setFcm] = useState("");
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
   const [authPopupMessage, setAuthPopupMessage] = useState("");
@@ -91,6 +91,8 @@ const Index = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
+      androidClientId: '1027382214254-k2j4vam8jgadk8d478a13eghq6lc0rqp.apps.googleusercontent.com',
+
       webClientId:
         "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
     });
@@ -147,7 +149,7 @@ const Index = () => {
       // console.error("Google Sign-In Error:", error);
       Toast.show({
         type: "error",
-        text1: error.message || "Google Sign-In failed",
+        text1:  "Google Sign-In failed",
       });
     }
   };
@@ -390,15 +392,15 @@ const Index = () => {
       const res = await OAUTH(oAuthToken);
       console.log("OAuth response:", res);
 
-      // Call checkLoginStatus to update the UI after OAuth login
-      await checkLoginStatus(); // Ensure the login status is updated after OAuth
+
+      await checkLoginStatus(); 
 
       Toast.show({
         type: "success",
         text1: res.data.message || "OAuth successful",
       });
     } catch (error) {
-      console.log("Error signing up:", error?.response);
+      console.log("Error signing up:", error?.response?.data);
       Toast.show({
         type: "error",
         text1: error?.response?.data?.message || "OAuth failed",
