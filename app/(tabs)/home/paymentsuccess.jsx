@@ -7,14 +7,14 @@ import paysuccess from "../../../assets/images/paysuccess.gif";
 const PaymentSuccess = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-    const {paymentId , orderId} = useLocalSearchParams();
+    const {paymentId , orderId,bookingid} = useLocalSearchParams();
   
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.replace({
         pathname: "/home/bookingd",
-        params: { orderId , paymentId , fromSelectLocation: "true"},
+        params: { orderId , paymentId , fromSelectLocation: "true",bookingid},
         
       });
       console.log("Order ID and payemnt id:", orderId , paymentId); // Log the orderId

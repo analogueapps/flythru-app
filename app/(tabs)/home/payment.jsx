@@ -160,7 +160,7 @@ const Payment = () => {
         Toast.show({ type: "success", text1: res.data.message });
         router.replace({
           pathname: "/home/paymentsuccess",
-          params: { orderId, paymentId },
+          params: { bookingid:res.data.bookingId },
         });
       } else {
         router.replace("/home/paymentfailed");
@@ -175,7 +175,7 @@ const Payment = () => {
 
   const handleUrlChange = (url) => {
     console.log("Current URL:", url);
-
+ 
     // Extract and store PaymentId if found
     if (url.includes("PaymentId=")) {
       const paymentId = extractPaymentId(url);

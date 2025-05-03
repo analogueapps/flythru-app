@@ -1,11 +1,11 @@
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft, Plus, Minus } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router, useLocalSearchParams } from "expo-router";  
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";  
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -24,7 +24,7 @@ import { useFormik } from "formik";
 const bookingd = () => {
   const insets = useSafeAreaInsets();
   const { fromSelectLocation = "false" } = useLocalSearchParams();
-  const { userId, orderId, baggageId, bookingId , paymentId } = useLocalSearchParams();
+  const { userId, orderId, baggageId, bookingId , paymentId,bookingid } = useLocalSearchParams();
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
     const [bookingData , setBookingData] = useState() 
   // const { bookingId } = useLocalSearchParams(); 
@@ -76,9 +76,12 @@ useEffect(() => {
 //   }
 // }, [orderId, paymentId]);
 
+useFocusEffect(useCallback(()=>
+{
+  fetchBookingDetails()
+},[]))
 
-
-    const fetchBookingDetails = async (id) => {
+    const fetchBookingDetails = async () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
         Toast.show(
@@ -91,8 +94,8 @@ useEffect(() => {
       }
     
       try {
-        console.log("Fetching details for bookingId:", id);
-        const res = await BOOKING_DETAILS(id, token);
+        console.log("Fetching details for bookingId:", bookingid);
+        const res = await BOOKING_DETAILS(bookingid, token);
         setBookingData(res.data);
         console.log("Booking details response:", res.data);
       } catch (error) {
