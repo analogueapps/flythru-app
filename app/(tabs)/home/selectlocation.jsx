@@ -528,10 +528,10 @@ useEffect(() => {
             </View>
           </View>
 
-          <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
+          <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
           <Image
   source={verticalline}
-  className="h-28 -mt-3" // add negative margin-top
+  className="h-28 -mt-5" // add negative margin-top
   resizeMode="contain"
 />
 
