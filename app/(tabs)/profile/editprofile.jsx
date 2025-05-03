@@ -115,8 +115,8 @@ const editprofile = () => {
       });
 
       // Update context with fresh data
-      SaveName(userDetails.name || "");
-      SavePhone(userDetails.phoneNumber?.toString() || "");
+      await SaveName(userDetails.name || "");
+      await SavePhone(userDetails.phoneNumber?.toString() || "");
       if (userDetails.email) SaveMail(userDetails.email);
 
     } catch (error) {
@@ -149,8 +149,8 @@ const editprofile = () => {
       });
       
       // Update context with new values
-      SaveName(values.name);
-      SavePhone(values.phoneNumber);
+      await SaveName(values.name);
+      await SavePhone(values.phoneNumber);
       
       // Optionally refresh profile data
       await fetchProfileData();

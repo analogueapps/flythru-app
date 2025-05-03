@@ -141,8 +141,8 @@ const editpro = () => {
       // Update context with new values
       await SaveName(values.name);
       await SavePhone(values.phoneNumber);
-      await loadToken(); // <--- ADD THIS LINE
-
+      // await loadToken(); // <--- ADD THIS LINE
+ 
       await AsyncStorage.setItem("user_name", values.name);
 
       // Optionally refresh profile data
