@@ -96,13 +96,26 @@ const editprofile = () => {
       console.log("Token:", token);
       
       if (!token) {
+        // Clear form values
+        formik.setValues({
+          name: "",
+          email: userEmail || "",
+          phoneNumber: "",
+        });
+      
+        // Clear context values
+        await SaveName("");
+        await SavePhone("");
+      
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: "Please login again",
         });
+        setInitialLoading(false); // 👈 prevent loader from hanging
         return;
       }
+      
 
       const response = await GET_PROFILE(token);
       const { userDetails } = response.data;
@@ -122,8 +135,8 @@ const editprofile = () => {
     } catch (error) {
       console.log("Error fetching profile:", error);
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Failed to load profile data",
       });
     } 
@@ -136,7 +149,11 @@ const editprofile = () => {
     setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      Toast.show("No token found. Please log in.");
+      Toast.show({
+        type: "info",
+        text1: "Alert",
+        text2: "Failed to load profile data",
+      });
       return;
     }
 
@@ -159,8 +176,8 @@ const editprofile = () => {
     } catch (error) {
       console.log("Error updating profile:", error?.response);
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: error.response?.data?.message || "Failed to update profile",
       });
     } finally {
@@ -301,7 +318,14 @@ const editprofile = () => {
 
       <TouchableOpacity
         disabled={loading}
-        className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
+        className="bg-[#FFB648] rounded-lg w-[80%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
+        style={{
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.50,
+          shadowRadius: 3.84,
+        }}
         onPress={formik.handleSubmit}
       >
         {loading ? (

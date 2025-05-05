@@ -266,7 +266,7 @@ const { token } = useLocalSearchParams();
 
         <ScrollView className="flex-1">
           <View className="px-6">
-            <Text className="text-[28px] py-2">
+            <Text className="text-[28px] py-2" style={{ fontFamily: "Lato" }}>
               {" "}
               {applanguage === "eng"
                 ? Translations.eng.otp_verification
@@ -274,12 +274,12 @@ const { token } = useLocalSearchParams();
             </Text>
 
             <View className="py-4">
-              <Text className="text-[#164F90] font-bold text-[20px] mb-1">
+              <Text className="text-[#164F90] font-bold text-[20px] mb-1"  style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.enter_otp
                   : Translations.arb.enter_otp}
               </Text>
-              <Text className="font-light">
+              <Text className="font-light"  style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.otp_sent_message
                   : Translations.arb.otp_sent_message}{" "}
@@ -287,7 +287,7 @@ const { token } = useLocalSearchParams();
             </View>
 
             {resentOtpMsg && (
-              <Text className="text-green-500 text-sm mb-2">
+              <Text className="text-green-500 text-sm mb-2"  style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.otp_resent_message
                   : Translations.arb.otp_resent_message}
@@ -307,13 +307,13 @@ const { token } = useLocalSearchParams();
 
               {/*  Show Formik error */}
               {errors.otp && touched.otp && (
-                <Text className="text-center mt-4 text-red-500 text-sm">
+                <Text className="text-center mt-4 text-red-500 text-sm" style={{ fontFamily: "Lato" }}>
                   {errors.otp}
                 </Text>
               )}
 
               {apiErr && (
-                <Text className="text-center mt-4 text-red-500 text-sm">
+                <Text className="text-center mt-4 text-red-500 text-sm" style={{ fontFamily: "Lato" }}>
                   {apiErr}
                 </Text>
               )}
@@ -322,6 +322,13 @@ const { token } = useLocalSearchParams();
           
             <TouchableOpacity
             disabled={loading}
+            style={{
+              elevation: 5,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.50,
+              shadowRadius: 3.84,
+            }}
               onPress={handleSubmit} //  Use handleSubmit instead of router.push
               className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
             >
@@ -344,7 +351,7 @@ const { token } = useLocalSearchParams();
   </Animated.View>
   
   ) : (
-              <Text className="text-center text-[#08203C] font-bold text-lg">
+              <Text className="text-center text-[#08203C] font-bold text-lg"  style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.submit
                   : Translations.arb.submit}

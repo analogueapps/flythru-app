@@ -6,16 +6,23 @@ import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
 import { ALL_SETTINGS } from "../../../network/apiCallers";
-import logo from '../../../assets/images/mainLogo.png'
+import logo from "../../../assets/images/mainLogo.png";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import TranslateText from "../../../network/translate";
 
 const TermsAndConditions = () => {
   const insets = useSafeAreaInsets();
   const [termsContent, setTermsContent] = useState("");
-    const { applanguage } = langaugeContext()
+  const { applanguage } = langaugeContext();
 
-
+  function splitTextIntoChunks(text, chunkSize = 4500) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
 
   const fetchedSettings = async () => {
     try {
@@ -29,7 +36,16 @@ const TermsAndConditions = () => {
       ) {
         const settings = res.data.allSettings[0];
         if (settings?.termsAndCondition) {
-          setTermsContent(settings.termsAndCondition);
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(settings?.termsAndCondition);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setTermsContent(finalHtml);
+          } else {
+            setTermsContent(settings.termsAndCondition);
+          }
         } else {
           console.log("Terms not available");
           setTermsContent("<p>No terms available.</p>");
@@ -78,8 +94,9 @@ const TermsAndConditions = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            {applanguage==="eng"?Translations.eng.terms_and_conditions:Translations.arb.terms_and_conditions
-              }
+            {applanguage === "eng"
+              ? Translations.eng.terms_and_conditions
+              : Translations.arb.terms_and_conditions}
           </Text>
         </View>
       </View>
@@ -94,20 +111,19 @@ const TermsAndConditions = () => {
           />
         ) : (
           <Text className="text-[15px] font-thin">
-{applanguage==="eng"?Translations.eng.loading_terms_conditions:Translations.arb.loading_terms_conditions
-              }          </Text>
+            {applanguage === "eng"
+              ? Translations.eng.loading_terms_conditions
+              : Translations.arb.loading_terms_conditions}{" "}
+          </Text>
         )}
 
-<View className="flex justify-center ">
-
-        <Image
-          source={logo}
-          className="h-52 w-52 self-center"
-          resizeMode="contain"
-          
+        <View className="flex justify-center ">
+          <Image
+            source={logo}
+            className="h-52 w-52 self-center"
+            resizeMode="contain"
           />
-          </View>
-
+        </View>
       </ScrollView>
     </View>
   );

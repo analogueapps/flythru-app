@@ -29,8 +29,8 @@ const Address = () => {
     if (!token) {
       // Toast.show("No token found. Please log in.");
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Please login to add address",
       });
       return;
@@ -59,8 +59,8 @@ const Address = () => {
   const deleteAddress = async (addressId) => {
     if (!addressId) {
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Invalid address ID",
       });
       return;
@@ -71,8 +71,8 @@ const Address = () => {
   
     if (!token) {
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Please login to add address",
       });
       return;
@@ -94,8 +94,8 @@ const Address = () => {
       console.log("Error deleting address:", error.response?.data || error.message);
       Toast.show("Failed to delete address");
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: error?.response?.data?.message || "Failed to delete address",
       });
     }

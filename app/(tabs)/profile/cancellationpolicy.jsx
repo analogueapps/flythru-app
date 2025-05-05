@@ -10,13 +10,20 @@ import logo from '../../../assets/images/mainLogo.png'
 
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import TranslateText from "../../../network/translate";
 
 const CancellationPolicy = () => {
   const insets = useSafeAreaInsets();
   const [cancellationContent, setCancellationContent] = useState("");
   const { applanguage } = langaugeContext()
 
-
+  function splitTextIntoChunks(text, chunkSize = 4500) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
   const fetchedSettings = async () => {
     try {
       const res = await ALL_SETTINGS();
@@ -33,7 +40,17 @@ const CancellationPolicy = () => {
             /\r\n|\n/g,
             "<br>"
           );
-          setCancellationContent(formattedContent);
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(formattedContent);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setCancellationContent(finalHtml);
+          } else {
+            setCancellationContent(formattedContent);
+          }
+          
         } else {
           console.log("Cancellation policy not available");
           setCancellationContent("<p>No cancellation policy available.</p>");

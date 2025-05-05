@@ -143,6 +143,7 @@ const Translations = {
     entercity:"Enter City",
     enterairportname:"Enter Airport Name ",
     cancelslot:"Cancel Slot",
+    app_version: "Version",
 
     // Placeholders
 
@@ -312,6 +313,7 @@ const Translations = {
     enterairportname:"أدخل المدينة",
     entercity:" أدخل اسم المطار",
     cancelslot:"إلغاء الموعد ",
+    app_version: "الإصدار",
 
 
     // placeholder

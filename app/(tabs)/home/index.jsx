@@ -254,7 +254,7 @@ const Index = () => {
         </TouchableOpacity>
 
         {formik.touched.departureDate && formik.errors.departureDate && (
-          <Text className="text-red-500 w-[90%] mx-auto">
+          <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
             {formik.errors.departureDate}
           </Text>
         )}
@@ -285,7 +285,7 @@ const Index = () => {
         />
 
         {formik.touched.flightNumber && formik.errors.flightNumber && (
-          <Text className="text-red-500 w-[90%] mx-auto">
+          <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
             {formik.errors.flightNumber}
           </Text>
         )}
@@ -343,8 +343,15 @@ const Index = () => {
             }
           }}
           className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
+          style={{
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.50,
+            shadowRadius: 3.84,
+          }}
         >
-          <Text className="text-center text-black font-semibold text-base">
+          <Text className="text-center text-black font-bold text-base"  style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.search
               : Translations.arb.search}
@@ -356,7 +363,7 @@ const Index = () => {
         <View className="flex-1 items-center justify-center mt-64 mx-6 ">
           {/* Ad Card */}
           {Array.isArray(banners) && banners.length > 0 && (
-            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start">
+            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start"  style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.ad
                 : Translations.arb.ad}

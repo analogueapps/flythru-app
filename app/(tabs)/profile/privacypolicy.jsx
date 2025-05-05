@@ -5,18 +5,25 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import { router } from "expo-router";
 import RenderHTML from "react-native-render-html";
-import logo from '../../../assets/images/mainLogo.png'
+import logo from "../../../assets/images/mainLogo.png";
 
 import { ALL_SETTINGS } from "../../../network/apiCallers";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
+import TranslateText from "../../../network/translate";
 
 const PrivacyPolicy = () => {
   const insets = useSafeAreaInsets();
   const [privacyContent, setPrivacyContent] = useState("");
-  const { applanguage } = langaugeContext()
+  const { applanguage } = langaugeContext();
 
-
+  function splitTextIntoChunks(text, chunkSize = 4500) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
   const fetchedSettings = async () => {
     try {
       const res = await ALL_SETTINGS();
@@ -32,10 +39,19 @@ const PrivacyPolicy = () => {
         if (settings?.privacyPolicy) {
           // ✅ Replace newlines with HTML breaks
           const formattedContent = settings.privacyPolicy.replace(
-            /\r\n|\n/g,
+            /\r\n|\n/g
             // "<br>"
           );
-          setPrivacyContent(formattedContent);
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(formattedContent);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setPrivacyContent(finalHtml);
+          } else {
+            setPrivacyContent(formattedContent);
+          }
         } else {
           console.log("Privacy policy not available");
           setPrivacyContent("<p>No privacy policy available.</p>");
@@ -84,8 +100,9 @@ const PrivacyPolicy = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-            {applanguage==="eng"?Translations.eng.privacy_policy:Translations.arb.privacy_policy
-              }
+            {applanguage === "eng"
+              ? Translations.eng.privacy_policy
+              : Translations.arb.privacy_policy}
           </Text>
         </View>
       </View>
@@ -100,19 +117,19 @@ const PrivacyPolicy = () => {
           />
         ) : (
           <Text className="text-[15px] font-thin">
-{applanguage==="eng"?Translations.eng.loading_privacy_policy:Translations.arb.loading_privacy_policy
-              }          </Text>
+            {applanguage === "eng"
+              ? Translations.eng.loading_privacy_policy
+              : Translations.arb.loading_privacy_policy}{" "}
+          </Text>
         )}
 
         <View className="flex justify-center ">
-        
-                <Image
-                  source={logo}
-                  className="h-52 w-52 self-center"
-                  resizeMode="contain"
-                  
-                  />
-                  </View>
+          <Image
+            source={logo}
+            className="h-52 w-52 self-center"
+            resizeMode="contain"
+          />
+        </View>
       </ScrollView>
     </View>
   );

@@ -238,7 +238,7 @@ const baggage = () => {
         }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <Text className="text-center mb-4 pb-4 border-b-[1px] border-[#E0E0E0] text-2xl font-bold text-[#164F90]">
+          <Text className="text-center mb-4 pb-4 border-b-[1px] border-[#E0E0E0] text-2xl font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
             Upload Photo
           </Text>
 
@@ -254,7 +254,7 @@ const baggage = () => {
                   color="#164F90"
                   className="m-auto w-max "
                 />
-                <Text className="mt-2 font-bold">Click From Camera</Text>
+                <Text className="mt-2 font-bold" style={{ fontFamily: "Lato" }}>Click From Camera</Text>
               </TouchableOpacity>
             </View>
 
@@ -269,7 +269,7 @@ const baggage = () => {
                   color="#164F90"
                   className="m-auto "
                 />
-                <Text className="mt-2 font-bold">Select From Gallery</Text>
+                <Text className="mt-2 font-bold"  style={{ fontFamily: "Lato" }}>Select From Gallery</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -314,7 +314,7 @@ const baggage = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">
+            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
               {flight.departure.iata}
             </Text>
             <Text
@@ -322,8 +322,10 @@ const baggage = () => {
               style={{
                 flexWrap: "wrap",
                 wordBreak: "break-word",
+                fontFamily: "Lato" 
                
               }}
+             
             >
               {/* {flight.departure.airport} */}Departure
             </Text>
@@ -338,12 +340,13 @@ const baggage = () => {
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">
+            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
               {flight.arrival.iata}
             </Text>
             <Text className="text-white " style={{
                 flexWrap: "wrap",
                 wordBreak: "break-word",
+                fontFamily: "Lato"
                 
               }}>
                 {/* {flight.arrival.airport} */}
@@ -360,13 +363,13 @@ const baggage = () => {
         <ScrollView className="" showsVerticalScrollIndicator={false}>
           {/* Number of Persons */}
           <View className="mb-6">
-            <Text className="text-[#164F90] font-bold text-lg mb-3">
+            <Text className="text-[#164F90] font-bold text-lg mb-3" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.number_of_persons
                 : Translations.arb.number_of_persons}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-3 rounded-xl">
-              <Text className="text-[#164F90] font-semibold text-lg">
+              <Text className="text-[#164F90] font-semibold text-lg" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.number_of_persons
                   : Translations.arb.number_of_persons}{" "}
@@ -378,7 +381,7 @@ const baggage = () => {
                 >
                   <Minus color={"#194F90"} size={20} />
                 </TouchableOpacity>
-                <Text className="text-[#194f90]">{persons}</Text>
+                <Text className="text-[#194f90]" style={{ fontFamily: "Lato" }}>{persons}</Text>
                 <TouchableOpacity
                   className="ml-3"
                   onPress={() => numberOfPersons("increase")}
@@ -390,13 +393,13 @@ const baggage = () => {
           </View>
           {/* Baggage */}
           <View className="mb-6">
-            <Text className="text-[#164F90] font-bold text-lg mb-3">
+            <Text className="text-[#164F90] font-bold text-lg mb-3" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.baggage
                 : Translations.arb.baggage}{" "}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-3 rounded-xl">
-              <Text className="text-[#164F90] font-semibold text-lg">
+              <Text className="text-[#164F90] font-semibold text-lg" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.checked_in_bags
                   : Translations.arb.checked_in_bags}
@@ -409,7 +412,7 @@ const baggage = () => {
                     onPress={() => numberOfBags("decreasebags")}
                   />
                 </TouchableOpacity>
-                <Text className="text-[#194f90]">{bags}</Text>
+                <Text className="text-[#194f90]" style={{ fontFamily: "Lato" }}>{bags}</Text>
                 <TouchableOpacity className="ml-3">
                   <Plus
                     color={"#194F90"}
@@ -428,13 +431,13 @@ const baggage = () => {
                 imagerefRBSheet.current.open();
               }}
             >
-              <Text className="text-[#515151] mb-1">
+              <Text className="text-[#515151] mb-1" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.upload_image
                   : Translations.arb.upload_image}
               </Text>
             </TouchableOpacity>
-            <Text className="text-[#2D2A29] text-sm">
+            <Text className="text-[#2D2A29] text-sm" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.max_file_size
                 : Translations.arb.max_file_size}
@@ -451,7 +454,7 @@ const baggage = () => {
                     style={{ resizeMode: "cover" }}
                   />
                   <TouchableOpacity onPress={() => removeImage(index)}>
-                    <Text className="text-gray-400">×</Text>
+                    <Text className="text-gray-400" style={{ fontFamily: "Lato" }}>×</Text>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -472,7 +475,7 @@ const baggage = () => {
             }}
             className="bg-[#FFB800] rounded-xl py-4"
           >
-            <Text className="text-center text-black font-semibold">
+            <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.continue
                 : Translations.arb.continue}

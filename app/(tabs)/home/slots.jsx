@@ -219,11 +219,11 @@ const slots = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">
+            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
               {" "}
               {flight?.departure?.iata ?? "--"}
             </Text>
-            <Text className="text-white">Departure</Text>
+            <Text className="text-white" style={{ fontFamily: "Lato" }}>Departure</Text>
           </View>
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
@@ -235,11 +235,11 @@ const slots = () => {
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white">
+            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
               {" "}
               {flight?.arrival?.iata ?? "--"}
             </Text>
-            <Text className="text-white">Arrival</Text>
+            <Text className="text-white" style={{ fontFamily: "Lato" }}>Arrival</Text>
           </View>
         </View>
         {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
@@ -366,7 +366,7 @@ const slots = () => {
           )}
 
           {formik.touched.date && formik.errors.date && (
-            <Text className="text-red-500 w-[90%] mx-auto mb-2">
+            <Text className="text-red-500 w-[90%] mx-auto mb-2" style={{ fontFamily: "Lato" }}>
               {formik.errors.date}
             </Text>
           )}
@@ -413,7 +413,7 @@ const slots = () => {
           />
 
           {formik.touched.time && formik.errors.time && (
-            <Text className="text-red-500 w-[90%] mx-auto">
+            <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
               {formik.errors.time}
             </Text>
           )}
@@ -426,7 +426,7 @@ const slots = () => {
               formik.handleSubmit();
             }}
           >
-            <Text className="text-center text-black font-semibold">
+            <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.continue
                 : Translations.arb.continue}

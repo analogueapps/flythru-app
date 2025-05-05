@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,7 +23,16 @@ const index = () => {
     const insets = useSafeAreaInsets(); 
     const { applanguage } = langaugeContext()
     const [bookings , setBookings] = useState([])
+    const [refreshing, setRefreshing] = useState(false);
+
     const [isLoading, setIsLoading] = useState(true);
+
+    const onRefresh = async () => {
+      setRefreshing(true);
+      await fetchActivities(); // Reuse your existing fetch function
+      setRefreshing(false);
+    };
+    
     
     // Simulate data loading (you'd replace this with your API call)
     useEffect(() => {
@@ -46,8 +55,8 @@ const index = () => {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: "Please login",
         });
         return;
@@ -59,12 +68,12 @@ const index = () => {
         // Set bookings to res.data.data (the actual array of bookings)
         setBookings(res.data.data || []); // Fallback to empty array if undefined
       } catch (error) {
-        console.error("Error fetching bookings:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: error?.response?.data?.message || "Failed to fetch bookings",
-        });
+        console.log("Error fetching bookings:", error?.response);
+        // Toast.show({
+        //   type: "error",
+        //   text1: "Error",
+        //   text2: error?.response?.data?.message || "Failed to fetch bookings",
+        // });
         setBookings([]); // Ensure bookings is always an array
       }
       finally {
@@ -105,8 +114,12 @@ const index = () => {
     </View>
   
 
-<ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-  <Text className="text-xl mb-4">
+<ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}
+ refreshControl={
+  <RefreshControl  refreshing={refreshing} onRefresh={onRefresh} />
+}
+>
+  <Text className="text-xl mb-4" style={{ fontFamily: "Lato" }}>
     {applanguage === "eng" ? Translations.eng.active_bookings : Translations.arb.active_bookings}
   </Text>
 
@@ -158,7 +171,7 @@ const index = () => {
     </View>
   ))
 ) : bookings.length === 0 ? (
-  <Text className="text-center mt-36">
+  <Text className="text-center mt-36" style={{ fontFamily: "Lato" }}>
     {applanguage === "eng" ? Translations.eng.no_booking_available : Translations.arb.no_booking_available}
   </Text>
 ) : (
@@ -177,10 +190,10 @@ const index = () => {
 
 )}
           <View className="ml-2 flex flex-col items-start gap-y-1">
-            <Text className="text-gray-600 font-extrabold text-xl">
+            <Text className="text-gray-600 font-extrabold text-xl" style={{ fontFamily: "Lato" }}>
               {booking?.driver?.driverName || "Driver not assigned"} {" "}
             </Text>
-            <Text className="text-[#164F90] font-thin text-lg">
+            <Text className="text-[#164F90] font-thin text-lg" style={{ fontFamily: "Lato" }}>
               {booking?.driver?.driverAddress} 
             </Text>
           </View>
@@ -192,13 +205,13 @@ const index = () => {
 
           <Calendar size={20} color="#6B7280" className="rounded-full border-[1px] p-6 border-black" />
           <View className="flex-col gap-y-2">
-            <Text className="font-extrabold text-xl">
+            <Text className="font-extrabold text-xl" style={{ fontFamily: "Lato" }}>
               {booking.pickUpTimings}, {new Date(booking.date).toLocaleDateString()}
             </Text>
-            <Text className="text-[#383F47] text-lg">
+            <Text className="text-[#383F47] text-lg" style={{ fontFamily: "Lato" }}>
               Status: {booking?.updateStatus}
             </Text>
-            <Text className="text-[#6a6c6e] text-lg w-[100%]">
+            <Text className="text-[#6a6c6e] text-lg w-[100%]" style={{ fontFamily: "Lato" }}>
             You can cancel 1hr before the service time
                         </Text>
           </View>
@@ -207,7 +220,7 @@ const index = () => {
               <TouchableOpacity
               onPress={()=>router.push('/activities/cancellation')}
               className="my-4 mx-2 border-2 border-[#164F90] rounded-xl py-4 px-10  w-[45%]">
-                <Text className="text-center text-[#164F90] font-semibold">
+                <Text className="text-center text-[#164F90] font-semibold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng" ? Translations.eng.cancel : Translations.arb.cancel}
                 </Text>
               </TouchableOpacity>
@@ -227,7 +240,7 @@ const index = () => {
                   shadowRadius: 3.84,
                 }}
               >
-                <Text className="text-center text-black font-semibold">
+                <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng" ? Translations.eng.view_details : Translations.arb.view_details}
                 </Text>
               </TouchableOpacity>

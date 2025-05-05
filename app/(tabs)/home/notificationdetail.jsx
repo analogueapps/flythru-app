@@ -41,8 +41,8 @@ const notificationdetail = () => {
             console.error("Error fetching notification:", error);
             // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
             Toast.show({
-              type: "error",
-              text1: "Error",
+              type: "info",
+              text1: "Alert",
               text2: error?.response?.data?.message || "Failed to fetch notifications",
             });
           }
@@ -54,6 +54,17 @@ const notificationdetail = () => {
           console.log("notifId",notifId)
 
         },[])
+        const formatTime = (isoString) => {
+          const date = new Date(isoString);
+          let hours = date.getHours();
+          const minutes = date.getMinutes();
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+          const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+          return `${hours}:${formattedMinutes} ${ampm}`;
+        };
+        
+        
 
         
   return (
@@ -101,15 +112,16 @@ const notificationdetail = () => {
 
 {notification ? (
   <View className="bg-white p-5 mx-7 rounded-lg">
-    <Text className="text-[#1D030099] font-thin text-lg">
+    <Text className="text-[#1D030099] font-thin text-lg" style={{ fontFamily: "Lato" }}>
       {notification.body}
     </Text>
-    <Text className="text-[#00000033] text-right">
-      {new Date(notification.createdAt).toLocaleTimeString()}
+    <Text className="text-[#00000033] text-right" style={{ fontFamily: "Lato" }}>
+      {/* {new Date(notification.createdAt).toLocaleTimeString()} */}
+      {formatTime(notification?.createdAt)}
     </Text>
   </View>
 ) : (
-  <Text className="text-center text-gray-400 mt-10">Loading or notification not found.</Text>
+  <Text className="text-center text-gray-400 mt-10" style={{ fontFamily: "Lato" }}>Loading or notification not found.</Text>
 )}
 
 

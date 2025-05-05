@@ -91,7 +91,12 @@ const feedback = () => {
       try {
         const token = await AsyncStorage.getItem('authToken');
         if (!token) {
-          Toast.show("No token found. Please log in."); 
+          Toast.show({
+            type: "info",
+            text1: "Alert",
+            text2: "Please login",
+          }
+          ); 
           return;
         }
     
@@ -99,7 +104,7 @@ const feedback = () => {
         console.log("Feedback sent successfully", res.data.message);
         Toast.show({
           type: "success",
-          text1: res.data.message,
+          text1: res.data.message || "Feedback sent successfully",
         })
 
         router.push("/profile");
@@ -107,6 +112,11 @@ const feedback = () => {
         console.log("Error:", error);
         // toast.show(error?.response?.data?.message || "Failed to submit feedback");
         setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
+        Toast.show({
+          type: "info",
+          text1: "Alert",
+          text2: error?.response?.data?.message || "Failed to submit feedback",
+        });
       }
       finally {
         setLoading(false);
@@ -221,7 +231,15 @@ const feedback = () => {
       </View>
      
     </ScrollView>
-    <TouchableOpacity className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
+    <TouchableOpacity
+     style={{
+      elevation: 5,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.50,
+      shadowRadius: 3.84,
+    }}
+    className="bg-[#FFB648] rounded-lg w-[80%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
     onPress={formik.handleSubmit}
     >
 

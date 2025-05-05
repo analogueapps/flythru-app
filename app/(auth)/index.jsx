@@ -91,10 +91,11 @@ const Index = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      androidClientId: '1027382214254-k2j4vam8jgadk8d478a13eghq6lc0rqp.apps.googleusercontent.com',
+      // androidClientId: '1027382214254-k2j4vam8jgadk8d478a13eghq6lc0rqp.apps.googleusercontent.com',
 
       webClientId:
         "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
+        
     });
   }, []);
 
@@ -119,6 +120,7 @@ const Index = () => {
       // Create a Google credential with the ID token
       const googleCredential = GoogleAuthProvider.credential(
         userInfo.data.idToken
+        
       );
       console.log("user id token", userInfo.data.idToken);
       // Sign in with Firebase using the Google credential
@@ -148,9 +150,12 @@ const Index = () => {
     } catch (error) {
       // console.error("Google Sign-In Error:", error);
       Toast.show({
-        type: "error",
+        type: "info",
         text1:  "Google Sign-In failed",
+        // text1: error.message || "Unknown error"
+
       });
+      console.log("Google Sign-In Error:", error);
     }
   };
 
@@ -182,7 +187,7 @@ const Index = () => {
         }),
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 550,
+          duration: 300,
           useNativeDriver: true,
         }),
       ]),
@@ -192,6 +197,10 @@ const Index = () => {
         friction: 8,
       }),
     ]).start();
+
+    setTimeout(() => {
+      setActiveTab(tab);
+    }, 300);
   };
 
   // tab amination end
@@ -269,8 +278,8 @@ const Index = () => {
       email: "",
       password: "",
 
-      // email: "taruntej.2002@gmail.com",
-      // password:"Tarun@12",
+      // email: "shiva321@gmail.com",
+      // password:"Shiva@12",
 
     },
     validationSchema: loginSchema(applanguage),
@@ -470,6 +479,7 @@ const Index = () => {
                 className="items-center py-3 rounded-l-full"
               >
                 <Text
+                style={{ fontFamily: "Lato" }}
                   className={`text-lg font-semibold ${
                     activeTab === "login" ? "text-white " : "text-[#164E8D]"
                   }`}
@@ -498,6 +508,7 @@ const Index = () => {
                 className="items-center py-3 rounded-r-full"
               >
                 <Text
+                 style={{ fontFamily: "Lato" }}
                   className={`text-lg font-semibold ${
                     activeTab === "signup" ? "text-white" : "text-[#164E8D]"
                   }`}
@@ -540,7 +551,8 @@ const Index = () => {
                 />
 
                 {loginFormik.touched.email && loginFormik.errors.email && (
-                  <Text className="text-red-500 w-[90%] mx-auto">
+                  <Text className="text-red-500 w-[90%] mx-auto"
+                  style={{ fontFamily: "Lato" }}>
                     {loginFormik.errors.email}
                   </Text>
                 )}
@@ -572,7 +584,7 @@ const Index = () => {
 
                 {loginFormik.touched.password &&
                   loginFormik.errors.password && (
-                    <Text className="text-red-500 w-[90%] mx-auto">
+                    <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
                       {loginFormik.errors.password}
                     </Text>
                   )}
@@ -598,7 +610,7 @@ const Index = () => {
                       />
                     </Animated.View>
                   ) : (
-                    <Text className="text-center  text-[#08203C] font-bold text-lg">
+                    <Text className="text-center  text-[#08203C] font-bold text-lg" style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng"
                         ? Translations.eng.log_in
                         : Translations.arb.log_in}
@@ -607,7 +619,7 @@ const Index = () => {
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
-                  <Text className="mx-2">
+                  <Text className="mx-2"  style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.or
                       : Translations.arb.or}
@@ -620,7 +632,7 @@ const Index = () => {
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
                   >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10">
+                    <Text className="font-bold text-lg mr-10"  style={{ fontFamily: "Lato" }}>
                       Login with Google
                     </Text>
                   </TouchableOpacity>
@@ -653,7 +665,7 @@ const Index = () => {
                     router.push("/home");
                   }}
                 >
-                  <Text className="text-[#0F7BE6] text-lg">
+                  <Text className="text-[#0F7BE6] text-lg"  style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.skip_login
                       : Translations.arb.skip_login}
@@ -684,7 +696,7 @@ const Index = () => {
                   }
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <Text className="text-red-500 w-[90%] mx-auto">
+                  <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
                     {formik.errors.email}
                   </Text>
                 )}
@@ -719,7 +731,7 @@ const Index = () => {
                 </View>
 
                 {formik.touched.password && formik.errors.password && (
-                  <Text className="text-red-500 w-[90%] mx-auto">
+                  <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
                     {formik.errors.password}
                   </Text>
                 )}
@@ -745,7 +757,7 @@ const Index = () => {
                       />
                     </Animated.View>
                   ) : (
-                    <Text className="text-[#08203C] font-bold text-lg">
+                    <Text className="text-[#08203C] font-bold text-lg"  style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng"
                         ? Translations.eng.sign_up
                         : Translations.arb.sign_up}
@@ -755,7 +767,7 @@ const Index = () => {
 
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
-                  <Text className="mx-2">
+                  <Text className="mx-2" style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.or
                       : Translations.arb.or}
@@ -768,7 +780,7 @@ const Index = () => {
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
                   >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10">
+                    <Text className="font-bold text-lg mr-10"  style={{ fontFamily: "Lato" }}>
                       Signup with Google
                     </Text>
                   </TouchableOpacity>
@@ -791,7 +803,7 @@ const Index = () => {
                     router.push("/home");
                   }}
                 >
-                  <Text className="text-[#0F7BE6] text-lg">
+                  <Text className="text-[#0F7BE6] text-lg"  style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.skip_signin
                       : Translations.arb.skip_signin}

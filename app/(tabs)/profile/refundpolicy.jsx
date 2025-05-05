@@ -10,13 +10,20 @@ import logo from '../../../assets/images/mainLogo.png'
 
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
+import TranslateText from "../../../network/translate";
 
 const RefundPolicy = () => {
   const insets = useSafeAreaInsets();
   const [refundContent, setRefundContent] = useState("");
   const { applanguage } = langaugeContext()
 
-
+  function splitTextIntoChunks(text, chunkSize = 4500) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
   const fetchedSettings = async () => {
     try {
       const res = await ALL_SETTINGS();
@@ -35,7 +42,17 @@ const RefundPolicy = () => {
             /\r\n|\n/g,
             // "<br>"
           );
-          setRefundContent(formattedContent);
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(formattedContent);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setRefundContent(finalHtml);
+          } else {
+            setRefundContent(formattedContent);
+          }
+         
         } else {
           console.log("Refund policy not available");
           setRefundContent("<p>No refund policy available.</p>");

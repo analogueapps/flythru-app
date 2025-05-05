@@ -91,8 +91,8 @@ const editpro = () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: "Please login again",
         });
         return;
@@ -115,8 +115,8 @@ const editpro = () => {
     } catch (error) {
       console.log("Error fetching profile:", error);
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Failed to load profile data",
       });
     }
@@ -152,8 +152,8 @@ const editpro = () => {
     } catch (error) {
       console.log("Error updating profile:", error?.response);
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: error.response?.data?.message || "Failed to update profile",
       });
     } finally {
@@ -285,6 +285,13 @@ const editpro = () => {
 
       <TouchableOpacity
         disabled={loading}
+        style={{
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.50,
+          shadowRadius: 3.84,
+        }}
         className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
         onPress={formik.handleSubmit}
       >

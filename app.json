@@ -87,7 +87,8 @@
         
         {
           "fonts": [
-            "./assets/fonts/centurygothic.ttf"
+            "./assets/fonts/centurygothic.ttf",
+            "./assets/fonts/Lato-Regular.ttf"
           ]
         }
       ],

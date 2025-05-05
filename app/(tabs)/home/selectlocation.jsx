@@ -180,8 +180,8 @@ useEffect(() => {
       if (!token) {
         // Toast.show("No token found. Please log in.");
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: "Please login again",
         });
         return;
@@ -265,8 +265,8 @@ useEffect(() => {
     if (!token) {
       // Toast.show("No token found. Please log in.");
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Please login again",
       });
       return;
@@ -357,123 +357,6 @@ useEffect(() => {
     fetchUserName();
   }, []);
 
-//   const handlelocation = () => {
-//     if (hasVisited) return null; // Don't open it again
-
-//   AsyncStorage.setItem('hasVisitedLocationSheet', 'true'); // Mark as visited
-//   locationrefRBSheet.current?.open(); // Open the sheet only first time
-
-//     return (
-//       <RBSheet
-//         ref={locationrefRBSheet}
-//         closeOnDragDown={true}
-//         closeOnPressMask={true}
-//         draggable={true}
-//         height={Dimensions.get("window").height / 2}
-//         customStyles={{
-//           wrapper: {
-//             backgroundColor: "transparent",
-//           },
-//           draggableIcon: {
-//             backgroundColor: "#000",
-//           },
-//         }}
-//       >
-//         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-//           <View className="flex flex-row justify-between items-center my-7 gap-2">
-//             <View className="flex flex-row ">
-//               {/* <Image
-//                 source={dp}
-//                 className="h-16 w-16 rounded-full mr-4"
-//                 resizeMode="cover" 
-//               /> */}
-
-//               <View>
-//                 <Text className=" text-3xl font-thin">{userName}</Text>
-//                 {/* <Text>Dubai</Text> */}
-//               </View>
-//             </View>
-
-//             <View>
-//               <Text className="text-[#164F90] text-2xl font-bold">
-//                 {applanguage === "eng"
-//                   ? Translations.eng.total
-//                   : Translations.arb.total}{" "}
-//                 : {price}
-//               </Text>
-//               <Text>
-//                 {pickupdate} {time}{" "}
-//               </Text>
-//             </View>
-//           </View>
-
-//           <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
-//           <Image
-//   source={verticalline}
-//   className="h-28 -mt-3" // add negative margin-top
-//   resizeMode="contain"
-// />
-
-
-//             <View className="flex-col gap-5">
-//               <View className="flex-col gap-3">
-//                 <Text className="text-[#164F90] text-xl font-bold">
-//                   {applanguage === "eng"
-//                     ? Translations.eng.pick_up
-//                     : Translations.arb.pick_up}{" "}
-//                 </Text>
-//                 <Text className="text-lg">{pickuploaction}</Text>
-//               </View>
-
-//               <View className="flex-col gap-3">
-//                 <Text className="text-[#164F90] text-xl font-bold">
-//                   {applanguage === "eng"
-//                     ? Translations.eng.drop_off
-//                     : Translations.arb.drop_off}{" "}
-//                 </Text>
-//                 <Text className="text-lg">Airport</Text>
-//               </View>
-//             </View>
-//           </View>
-
-//           <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
-
-//           <View className="flex flex-row justify-center">
-//             <SwipeButton
-//               title="Swipe Right to Book"
-//               thumbIconBackgroundColor="#FFB648"
-//               thumbIconWidth={65}
-//               thumbIconBorderColor="#FFB800"
-//               thumbIconComponent={() => (
-//                 <AntDesign name="arrowright" size={24} color="black" />
-//               )}
-//               railBackgroundColor="white"
-//               railBorderColor="#A6A6A6"
-//               railFillBackgroundColor="#FFB800"
-//               railFillBorderColor="#FFB800"
-//               titleColor="#000"
-//               titleFontSize={16}
-//               containerStyles={{
-//                 width: "95%", // Ensure the button is wide enough
-//                 alignSelf: "center", // Center it horizontally
-//               }}
-//               onSwipeSuccess={() => {
-//                 console.log("Booking Confirmed!");
-//                 if (paymentUrl) {
-//                   router.push({
-//                     pathname: "/home/payment",
-//                     params: { paymentUrl, orderId },
-//                   });
-//                 } else {
-//                   console.error("No payment URL found");
-//                 }
-//               }}
-//             />
-//           </View>
-//         </View>
-//       </RBSheet>
-//     );
-//   };
 
 
   
@@ -510,19 +393,19 @@ useEffect(() => {
               /> */}
 
               <View>
-                <Text className=" text-3xl font-thin">{userName}</Text>
+                <Text className=" text-3xl font-thin" style={{ fontFamily: "Lato" }}>{userName}</Text>
                 {/* <Text>Dubai</Text> */}
               </View>
             </View>
 
             <View>
-              <Text className="text-[#164F90] text-2xl font-bold">
+              <Text className="text-[#164F90] text-2xl font-bold" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.total
                   : Translations.arb.total}{" "}
                 : {price}
               </Text>
-              <Text>
+              <Text style={{ fontFamily: "Lato" }}>
                 {pickupdate} {time}{" "}
               </Text>
             </View>
@@ -538,21 +421,21 @@ useEffect(() => {
 
             <View className="flex-col gap-5">
               <View className="flex-col gap-3">
-                <Text className="text-[#164F90] text-xl font-bold">
+                <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.pick_up
                     : Translations.arb.pick_up}{" "}
                 </Text>
-                <Text className="text-lg">{pickuploaction}</Text>
+                <Text className="text-lg" style={{ fontFamily: "Lato" }}>{pickuploaction}</Text>
               </View>
 
               <View className="flex-col gap-3">
-                <Text className="text-[#164F90] text-xl font-bold">
+                <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.drop_off
                     : Translations.arb.drop_off}{" "}
                 </Text>
-                <Text className="text-lg">Airport</Text>
+                <Text className="text-lg" style={{ fontFamily: "Lato" }}>Airport</Text>
               </View>
             </View>
           </View>
@@ -676,7 +559,7 @@ useEffect(() => {
           className={`text-base ${
             item.disabled ? "text-gray-400" : "text-gray-900"
           }`}
-        >
+          style={{ fontFamily: "Lato" }}>
           {item.label}
         </Text>
       </View>
@@ -732,7 +615,7 @@ useEffect(() => {
 
 
         {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
-          <Text className="text-red-500 w-[90%] mx-auto">
+          <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
             {formik.errors.pickUpLocation}
           </Text>
         )}
@@ -765,6 +648,13 @@ useEffect(() => {
           onPress={() => {
             formik.handleSubmit(); // now opens RBSheet inside onSubmit
           }}
+          style={{
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.50,
+            shadowRadius: 3.84,
+          }}
           className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${
             showSuggestions ? "-z-10" : ""
           }`}
@@ -785,7 +675,7 @@ useEffect(() => {
               />
             </Animated.View>
           ) : (
-            <Text className="text-center text-black font-semibold text-base">
+            <Text className="text-center text-black font-semibold text-base" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.submit
                 : Translations.arb.submit}
@@ -820,7 +710,7 @@ useEffect(() => {
             />
           </MapView>
         ) : (
-          <Text>Loading Map...</Text> // Show a placeholder while location is being fetched
+          <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text> // Show a placeholder while location is being fetched
         )}
       </View>
 

@@ -85,8 +85,8 @@ const [loading, setLoading] = useState(false);
       if (!token) {
         // Toast.show("No token found. Please log in.");
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: "Please login to add address",
         });
         return;
@@ -105,8 +105,8 @@ const [loading, setLoading] = useState(false);
       console.log("Error:", error.response);
       // Toast.show(error?.response?.data?.message || "Failed to submit address");
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: error?.response?.data?.message || "Failed to submit address",
     })
   }
@@ -154,7 +154,7 @@ const [loading, setLoading] = useState(false);
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="w-full flex-col gap-5">
-          <Text className="w-[90%] m-auto">
+          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.address:Translations.arb.address
               }<Text className="text-red-500">*</Text>
           </Text>
@@ -177,10 +177,10 @@ const [loading, setLoading] = useState(false);
           />
  
           {formik.touched.addressData && formik.errors.addressData && (
-            <Text className="text-red-500 w-[90%]  px-3 m-auto">{formik.errors.addressData}</Text>
+            <Text className="text-red-500 w-[90%]  px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.addressData}</Text>
           )}
 
-          <Text className="w-[90%] m-auto">
+          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.city:Translations.arb.city
               }<Text className="text-red-500">*</Text>
           </Text>
@@ -203,12 +203,12 @@ const [loading, setLoading] = useState(false);
           />
 
           {formik.touched.city && formik.errors.city && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.city}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.city}</Text>
           )}
 
-          <Text className="w-[90%] m-auto">
+          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.state:Translations.arb.state
-              }<Text className="text-red-500">*</Text>
+              }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
           </Text>
           <TextInput
            onChangeText={(text) => {
@@ -228,12 +228,12 @@ const [loading, setLoading] = useState(false);
             }          />
 
           {formik.touched.state && formik.errors.state && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.state}</Text>
+            <Text className="text-red-500 w-[90%] px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.state}</Text>
           )}
 
-          <Text className="w-[90%] m-auto">
+          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.postal_code:Translations.arb.postal_code
-              }<Text className="text-red-500">*</Text>
+              }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
           </Text>
           <TextInput
           maxLength={5}
@@ -278,6 +278,13 @@ const [loading, setLoading] = useState(false);
         </View>
       </ScrollView>
       <TouchableOpacity
+       style={{
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.50,
+        shadowRadius: 3.84,
+      }}
         className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
         onPress={() =>{ 
           formik.handleSubmit()

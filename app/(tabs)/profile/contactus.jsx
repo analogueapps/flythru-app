@@ -14,6 +14,9 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import Mail from "../../../assets/svgs/mail";
 import Whatsappicon from "../../../assets/svgs/whatsapp";
 import Call from "../../../assets/svgs/call";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ContactUs = () => {
   const insets = useSafeAreaInsets();
@@ -116,8 +119,9 @@ const ContactUs = () => {
             {/* <Image source={mail} className="h-8 w-8" resizeMode="contain" /> */}
 
             {/* <Mail/> */}
-            <View className="w-12 h-12  flex justify-center items-center">
-  <Mail width={26} height={26} />
+            <View className="w-12 h-12 m-auto  flex justify-center items-center ">
+  {/* <Mail width={26} height={26}  className="w-max m-auto"/> */}
+  <AntDesign name="mail" size={24} color="black" />
 </View>
 
 
@@ -134,8 +138,9 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             {/* <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" /> */}
-            <View className="w-12 h-12  self-center justify-center items-center">
-  <Whatsappicon  className="w-12 h-12"/>
+            <View className="w-12 h-12 m-auto  flex justify-center items-center ">
+  {/* <Whatsappicon width={26} height={26}/> */}
+  <FontAwesome name="whatsapp" size={24} color="black" />
 </View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
               }</Text>
@@ -150,8 +155,9 @@ const ContactUs = () => {
         >
           <View className="flex-row items-center gap-4">
             {/* <Image source={call} className="h-8 w-8" resizeMode="contain" /> */}
-            <View className="w-12 h-12  self-center justify-center items-center">
-  <Call  className="w-12 h-12"/>
+            <View className="w-12 h-12 m-auto  flex justify-center items-center ">
+  {/* <Call  width={26} height={26}/> */}
+  <Ionicons name="call-outline" size={24} color="black" />
 </View>
             <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.call:Translations.arb.call
               }</Text>

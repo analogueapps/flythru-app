@@ -10,6 +10,7 @@ import {
   Dimensions,
   TextInput,
   ActivityIndicator,
+  Linking,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -56,9 +57,9 @@ import { DELETE_ACCOUNT, LOGOUT } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import delaccSchema from "../../../yupschema/delaccYupSchema";
 import Cut from "../../../assets/svgs/cut";
-import flightloader from "../../../assets/images/flightloader.gif"
+import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
-
+import Constants from "expo-constants";
 
 // import { Alert, Button } from "react-native";
 
@@ -120,7 +121,7 @@ const index = () => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [otherReason, setOtherReason] = useState(""); // for text input
- 
+
   // useFocusEffect(
   //   useCallback(() => {
   //     const checkLoginStatus = async () => {
@@ -130,53 +131,48 @@ const index = () => {
   //       setIsLoggedIn(isLoggedIn);
   //       console.log("Token:", token, "Skipped:", skipped, "isLoggedIn:", isLoggedIn);
   //     };
-  
+
   //     checkLoginStatus();
   //   }, [])
   // );
 
   const translateX = useRef(new Animated.Value(0)).current;
-  
 
   const startAnimation = () => {
-      translateX.setValue(-40); // Reset position
-    
-      Animated.loop(
-        Animated.timing(translateX, {
-          toValue: 100, // How far to move
-          duration: 3000, // Slower movement
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        })
-      ).start();
-    };
-    
-    // Run it when loading starts
-    useEffect(() => {
-      if (loading) {
-        startAnimation();
-      } else {
-        translateX.stopAnimation();
-        translateX.setValue(0); // Reset to start
-      }
-    }, [loading]);
-  
-  
+    translateX.setValue(-40); // Reset position
 
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem("authToken");
-      console.log("Token in checkLoginStatus:", token); // Debugging
-      setIsLoggedIn(!!token);  // Will correctly set the logged-in status
-    };
-    
-  
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 100, // How far to move
+        duration: 3000, // Slower movement
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      })
+    ).start();
+  };
+
+  // Run it when loading starts
+  useEffect(() => {
+    if (loading) {
+      startAnimation();
+    } else {
+      translateX.stopAnimation();
+      translateX.setValue(0); // Reset to start
+    }
+  }, [loading]);
+
+  const checkLoginStatus = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    console.log("Token in checkLoginStatus:", token); // Debugging
+    setIsLoggedIn(!!token); // Will correctly set the logged-in status
+  };
+
   // useFocusEffect for re-checking when screen gains focus
   useFocusEffect(
     useCallback(() => {
       checkLoginStatus();
     }, [])
   );
-  
 
   const formik = useFormik({
     initialValues: {
@@ -192,11 +188,10 @@ const index = () => {
     },
   });
 
-
   const logoutapi = async () => {
-    setLoading(true)
+    setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
-  
+
     try {
       if (token) {
         const res = await LOGOUT(token);
@@ -210,7 +205,6 @@ const index = () => {
           type: "info",
           text1: "Logged out successfully",
         });
-
       }
     } catch (error) {
       console.log("Error during logout:", error?.response?.data?.message);
@@ -218,10 +212,8 @@ const index = () => {
         type: "info",
         text1: "Logged out successfully",
       });
-      
-
     } finally {
-      setLoading(false)
+      setLoading(false);
       // Clear all user-related data from AsyncStorage
       await AsyncStorage.multiRemove([
         "authToken",
@@ -232,12 +224,11 @@ const index = () => {
       ]);
       setIsLoggedIn(false); // 👈 Ensure UI updates to "Login"
 
-  
       // Navigate to the auth screen
       router.replace("/(auth)");
     }
   };
-  
+
   const onSignOut = async () => {
     try {
       await handleSignOut();
@@ -248,9 +239,6 @@ const index = () => {
     }
   };
 
-
-  
-  
   const handleLogout = () => {
     return (
       <RBSheet
@@ -285,20 +273,20 @@ const index = () => {
         }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6">
-          <Text className="text-center border-b-[1px] border-[#E0E0E0] py-3 text-2xl font-bold">
+          <Text className="text-center border-b-[1px] border-[#E0E0E0] py-3 text-2xl font-bold" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.logout
               : Translations.arb.logout}{" "}
           </Text>
 
-          <Text className="text-center text-xl font-bold">
+          <Text className="text-center text-xl font-bold" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.confirm_logout
               : Translations.arb.confirm_logout}
           </Text>
 
           <View className="mx-6 flex flex-col gap-3">
-            <Text className="text-[#40464C] text-center">
+            <Text className="text-[#40464C] text-center" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.logging_out_message
                 : Translations.arb.logging_out_message}
@@ -310,7 +298,7 @@ const index = () => {
               className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 "
               onPress={() => logoutrefRBSheet.current.close()}
             >
-              <Text className="text-center text-[#164F90] font-semibold">
+              <Text className="text-center text-[#164F90] font-semibold" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.not_now
                   : Translations.arb.not_now}
@@ -318,38 +306,34 @@ const index = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-  className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
-  onPress={() => {
-    onSignOut();
-    logoutapi();
-  }}
->
-  {loading ? (
-    <View style={{ width: 72, alignItems: "center" }}>
-      <ActivityIndicator size="small" color="#000000" />
-    </View>
-  ) : (
-    <Text className="text-center text-black font-semibold">
-      {applanguage === "eng"
-        ? Translations.eng.yes_logout
-        : Translations.arb.yes_logout}
-    </Text>
-  )}
-</TouchableOpacity>
-
+              className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
+              onPress={() => {
+                onSignOut();
+                logoutapi();
+              }}
+            >
+              {loading ? (
+                <View style={{ width: 72, alignItems: "center" }}>
+                  <ActivityIndicator size="small" color="#000000" />
+                </View>
+              ) : (
+                <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
+                  {applanguage === "eng"
+                    ? Translations.eng.yes_logout
+                    : Translations.arb.yes_logout}
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </RBSheet>
     );
   };
 
-
   const deleteaccount = async (values) => {
-
-
     const finalReason = formik.values.reasonForDeleteAccount;
 
-    setLoading(true)
+    setLoading(true);
 
     const token = await AsyncStorage.getItem("authToken");
 
@@ -362,7 +346,7 @@ const index = () => {
       const res = await DELETE_ACCOUNT(values, token);
       console.log(res);
       setAccountDeleted(true); // prevent reuse
-    drefRBSheet.current?.close(); 
+      drefRBSheet.current?.close();
       router.push("/(auth)");
       // Toast.show(res.data.message);
       Toast.show({
@@ -375,10 +359,9 @@ const index = () => {
       Toast.show({
         type: "error",
         text1: error?.response?.data?.message || "error occured",
-      })
-    }
-    finally{
-      setLoading(false)
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -415,27 +398,25 @@ const index = () => {
             height: 5,
             borderRadius: 10,
           },
-        }} 
+        }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6">
-        <View className="relative justify-center items-center border-b border-[#E0E0E0] px-4 py-3">
-  <Text className="text-2xl font-bold text-center">
-    {applanguage === "eng"
-      ? Translations.eng.delete_account
-      : Translations.arb.delete_account}
-  </Text>
-  <TouchableOpacity
-    onPress={() => drefRBSheet.current.close()}
-    className="absolute right-4 top-1/2 -translate-y-1/2"
-  >
-    <Cut className="h-6 w-6" />
-  </TouchableOpacity>
-</View>
-
-
+          <View className="relative justify-center items-center border-b border-[#E0E0E0] px-4 py-3">
+            <Text className="text-2xl font-bold text-center" style={{ fontFamily: "Lato" }}>
+              {applanguage === "eng"
+                ? Translations.eng.delete_account
+                : Translations.arb.delete_account}
+            </Text>
+            <TouchableOpacity
+              onPress={() => drefRBSheet.current.close()}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            >
+              <Cut className="h-6 w-6" />
+            </TouchableOpacity>
+          </View>
 
           <ScrollView>
-            <Text className="text-center text-xl font-bold">
+            <Text className="text-center text-xl font-bold" style={{ fontFamily: "Lato" }} >
               {applanguage === "eng"
                 ? Translations.eng.delete_account_reason
                 : Translations.arb.delete_account_reason}
@@ -447,34 +428,33 @@ const index = () => {
                 containerStyle={{ marginBottom: 10 }}
                 // selected={current}
                 selected={selectedRadioReason}
-
                 // onSelected={(value) => setCurrent(value)}
                 onSelected={(value) => {
                   setSelectedRadioReason(value);
-                
+
                   const reasonMap = {
-                    "1": Translations.eng.reason_service_not_good,
-                    "2": Translations.eng.reason_no_proper_customer_care,
-                    "3": Translations.eng.reason_driver_rude,
-                    "4": Translations.eng.reason_poor_experience,
+                    1: Translations.eng.reason_service_not_good,
+                    2: Translations.eng.reason_no_proper_customer_care,
+                    3: Translations.eng.reason_driver_rude,
+                    4: Translations.eng.reason_poor_experience,
                   };
-                
+
                   const selectedReason =
                     applanguage === "eng"
                       ? reasonMap[value]
                       : {
-                          "1": Translations.arb.reason_service_not_good,
-                          "2": Translations.arb.reason_no_proper_customer_care,
-                          "3": Translations.arb.reason_driver_rude,
-                          "4": Translations.arb.reason_poor_experience,
+                          1: Translations.arb.reason_service_not_good,
+                          2: Translations.arb.reason_no_proper_customer_care,
+                          3: Translations.arb.reason_driver_rude,
+                          4: Translations.arb.reason_poor_experience,
                         }[value];
-                
+
                   // ✅ Set in Formik but don't show in the input
-                  formik.setFieldValue("reasonForDeleteAccount", selectedReason);
+                  formik.setFieldValue(
+                    "reasonForDeleteAccount",
+                    selectedReason
+                  );
                 }}
-                
-                
-                
                 radioBackground="#4E4848"
               >
                 <RadioButtonItem
@@ -483,6 +463,7 @@ const index = () => {
                     <Text
                       style={{
                         color: "#181716",
+                        fontFamily: "Lato",
                         fontSize: 17,
                         fontWeight: "100",
                       }}
@@ -505,6 +486,7 @@ const index = () => {
                       <Text
                         style={{
                           color: "#181716",
+                          fontFamily: "Lato",
                           fontSize: 17,
                           fontWeight: "100",
                           textAlign: "left",
@@ -526,6 +508,7 @@ const index = () => {
                     <Text
                       style={{
                         color: "#181716",
+                        fontFamily: "Lato", 
                         fontSize: 17,
                         fontWeight: "100",
                       }}
@@ -544,7 +527,9 @@ const index = () => {
                   label={
                     <Text
                       style={{
+
                         color: "#181716",
+                        fontFamily: "Lato",
                         fontSize: 17,
                         fontWeight: "100",
                       }}
@@ -559,7 +544,7 @@ const index = () => {
             </View>
 
             <View className="mx-6 flex flex-col gap-3">
-              <Text className="text-[#40464C]">
+              <Text className="text-[#40464C]" style={{ fontFamily: "Lato" }}>
                 {" "}
                 {applanguage === "eng"
                   ? Translations.eng.reason_other
@@ -575,7 +560,11 @@ const index = () => {
                 }}
                 // onChangeText={formik.handleChange("reasonForDeleteAccount")}
                 onBlur={formik.handleBlur("reasonForDeleteAccount")}
-                value={selectedRadioReason ? "" : formik.values.reasonForDeleteAccount}
+                value={
+                  selectedRadioReason
+                    ? ""
+                    : formik.values.reasonForDeleteAccount
+                }
                 className="bg-white rounded-lg p-3 border-[#EDF1F3] border-[1px]"
                 placeholder={
                   applanguage === "eng"
@@ -587,42 +576,47 @@ const index = () => {
               />
               {formik.touched.reasonForDeleteAccount &&
                 formik.errors.reasonForDeleteAccount && (
-                  <Text className="text-red-500">
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>
                     {formik.errors.reasonForDeleteAccount}
                   </Text>
                 )}
             </View>
 
             <TouchableOpacity
-            disabled={loading}
+              disabled={loading}
               onPress={formik.handleSubmit}
+              style={{
+                elevation: 5,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.5,
+                shadowRadius: 3.84,
+              }}
               className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
             >
-               {loading ? (
-                          <Animated.View
-                          style={{
-                            transform: [{ translateX }],
-                            width: 100,
-                            height: 100,
-                            alignSelf: "center",
-                          }}
-                        >
-                          <Image
-                            source={flightloader}
-                            style={{ width: 100, height: 100 }}
-                            resizeMode="contain"
-                            
-                          />
-                        </Animated.View>
-                        
-                        ) : (
-              <Text className="font-bold text-center text-black">
-                {" "}
-                {applanguage === "eng"
-                  ? Translations.eng.delete_account
-                  : Translations.arb.delete_account}
-              </Text>
-                        )}
+              {loading ? (
+                <Animated.View
+                  style={{
+                    transform: [{ translateX }],
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
+                  />
+                </Animated.View>
+              ) : (
+                <Text className="font-bold text-center text-black" style={{ fontFamily: "Lato" }}>
+                  {" "}
+                  {applanguage === "eng"
+                    ? Translations.eng.delete_account
+                    : Translations.arb.delete_account}
+                </Text>
+              )}
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -630,31 +624,31 @@ const index = () => {
     );
   };
 
-    useEffect(() => {
-      const subscription = AppState.addEventListener('change', (nextAppState) => {
-        if (nextAppState !== 'active') {
-          drefRBSheet.current?.close(); // ✅ close sheet when app goes background
-          setShouldOpenSheet(false); // ✅ also reset the open flag
-        }
-      });
-    
-      return () => {
-        subscription.remove(); // Clean up listener
-      };
-    }, []);
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState !== "active") {
+        drefRBSheet.current?.close(); // ✅ close sheet when app goes background
+        setShouldOpenSheet(false); // ✅ also reset the open flag
+      }
+    });
 
-    useEffect(() => {
-      const subscription = AppState.addEventListener('change', (nextAppState) => {
-        if (nextAppState !== 'active') {
-          logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
-          setShouldOpenSheet(false); // ✅ also reset the open flag
-        }
-      });
-    
-      return () => {
-        subscription.remove(); // Clean up listener
-      };
-    }, []);
+    return () => {
+      subscription.remove(); // Clean up listener
+    };
+  }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState !== "active") {
+        logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
+        setShouldOpenSheet(false); // ✅ also reset the open flag
+      }
+    });
+
+    return () => {
+      subscription.remove(); // Clean up listener
+    };
+  }, []);
 
   return (
     <View className="flex-1">
@@ -664,7 +658,7 @@ const index = () => {
       <View>
         <Image
           source={images.HeaderImg}
-          className="w-full h-auto relative" 
+          className="w-full h-auto relative"
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -694,7 +688,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Editprofile />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.profile_details
                   : Translations.arb.profile_details}
@@ -709,7 +703,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Addaddress />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.address
                   : Translations.arb.address}
@@ -724,7 +718,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Language />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.language
                   : Translations.arb.language}
@@ -739,7 +733,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Contactus />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.contact_us
                   : Translations.arb.contact_us}
@@ -754,7 +748,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Chat />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.chat_with_support
                   : Translations.arb.chat_with_support}
@@ -769,7 +763,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Faq />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.faq
                   : Translations.arb.faq}
@@ -784,7 +778,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Feedback />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.feedback
                   : Translations.arb.feedback}
@@ -799,7 +793,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Terms />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.terms_and_conditions
                   : Translations.arb.terms_and_conditions}
@@ -814,7 +808,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Privacy />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.privacy_policy
                   : Translations.arb.privacy_policy}
@@ -829,7 +823,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Cancel />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.cancellation_policy
                   : Translations.arb.cancellation_policy}
@@ -844,7 +838,7 @@ const index = () => {
           >
             <View className="flex-row gap-3 items-center">
               <Refund />
-              <Text className="text-[#515151] text-xl">
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.refund_policy
                   : Translations.arb.refund_policy}
@@ -853,48 +847,64 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
+          {isLoggedIn && (
+            <TouchableOpacity
+              className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+              onPress={() => drefRBSheet.current.open()}
+            >
+              <View className="flex-row gap-3 items-center">
+                <DeleteIcon />
+                <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                  {applanguage === "eng"
+                    ? Translations.eng.delete_account
+                    : Translations.arb.delete_account}
+                </Text>
+              </View>
+              <Rightarrow />
+            </TouchableOpacity>
+          )}
 
-          {isLoggedIn && <TouchableOpacity
+          <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
-            onPress={() => drefRBSheet.current.open()}
+            onPress={() => {
+              if (isLoggedIn) {
+                logoutrefRBSheet.current.open(); // open sheet only if logged in
+              } else {
+                router.replace("/(auth)"); // go to auth screen if not logged in
+              }
+            }}
           >
             <View className="flex-row gap-3 items-center">
-              <DeleteIcon />
-              <Text className="text-[#515151] text-xl">
-                {applanguage === "eng"
-                  ? Translations.eng.delete_account
-                  : Translations.arb.delete_account}
+              <Logout />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {isLoggedIn
+                  ? applanguage === "eng"
+                    ? Translations.eng.logout
+                    : Translations.arb.logout
+                  : applanguage === "eng"
+                  ? Translations.eng.log_in
+                  : Translations.arb.log_in}
               </Text>
             </View>
             <Rightarrow />
           </TouchableOpacity>
-}
+        </View>
 
+        <View className="">
+          <Text className="text-center text-[#A0A0A0] text-[12px] mt-4 mb-4" style={{ fontFamily: "Lato" }}>
+            {applanguage === "eng"
+              ? Translations.eng.app_version
+              : Translations.arb.app_version}{" "}
+            -{Constants.expoConfig.version}
+          </Text>
           <TouchableOpacity
-  className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
-  onPress={() => {
-    if (isLoggedIn) {
-      logoutrefRBSheet.current.open(); // open sheet only if logged in
-    } else {
-      router.replace("/(auth)"); // go to auth screen if not logged in
-    }
-  }}
->
-  <View className="flex-row gap-3 items-center">
-    <Logout />
-    <Text className="text-[#515151] text-xl">
-      {isLoggedIn
-        ? applanguage === "eng"
-          ? Translations.eng.logout
-          : Translations.arb.logout
-        : applanguage === "eng"
-        ? Translations.eng.log_in
-        : Translations.arb.log_in}
-    </Text>
-  </View>
-  <Rightarrow />
-</TouchableOpacity>
-
+            onPress={() => Linking.openURL("https://analogueitsolutions.com/")}
+            className=" "
+          >
+            <Text className="text-center text-[#164E8D] font-bold text-[12px] mb-4 " style={{ fontFamily: "Lato" }}>
+              © Analogue IT Solutions
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

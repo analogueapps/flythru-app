@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +21,7 @@ const notification = () => {
     const { applanguage } = langaugeContext()
     const [notifications , setNotifications] = useState([])
     const [notiId , setNotiId] = useState({})
+    const [loading , setLoading] = useState(false)
 
     const formatTime = (isoString) => {
       const date = new Date(isoString);
@@ -52,6 +53,7 @@ const notification = () => {
     //     };
 
     const fetchNotifications = async () => {
+      setLoading(true);
       const userId = await AsyncStorage.getItem("authUserId"); // <-- get userId here
       try {
         const res = await NOTIFICATION(userId);
@@ -69,11 +71,14 @@ if (res?.data?.userNotifications) {
         console.error("Error fetching notifications:", error);
         // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
         Toast.show({
-          type: "error",
-          text1: "Error",
+          type: "info",
+          text1: "Alert",
           text2: error?.response?.data?.message || "Failed to fetch notifications",
         });
       }
+        finally {
+          setLoading(false);
+        }
     };
         useEffect(() => {
           fetchNotifications();
@@ -104,7 +109,7 @@ if (res?.data?.userNotifications) {
     >
       <View className="flex-row  items-center">
        
-       <View className="flex-row  items-center">
+       <View className="flex-row  items-center mt-4">
                  <TouchableOpacity
                    onPress={() => router.back()}
                    className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
@@ -118,50 +123,40 @@ if (res?.data?.userNotifications) {
      
     </View>
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-{/* 
-    {Array.from({ length: 5 }).map((_, index) => (
-
-        <TouchableOpacity key={index} className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
-                  onPress={() => router.push("/home/notificationdetail")}
-        
-        >
-            <View className="w-[300px]">
-                <Text className="text-lg font-bold">Your Baggage has been delivered </Text>
-                <Text>Your Baggage has been delivered all QR Code. You can confirm from your end to Close the trip</Text>
-            </View>
-            <Text>a days ago</Text>
-        </TouchableOpacity>
-                  ))} */}
-
-{notifications.length > 0 ? (
-  notifications.map((notif, index) => (
-    <TouchableOpacity
-      key={notif._id || index}
-      className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
-      onPress={() =>
-        router.push({
-          pathname: "/home/notificationdetail",
-          params: {
-            notifId: notif._id, 
-          },
-        })
-      }
-    >
-      <View className="w-[300px]">
-        <Text className="text-lg font-bold">{notif.title}</Text>
-        <Text>{notif.body}</Text>
-      </View>
-      <Text>{formatTime(notif.createdAt)}</Text>
+  {loading ? (
+    <View className="flex-1 items-center justify-center">
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
+  ) : notifications.length > 0 ? (
+    notifications.map((notif, index) => (
+      <TouchableOpacity
+        key={notif._id || index}
+        className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
+        onPress={() =>
+          router.push({
+            pathname: "/home/notificationdetail",
+            params: {
+              notifId: notif._id,
+            },
+          })
+        }
+      >
+        <View className="w-[300px]">
+          <Text className="text-lg font-bold" style={{ fontFamily: "Lato" }}>{notif.title}</Text>
+          <Text style={{ fontFamily: "Lato" }}>{notif.body}</Text>
+        </View>
+        <Text style={{ fontFamily: "Lato" }}>{formatTime(notif.createdAt)}</Text>
       </TouchableOpacity>
-  ))
-) : (
-  <Text className="text-center text-gray-500"> {applanguage==="eng"?Translations.eng.no_notifications_available:Translations.arb.no_notifications_available
-  }</Text>
-)}
+    ))
+  ) : (
+    <Text className="text-center text-gray-500" style={{ fontFamily: "Lato" }}>
+      {applanguage === "eng"
+        ? Translations.eng.no_notifications_available
+        : Translations.arb.no_notifications_available}
+    </Text>
+  )}
+</ScrollView>
 
-      
-     
-    </ScrollView>
   </View>
   );
 };

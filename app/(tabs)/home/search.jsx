@@ -179,11 +179,11 @@ const Search = () => {
           console.log("API Response:", response.data);
           if (response.data.error) {
             // Toast.show(response.data.error);
-            Toast.show({
-              type: "error",
-              text1: "Error",
-              text2: response.data.error,
-            });
+            // Toast.show({
+            //   type: "error",
+            //   text1: "Error",
+            //   text2: response.data.error,
+            // });
             return [];
           }
           return mapFlights(response.data);
@@ -304,10 +304,10 @@ const Search = () => {
       >
         <View className="flex-1 bg-black/40 justify-center items-center px-4">
           <View className="w-[90%] bg-white rounded-2xl p-6 shadow-xl">
-            <Text className="text-xl font-bold text-center mb-2">
+            <Text className="text-xl font-bold text-center mb-2" style={{ fontFamily: "Lato" }}>
               You're not logged in
             </Text>
-            <Text className="text-base text-center text-gray-700 mb-5">
+            <Text className="text-base text-center text-gray-700 mb-5" style={{ fontFamily: "Lato" }}>
               Would you like to log in now?
             </Text>
 
@@ -318,19 +318,26 @@ const Search = () => {
                 className="flex-1 bg-gray-200 py-3 rounded-xl"
                 onPress={() => setShowLoginPopup(false)}
               >
-                <Text className="text-gray-800 font-bold text-center">
+                <Text className="text-gray-800 font-bold text-center" style={{ fontFamily: "Lato" }}>
                   Cancel
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 className="flex-1 bg-[#FFB648] py-3 rounded-xl"
+                style={{
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.50,
+                  shadowRadius: 3.84,
+                }}
                 onPress={() => {
                   setShowLoginPopup(false);
                   router.replace("/(auth)"); 
                 }}
               >
-                <Text className="text-black font-bold text-center">Login</Text>
+                <Text className="text-black font-bold text-center"  style={{ fontFamily: "Lato" }}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>

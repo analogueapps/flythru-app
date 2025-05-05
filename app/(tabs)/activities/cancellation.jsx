@@ -48,8 +48,8 @@ const cancellation = () => {
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
       Toast.show({
-        type: "error",
-        text1: "Error",
+        type: "info",
+        text1: "Alert",
         text2: "Please login again",
       });
       return;

@@ -22,6 +22,8 @@ SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 const _layout = () => {
   const [fontsLoaded] = useFonts({
     CenturyGothic: require("../assets/fonts/centurygothic.ttf"),
+    Lato: require("../assets/fonts/Lato-Regular.ttf"),
+
   });
 
   useEffect(() => {

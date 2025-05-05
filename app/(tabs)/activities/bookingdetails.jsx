@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,6 +28,8 @@ const bookingdetails = () => {
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
     const [bookingData , setBookingData] = useState() 
   // const { bookingId } = useLocalSearchParams(); 
+  const [refreshing, setRefreshing] = useState(false);
+
     const { applanguage } = langaugeContext()
 const [verifiedBookingId, setVerifiedBookingId] = useState(null);
 const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +40,13 @@ useEffect(() => {
     setIsLoading(false);
   }
 }, [bookingData]);
+
+
+const onRefresh = async () => {
+  setRefreshing(true);
+  await fetchActivities(); // Reuse your existing fetch function
+  setRefreshing(false);
+};
 
 
 
@@ -200,7 +209,11 @@ useEffect(() => {
   </View>
 ) : (
   // ACTUAL DATA RENDER
-  <ScrollView className="" showsVerticalScrollIndicator={false}>
+  <ScrollView className="" showsVerticalScrollIndicator={false}
+   refreshControl={
+    <RefreshControl  refreshing={refreshing} onRefresh={onRefresh} />
+  }
+  >
           <View className="p-5 bg-[#164F901A] border-[#00000026] rounded-2xl border-[1px] flex-col gap-5">
             <Text className="text-[#164F90] text-2xl font-bold">
             {
@@ -268,10 +281,10 @@ useEffect(() => {
           </View>
 
 
-          <View className="flex flex-row justify-start gap-x-5 items-center w-[90%] m-auto">
+          <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
           <Image
               source={verticalline}
-              className="h-36"
+              className="h-24 mt-3"
               resizeMode="contain"
             /> 
 
@@ -368,7 +381,7 @@ useEffect(() => {
       : "text-black"
   }`}>
     {
-      applanguage === "eng"
+      applanguage === "eng" 
         ? Translations.eng.cancelslot
         : Translations.arb.cancelslot
     }
