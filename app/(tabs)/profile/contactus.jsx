@@ -125,7 +125,7 @@ const ContactUs = () => {
 </View>
 
 
-            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.send_mail:Translations.arb.send_mail
+            <Text className="text-[#515151] text-xl"  style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.send_mail:Translations.arb.send_mail
               }</Text>
           </View>
           <Rightarrow />
@@ -142,7 +142,7 @@ const ContactUs = () => {
   {/* <Whatsappicon width={26} height={26}/> */}
   <FontAwesome name="whatsapp" size={24} color="black" />
 </View>
-            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
               }</Text>
           </View>
           <Rightarrow />
@@ -159,7 +159,7 @@ const ContactUs = () => {
   {/* <Call  width={26} height={26}/> */}
   <Ionicons name="call-outline" size={24} color="black" />
 </View>
-            <Text className="text-[#515151] text-xl">{applanguage==="eng"?Translations.eng.call:Translations.arb.call
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.call:Translations.arb.call
               }</Text>
           </View>
           <Rightarrow />

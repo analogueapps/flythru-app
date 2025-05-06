@@ -215,7 +215,7 @@ const onRefresh = async () => {
   }
   >
           <View className="p-5 bg-[#164F901A] border-[#00000026] rounded-2xl border-[1px] flex-col gap-5">
-            <Text className="text-[#164F90] text-2xl font-bold">
+            <Text className="text-[#164F90] text-2xl font-bold" style={{ fontFamily: "Lato" }}>
             {
                 applanguage==="eng"?Translations.eng.baggage_collection:Translations.arb.baggage_collection
               }
@@ -223,20 +223,20 @@ const onRefresh = async () => {
             <View className="flex-1 h-[1px] border-t  border-[#00000026] relative" />
 
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">{
+              <Text className="text-[#164F90] text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.baggage_count:Translations.arb.baggage_count
               }</Text>
-              <Text className="text-[#164F90] text-xl font-bold">{bookingData?.booking?.baggageCount || "-"}</Text>
+              <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{bookingData?.booking?.baggageCount || "-"}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">{
+              <Text className="text-[#164F90] text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.date:Translations.arb.date
               }</Text>
-              <Text className="text-[#164F90] text-xl font-bold">{new Date(bookingData?.booking?.date).toLocaleDateString()}
+              <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{new Date(bookingData?.booking?.date).toLocaleDateString()}
               </Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-[#164F90] text-xl">{
+              <Text className="text-[#164F90] text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.time:Translations.arb.time
               }</Text>
               <Text className="text-[#164F90] text-xl font-bold">{bookingData?.booking?.pickUpTimings || bookingData?.booking?.time}
@@ -247,10 +247,10 @@ const onRefresh = async () => {
               <>
                 <View className="flex-1 h-[1px] border-t border-dashed border-[#00000026] relative" />
                 <View className="flex-row justify-between">
-                  <Text className="text-[#164F90] text-xl">{
+                  <Text className="text-[#164F90] text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.total_paid:Translations.arb.total_paid
               }</Text>
-                  <Text className="text-[#164F90] text-xl font-bold">{bookingData?.price}</Text>
+                  <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{bookingData?.price}</Text>
                 </View>
               </>
            
@@ -267,13 +267,13 @@ const onRefresh = async () => {
 }
 
             <View>
-              <Text className="text-[#164F90] text-3xl font-thin">{bookingData?.booking?.driver?.driverName}</Text>
-              <Text>{bookingData?.driver?.driverAddress}</Text>
+              <Text className="text-[#164F90] text-3xl font-thin" style={{ fontFamily: "Lato" }}>{bookingData?.booking?.driver?.driverName}</Text>
+              <Text style={{ fontFamily: "Lato" }}>{bookingData?.booking?.driver?.driverAddress}</Text>
               </View>
 
             </View>
             <View>
-              <Text className="bg-[#FFB648] p-2 rounded-md px-6">{
+              <Text className="bg-[#FFB648] p-2 rounded-md px-6" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.status:Translations.arb.status
               } : {bookingData?.booking?.updateStatus || "-"}</Text>
 
@@ -290,17 +290,17 @@ const onRefresh = async () => {
 
           <View className="flex-col gap-5">
             <View className="flex-col gap-3">
-            <Text className="text-[#164F90] text-xl font-bold">{
+            <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.pick_up:Translations.arb.pick_up
               }</Text>
-            <Text className="text-lg">{bookingData?.booking?.pickUpLocation || "-"}</Text>
+            <Text className="text-lg" style={{ fontFamily: "Lato" }}>{bookingData?.booking?.pickUpLocation || "-"}</Text>
             </View>
 
             <View className="flex-col gap-3">
-            <Text className="text-[#164F90] text-xl font-bold">{
+            <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.drop_off:Translations.arb.drop_off
               }</Text>
-            <Text className="text-lg">
+            <Text className="text-lg" style={{ fontFamily: "Lato" }}>
               {/* {bookingData?.booking?.dropOffLocation || "-"} */}
               {
                 applanguage==="eng"?Translations.eng.airport:Translations.arb.airport
@@ -320,7 +320,7 @@ const onRefresh = async () => {
               className="h-10 w-10 rounded-full mr-4"
               resizeMode="cover"
             />
-          <Text className="text-xl">{
+          <Text className="text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.contact_info:Translations.arb.contact_info
               } : {bookingData?.booking?.driver?.phoneNumber || "-"} </Text>
           </View>
@@ -331,7 +331,7 @@ const onRefresh = async () => {
               className="h-10 w-10 rounded-full mr-4"
               resizeMode="cover"
             />
-          <Text className="text-xl">{
+          <Text className="text-xl" style={{ fontFamily: "Lato" }}>{
                 applanguage==="eng"?Translations.eng.booking_no:Translations.arb.booking_no
               } : {bookingData?.booking?.orderId || "-"}</Text>
           </View>
@@ -339,7 +339,7 @@ const onRefresh = async () => {
 
         {(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" && 
         
-        <Text className="text-red-500 text-center mt-4">
+        <Text className="text-red-500 text-center mt-4" style={{ fontFamily: "Lato" }}>
          This booking is cancelled
         </Text>
         }
@@ -354,7 +354,7 @@ const onRefresh = async () => {
     }}
         className="border-2 border-[#164F90] rounded-xl py-4 my-5"
     >
-        <Text className="text-center text-black font-semibold">
+        <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
         {
             applanguage==="eng"?Translations.eng.go_back:Translations.arb.go_back
         }

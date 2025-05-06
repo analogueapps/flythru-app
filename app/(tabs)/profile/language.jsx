@@ -154,7 +154,7 @@ const language = () => {
     <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14 shadow-lg"
     onPress={handleSave}
     >
-                <Text className="font-bold text-center text-black ">
+                <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng" 
                 ? Translations.eng.save
                 : Translations.arb.save}

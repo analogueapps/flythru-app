@@ -116,7 +116,7 @@ const PrivacyPolicy = () => {
             enableExperimentalMarginCollapsing={true}
           />
         ) : (
-          <Text className="text-[15px] font-thin">
+          <Text className="text-[15px] font-thin" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.loading_privacy_policy
               : Translations.arb.loading_privacy_policy}{" "}

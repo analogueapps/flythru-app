@@ -187,7 +187,7 @@ const feedback = () => {
 
       <View className="px-7 flex-col gap-8">
         <View className="flex flex-row justify-between items-center">
-        <Text className="font-bold text-[#050505] text-2xl"> {applanguage==="eng"?Translations.eng.review:Translations.arb.review
+        <Text className="font-bold text-[#050505] text-2xl" style={{ fontFamily: "Lato" }}> {applanguage==="eng"?Translations.eng.review:Translations.arb.review
               }</Text>
         <View className="flex-row my-2">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -201,7 +201,7 @@ const feedback = () => {
             ))}
           </View>
         </View>
-        <Text className="text-[#40464C] text-lg">{applanguage==="eng"?Translations.eng.write_feedback:Translations.arb.write_feedback
+        <Text className="text-[#40464C] text-lg" style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.write_feedback:Translations.arb.write_feedback
               }</Text>
         <TextInput
     numberOfLines={10}
@@ -217,16 +217,16 @@ const feedback = () => {
     textAlignVertical="top"  
     placeholderTextColor={"#1A1C1E"}
 />
-{errormsg && <Text className="text-red-500">{errormsg}</Text>
+{errormsg && <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{errormsg}</Text>
 }
 
 
 {formik.touched.comment && formik.errors.comment && (
-                  <Text className="text-red-500">{formik.errors.comment}</Text>
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.comment}</Text>
                 )}
 
 {formik.touched.ratingStars && formik.errors.ratingStars && (
-                  <Text className="text-red-500">{formik.errors.ratingStars}</Text>
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.ratingStars}</Text>
                 )}
       </View>
      
@@ -262,7 +262,7 @@ const feedback = () => {
                 </Animated.View>
                 
                 ) : (
-                <Text className="font-bold text-center text-black ">{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
+                <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
               }</Text>
             )}
               </TouchableOpacity>

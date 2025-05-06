@@ -217,7 +217,7 @@ useEffect(() => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       // console.log("values CREATE ORDER", values);
-
+      searchLocation
       // Include additional data for the API call
       const requestData = {
         ...values,

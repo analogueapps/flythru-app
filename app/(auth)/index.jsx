@@ -187,7 +187,7 @@ const Index = () => {
         }),
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 300,
+          duration: 550,
           useNativeDriver: true,
         }),
       ]),
@@ -203,7 +203,6 @@ const Index = () => {
     }, 300);
   };
 
-  // tab amination end
 
   useFocusEffect(
     useCallback(() => {
@@ -253,7 +252,8 @@ const Index = () => {
       Toast.show({
         type: "success",
         text1: res.data.message || "Verification code sent",
-      });
+      }); 
+      
       router.push({
         pathname: "/verifyotp",
         params: { token: res.data.token },
@@ -275,6 +275,7 @@ const Index = () => {
 
   const loginFormik = useFormik({
     initialValues: {
+
       email: "",
       password: "",
 

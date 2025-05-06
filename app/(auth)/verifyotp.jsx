@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, BackHandler, } from "react-native";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -81,6 +81,33 @@ const { token } = useLocalSearchParams();
     setTimer(60);
     setIsTimerRunning(true);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const clearToken = async () => {
+        try {
+          // Clear any previous auth token
+          await AsyncStorage.removeItem("authToken");
+        } catch (error) {
+          console.error("Error clearing token:", error);
+        }
+      };
+      clearToken();
+      getToken();
+
+      // Handle back button press
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        () => {
+          // Clear the temporary verification token when going back
+          router.back();
+          return true;
+        }
+      );
+
+      return () => backHandler.remove();
+    }, [])
+  );
   
 
 
@@ -117,79 +144,74 @@ const { token } = useLocalSearchParams();
       }
     };
 
-  const verifyOtpHandler = async (values) => {
+  // const verifyOtpHandler = async (values) => {
 
-    setLoading(true);
-    const token = await AsyncStorage.getItem("authToken");
-    if (!token) {
-      Toast.show({
-        type: "error",
-        text1: "No token found. Please log in again.",
-      });
-      return;
-    }
+  //   setLoading(true);
+  //   const token = await AsyncStorage.getItem("authToken");
+  //   if (!token) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "No token found. Please log in again.",
+  //     });
+  //     return;
+  //   }
     
-    const data={
-      otp:values.otp,
-      fcmToken:fcm
-    }
-    try {
-      const res = await VERIFY_OTP(data, token);
-      await AsyncStorage.setItem("authToken", res.data.token); // Ensure this token is being returned and stored
+  //   const data={
+  //     otp:values.otp,
+  //     fcmToken:fcm
+  //   }
+  //   try {
+  //     const res = await VERIFY_OTP(data, token);
+  //     await AsyncStorage.setItem("authToken", res.data.token); // Ensure this token is being returned and stored
 
-      console.log(res.data.message);
+  //     console.log(res.data.message);
+  //     Toast.show({
+  //       type: "success",
+  //       text1: res.data.message || "Signup Successful",
+  //     });
+  //     console.log("OTP verified response", res.data);
+  //     router.replace("/home");
+  //   } catch (error) {
+  //     console.log("Error sending code:", error?.response);
+  //     setApiErr(error?.response?.data?.message || "Invalid OTP");
+  //   }
+  //   finally{
+  //     setLoading(false);
+  //   }
+  // };
+
+  const verifyOtpHandler = async (values) => {
+    setLoading(true);
+
+    try {
+      const data = {
+        otp: values.otp,
+        fcmToken: fcm
+      };
+      // Use the token from signup (passed via params) for verification
+      const verificationToken = restoken || token;
+      if (!verificationToken) {
+        throw new Error("Verification token is missing");
+      }
+      
+      const res = await VERIFY_OTP(data, verificationToken);
+      
+      // Only store token after successful verification
+      await AsyncStorage.setItem("authToken", res.data.token);
+      
       Toast.show({
         type: "success",
         text1: res.data.message || "Signup Successful",
       });
-      console.log("OTP verified response", res.data);
-
+      
       router.replace("/home");
     } catch (error) {
       console.log("Error sending code:", error?.response);
       setApiErr(error?.response?.data?.message || "Invalid OTP");
-    }
-
-    finally{
+    } finally {
       setLoading(false);
     }
   };
-
-  // const resendOtpHandler = async (restoken) => {
-  //   if (!restoken) {
-  //     Toast.show({
-  //       type: "error",
-  //       text1: "Token is missing. Please try again.",
-  //     });
-  //     return;
-  //   }
-  
-  //   const token = await AsyncStorage.getItem("authToken");
-  //   console.log("resend method",token)
-  //   if (!token) {
-  //     Toast.show({
-  //       type: "error",
-  //       text1: "No token found. Please log in.",
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await RESEND_OTP(token); // Pass token to API caller
-  //     console.log(res);
-  //     const message = res?.data?.message?.trim();
-
-  //   Toast.show({
-  //     type: "success",
-  //     text1: message && message.length > 0 ? message : "OTP Resent",
-  //     duration: 2000,
-  //   });
-  //     setResentOtpMsg(true);
-  //   } catch (error) {
-  //     console.log("Error sending code:", error?.response);
-  //     setApiErr(error?.response?.data?.message || "Failed to resend OTP");
-  //   }
-  // };
 
   const resendOtpHandler = async (token) => {
     console.log("resend method token:", token);
@@ -387,3 +409,41 @@ const { token } = useLocalSearchParams();
 };
 
 export default verifyotp;
+
+
+  // const resendOtpHandler = async (restoken) => {
+  //   if (!restoken) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "Token is missing. Please try again.",
+  //     });
+  //     return;
+  //   }
+  
+  //   const token = await AsyncStorage.getItem("authToken");
+  //   console.log("resend method",token)
+  //   if (!token) {
+  //     Toast.show({
+  //       type: "error",
+  //       text1: "No token found. Please log in.",
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await RESEND_OTP(token); // Pass token to API caller
+  //     console.log(res);
+  //     const message = res?.data?.message?.trim();
+
+  //   Toast.show({
+  //     type: "success",
+  //     text1: message && message.length > 0 ? message : "OTP Resent",
+  //     duration: 2000,
+  //   });
+  //     setResentOtpMsg(true);
+  //   } catch (error) {
+  //     console.log("Error sending code:", error?.response);
+  //     setApiErr(error?.response?.data?.message || "Failed to resend OTP");
+  //   }
+  // };
+

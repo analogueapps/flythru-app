@@ -201,7 +201,7 @@ const editpro = () => {
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="px-7 flex-col gap-y-4">
           <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold">
+            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
               {" "}
               {applanguage === "eng"
                 ? Translations.eng.name
@@ -223,12 +223,12 @@ const editpro = () => {
               placeholderTextColor={"#1A1C1E"}
             />
             {formik.touched.name && formik.errors.name && (
-              <Text className="text-red-500">{formik.errors.name}</Text>
+              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.name}</Text>
             )}
           </View>
 
           <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold">
+            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
               {" "}
               {applanguage === "eng"
                 ? Translations.eng.email_id
@@ -248,12 +248,12 @@ const editpro = () => {
               editable={false}
             />
             {formik.touched.email && formik.errors.email && (
-              <Text className="text-red-500">{formik.errors.email}</Text>
+              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.email}</Text>
             )}
           </View>
 
           <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold">
+            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
               {" "}
               {applanguage === "eng"
                 ? Translations.eng.phone_number
@@ -277,7 +277,7 @@ const editpro = () => {
               placeholderTextColor={"#1A1C1E"}
             />
             {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-              <Text className="text-red-500">{formik.errors.phoneNumber}</Text>
+              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.phoneNumber}</Text>
             )}
           </View>
         </View>
@@ -311,7 +311,7 @@ const editpro = () => {
             />
           </Animated.View>
         ) : (
-          <Text className="font-bold text-center text-black ">
+          <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
             {" "}
             {applanguage === "eng"
               ? Translations.eng.save

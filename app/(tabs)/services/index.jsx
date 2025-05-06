@@ -98,7 +98,7 @@ const Index = () => {
           services.map((service) => (
             <View key={service._id} className="mb-6">
               {/* Service Title */}
-              <Text className="text-[#164F90] text-2xl font-bold mb-3">
+              <Text className="text-[#164F90] text-2xl font-bold mb-3" style={{ fontFamily: "Lato" }}>
                 {service.title}
               </Text>
 
@@ -119,7 +119,7 @@ const Index = () => {
                               className="h-5 w-5 mr-2 mt-1"
                               resizeMode="contain"
                             />
-                            <Text className="text-[#515151] text-base font-light w-[98%]">
+                            <Text className="text-[#515151] text-base font-light w-[98%]" style={{ fontFamily: "Lato" }}>
                               {lines[0].trim()}
                             </Text>
                           </View>
@@ -129,7 +129,7 @@ const Index = () => {
                             key={index}
                             className="flex-row items-start mb-1"
                           >
-                            <Text className="text-[#515151] text-base font-light pl-7">
+                            <Text className="text-[#515151] text-base font-light pl-7" style={{ fontFamily: "Lato" }}>
                               {line.trim()}
                             </Text>
                           </View>
@@ -152,7 +152,7 @@ const Index = () => {
                 activeOpacity={0.8}
                 onPress={() => router.push("/home")}
               >
-                <Text className="text-center text-black font-semibold text-lg">
+                <Text className="text-center text-black font-semibold text-lg" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.book_now
                     : Translations.arb.book_now}
@@ -161,7 +161,7 @@ const Index = () => {
             </View>
           ))
         ) : (
-          <Text className="text-center text-gray-500 text-lg mt-5">
+          <Text className="text-center font-bold text-gray-500 text-lg mt-5" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng" 
               ? Translations.eng.no_services_available 
               : Translations.arb.no_services_available}

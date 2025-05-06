@@ -170,7 +170,7 @@ const Address = () => {
 ) : (
   <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
     <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
-      <Text className="text-[#164F90] font-bold text-right mx-5">
+      <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
         {applanguage === "eng" ? Translations.eng.add : Translations.arb.add} +
       </Text>
     </TouchableOpacity>
@@ -180,8 +180,8 @@ const Address = () => {
         <View key={address?.id || index} className="w-full flex-col gap-5">
           <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
             <View>
-              <Text className="text-[#164F90] font-bold">Home</Text>
-              <Text className="w-72">{address.addressData}</Text>
+              <Text className="text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>Home</Text>
+              <Text className="w-72" style={{ fontFamily: "Lato" }}>{address.addressData}</Text>
             </View>
             <TouchableOpacity onPress={() => address.id && handleDelete(address.id)}>
               <AntDesign name="delete" size={19} color="red" />
@@ -190,7 +190,7 @@ const Address = () => {
         </View>
       ))
     ) : (
-      <Text className="text-center text-gray-500">
+      <Text className="text-center text-gray-500" style={{ fontFamily: "Lato" }}>
         {applanguage === "eng"
           ? Translations.eng.no_address_found
           : Translations.arb.no_address_found}

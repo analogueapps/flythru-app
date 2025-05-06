@@ -50,7 +50,7 @@ const cancellation = () => {
       Toast.show({
         type: "info",
         text1: "Alert",
-        text2: "Please login again",
+        text2: "Please login",
       });
       return;
     }
@@ -115,7 +115,7 @@ const cancellation = () => {
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="px-7 flex-col gap-2">
-          <Text className="text-[#40464C] text-lg">
+          <Text className="text-[#40464C] text-lg" style={{ fontFamily: "Lato" }}>
           {
                 applanguage==="eng"?Translations.eng.specify_reason_for_cancellation:Translations.arb.specify_reason_for_cancellation
               }
@@ -136,12 +136,12 @@ const cancellation = () => {
           />
 
           {formik.touched.reasonForCancellation && formik.errors.reasonForCancellation && (
-            <Text className="text-red-500 w-[90%] mx-auto">
+            <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
               {formik.errors.reasonForCancellation}
             </Text>
           )}
 
-          <Text className="text-sm">
+          <Text className="text-sm" style={{ fontFamily: "Lato" }}>
           {
                 applanguage==="eng"?Translations.eng.cancellation_note:Translations.arb.cancellation_note
               }
@@ -153,7 +153,7 @@ const cancellation = () => {
         router.dismissAll();
       }}
       >
-        <Text className="font-bold text-center text-black ">
+        <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
         {
                 applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
               }

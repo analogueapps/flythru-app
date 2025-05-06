@@ -110,7 +110,7 @@ const TermsAndConditions = () => {
             enableExperimentalMarginCollapsing={true}
           />
         ) : (
-          <Text className="text-[15px] font-thin">
+          <Text className="text-[15px] font-thin" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.loading_terms_conditions
               : Translations.arb.loading_terms_conditions}{" "}

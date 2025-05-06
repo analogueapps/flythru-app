@@ -103,7 +103,7 @@ const FAQ = () => {
             className="flex-row justify-between items-center"
             onPress={() => toggleAnswer(index)}
           >
-            <Text className="text-[16px] font-bold text-[#164F90]">
+            <Text className="text-[16px] font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
               {faq.question}
             </Text>
             {openIndex === index ? (
@@ -120,6 +120,7 @@ const FAQ = () => {
                     <Text
                       key={lineIndex}
                       className="text-[#515151] text-base font-light"
+                      style={{ fontFamily: "Lato" }}
                     >
                       {line}
                     </Text>
@@ -130,7 +131,7 @@ const FAQ = () => {
         </View>
       ))
     ) : (
-      <Text className="text-center text-gray-500 text-lg mt-5">
+      <Text className="text-center text-gray-500 text-lg mt-5" style={{ fontFamily: "Lato" }}>
         No FAQs available
       </Text>
     )}

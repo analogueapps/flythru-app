@@ -114,7 +114,7 @@ const CancellationPolicy = () => {
             enableExperimentalMarginCollapsing={true}
           />
         ) : (
-          <Text className="text-[15px] font-thin">
+          <Text className="text-[15px] font-thin" style={{ fontFamily: "Lato" }}>
   {applanguage==="eng"?Translations.eng.cancellation_policy:Translations.arb.cancellation_policy
               }          </Text>
         )}
