@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, BackHandler, } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, BackHandler, Platform, } from "react-native";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -186,7 +186,8 @@ const { token } = useLocalSearchParams();
     try {
       const data = {
         otp: values.otp,
-        fcmToken: fcm
+        fcmToken: fcm,
+        fcmTokenType: Platform.OS === "android" ? "android" : "ios"
       };
       // Use the token from signup (passed via params) for verification
       const verificationToken = restoken || token;
@@ -352,7 +353,7 @@ const { token } = useLocalSearchParams();
               shadowRadius: 3.84,
             }}
               onPress={handleSubmit} //  Use handleSubmit instead of router.push
-              className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center"
+              className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mt-40"
             >
                {loading ? (
     <Animated.View

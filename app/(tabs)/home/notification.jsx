@@ -125,7 +125,7 @@ if (res?.data?.userNotifications) {
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
   {loading ? (
     <View className="flex-1 items-center justify-center">
-      <ActivityIndicator size="large" color="#0000ff" />
+      <ActivityIndicator size="large" color="#164F90" />
     </View>
   ) : notifications.length > 0 ? (
     notifications.map((notif, index) => (

@@ -278,6 +278,23 @@ const baggage = () => {
     );
   };
 
+  const DashedLine = ({ dashCount = 30, dashColor = 'white' }) => (
+    <View className="flex-row flex-1 justify-between items-center">
+      {Array.from({ length: dashCount }).map((_, index) => (
+        <View
+          key={index}
+          style={{
+            width: 4,
+            height: 1,
+            backgroundColor: dashColor,
+            marginRight: index !== dashCount - 1 ? 2 : 0,
+          }}
+        />
+      ))}
+    </View>
+  );
+  
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -330,7 +347,7 @@ const baggage = () => {
               {/* {flight.departure.airport} */}Departure
             </Text>
           </View>
-          <View className="flex-1 items-center px-2">
+          {/* <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center ">
               <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
                 <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
@@ -338,7 +355,19 @@ const baggage = () => {
                 </View>
               </View>
             </View>
-          </View>
+          </View> */}
+
+<View className="flex-1 items-center px-2">
+  <View className="w-full flex-row items-center justify-center">
+    <View className="flex-1 relative justify-center">
+      <DashedLine dashColor="white" />
+      <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 bg-transparent z-10">
+        <PlaneIcon />
+      </View>
+    </View>
+  </View>
+</View>
+
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
               {flight.arrival.iata}

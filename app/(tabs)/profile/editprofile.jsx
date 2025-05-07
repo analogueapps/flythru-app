@@ -185,13 +185,13 @@ const editprofile = () => {
     }
   };
 
-  if (initialLoading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#0b005c" />
-      </View>
-    );
-  }
+  // if (initialLoading) {
+  //   return (
+  //     <View className="flex-1 justify-center items-center bg-white">
+  //       <ActivityIndicator size="large" color="#0b005c" />
+  //     </View>
+  //   );
+  // }
   
 
   return (
@@ -231,7 +231,15 @@ const editprofile = () => {
           </View>
         </View>
       </View>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+      {initialLoading ?
+      (
+
+        <View className="flex-1 justify-center items-center bg-white">
+       <ActivityIndicator size="large" color="#164F90" />
+     </View>
+      ):(
+     
+      <ScrollView className="flex-1 " contentContainerStyle={{ padding: 15 , display:"flex" , justifyContent:"space-between", height:"100%"}}>
         <View className="px-7 flex-col gap-y-4">
           <View className="mb-2">
             <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
@@ -314,7 +322,6 @@ const editprofile = () => {
             )}
           </View>
         </View>
-      </ScrollView>
 
       <TouchableOpacity
         disabled={loading}
@@ -327,21 +334,21 @@ const editprofile = () => {
           shadowRadius: 3.84,
         }}
         onPress={formik.handleSubmit}
-      >
+        >
         {loading ? (
           <Animated.View
-            style={{
-              transform: [{ translateX }],
-              width: 100,
-              height: 100,
-              alignSelf: "center",
-            }}
+          style={{
+            transform: [{ translateX }],
+            width: 100,
+            height: 100,
+            alignSelf: "center",
+          }}
           >
             <Image
               source={flightloader}
               style={{ width: 100, height: 100 }}
               resizeMode="contain"
-            />
+              />
           </Animated.View>
         ) : (
           <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
@@ -350,6 +357,8 @@ const editprofile = () => {
           </Text>
         )}
       </TouchableOpacity>
+      </ScrollView>
+        )}
     </View>
   );
 };

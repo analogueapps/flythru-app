@@ -30,6 +30,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightlogo from "../../../assets/images/flight.png";
 import Toast from "react-native-toast-message";
 
+
 const Search = () => {
   const insets = useSafeAreaInsets();
   const { flightNumber, departureDate } = useLocalSearchParams();
@@ -43,6 +44,23 @@ const Search = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showLoginPopup, setShowLoginPopup] = useState(false);
     const [loginChecked, setLoginChecked] = useState(false);
+
+
+    const DashedLine = ({ dashCount = 30, dashColor = '#164F90' }) => (
+      <View className="flex-row flex-1 justify-between items-center">
+        {Array.from({ length: dashCount }).map((_, index) => (
+          <View
+            key={index}
+            className="h-[1px]"
+            style={{
+              width: 4,
+              backgroundColor: dashColor,
+              marginRight: index !== dashCount - 1 ? 2 : 0,
+            }}
+          />
+        ))}
+      </View>
+    );
 
 
     
@@ -551,7 +569,7 @@ const Search = () => {
                   </View>
 
                   {/* Flight Duration */}
-                  <View className="flex-1 items-center">
+                  {/* <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
                       <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
                         <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
@@ -559,7 +577,18 @@ const Search = () => {
                         </View>
                       </View>
                     </View>
-                  </View>
+                  </View> */}
+
+<View className="flex-1 items-center">
+    <View className="w-full flex-row items-center justify-center mt-2">
+      <View className="flex-1 relative justify-center">
+        <DashedLine />
+        <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
+          <FontAwesome5 name="plane" size={16} color="#164F90" />
+        </View>
+      </View>
+    </View>
+  </View>
 
                   {/* Arrival */}
                   <View className="items-center">
@@ -654,7 +683,7 @@ const Search = () => {
                   </View>
 
                   {/* Flight Duration */}
-                  <View className="flex-1 items-center">
+                  {/* <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
                       <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
                         <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
@@ -662,7 +691,18 @@ const Search = () => {
                         </View>
                       </View>
                     </View>
-                  </View>
+                  </View> */}
+
+<View className="flex-1 items-center">
+    <View className="w-full flex-row items-center justify-center mt-2">
+      <View className="flex-1 relative justify-center">
+        <DashedLine />
+        <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
+          <FontAwesome5 name="plane" size={16} color="#164F90" />
+        </View>
+      </View>
+    </View>
+  </View>
 
                   {/* Arrival */}
                   <View className="items-center">

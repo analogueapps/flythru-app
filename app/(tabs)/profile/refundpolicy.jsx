@@ -24,6 +24,7 @@ const RefundPolicy = () => {
     }
     return chunks;
   }
+  
   const fetchedSettings = async () => {
     try {
       const res = await ALL_SETTINGS();

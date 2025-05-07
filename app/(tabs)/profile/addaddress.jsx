@@ -7,6 +7,8 @@ import {
   TextInput,
   Animated,
   Easing,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -118,6 +120,10 @@ const [loading, setLoading] = useState(false);
   
 
   return (
+    <KeyboardAvoidingView
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    style={{ flex: 1 }}
+  >
     <View className="flex-1">
       {/* Header Background Image */}
       <View>
@@ -314,6 +320,7 @@ const [loading, setLoading] = useState(false);
             )}
       </TouchableOpacity>
     </View>
+    </KeyboardAvoidingView>
   );
 };
 

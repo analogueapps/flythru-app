@@ -274,7 +274,7 @@ useFocusEffect(useCallback(()=>
           <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
           <Image
               source={verticalline}
-              className="h-36  mt-3"
+              className="h-24  mt-3"
               resizeMode="contain"
             /> 
 

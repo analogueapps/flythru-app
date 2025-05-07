@@ -17,6 +17,7 @@ import Toast from "react-native-toast-message";
 import { NetworkProvider } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
 
+
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
 const _layout = () => {
@@ -25,6 +26,23 @@ const _layout = () => {
     Lato: require("../assets/fonts/Lato-Regular.ttf"),
 
   });
+
+  useEffect(() => {
+    const requestPermissions = async () => {
+      const { status } = await Notifications.requestPermissionsAsync({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: true,
+        },
+      });
+      if (status !== 'granted') {
+        alert("Permission for notifications not granted");
+      }
+    };
+
+    requestPermissions();
+  }, []);
 
   useEffect(() => {
     async function registerForPushNotificationsAsync() {

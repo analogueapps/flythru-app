@@ -10,6 +10,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import { ActivityIndicator } from "react-native";
+import TranslateText from "../../../network/translate";
 
 
 const FAQ = () => {
@@ -19,27 +20,85 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchFaqs = async () => {
-    setLoading(true);
-        try {
-      const res = await ALL_FAQS();
-      console.log("ressss faq", res.data);
+  function splitTextIntoChunks(text, chunkSize = 4500) {
+    const chunks = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }
 
-      if (res?.data?.allFaqs && Array.isArray(res.data.allFaqs)) {
-        setFaqs(res.data.allFaqs);
+  // const fetchFaqs = async () => {
+  //   setLoading(true);
+  //       try {
+  //     const res = await ALL_FAQS();
+  //     console.log("ressss faq", res.data);
+
+  //     if (res?.data?.allFaqs && Array.isArray(res.data.allFaqs)) {
+
+  //       if (applanguage !== "eng") {
+  //         const chunks = splitTextIntoChunks(formattedContent);
+  //         const translatedChunks = await Promise.all(
+  //           chunks.map((chunk) => TranslateText(chunk, "ar"))
+  //         );
+  //         finalHtml = translatedChunks.join("");
+  //         setFaqs(res.data.allFaqs);
+  //               } else {
+  //         setFaqs(res.data.allFaqs);
+  //       }
+  //     } else {
+  //       console.log("Unexpected response format:", res.data);
+  //       setFaqs([]);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching FAQs:", error);
+  //     setFaqs([]);
+  //   }
+  //   finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+  
+const fetchFaqs = async () => {
+  setLoading(true);
+  try {
+    const res = await ALL_FAQS();
+    console.log("ressss faq", res.data);
+
+    if (res?.data?.allFaqs && Array.isArray(res.data.allFaqs)) {
+      let allFaqs = res.data.allFaqs;
+
+      // Translate to Arabic if needed
+      if (applanguage !== "eng") {
+        const translatedFaqs = await Promise.all(
+          allFaqs.map(async (faq) => {
+            const translatedQuestion = await TranslateText(faq.question, "ar");
+            const translatedAnswer = await TranslateText(faq.answer, "ar");
+
+            return {
+              ...faq,
+              question: translatedQuestion,
+              answer: translatedAnswer,
+            };
+          })
+        );
+        setFaqs(translatedFaqs);
       } else {
-        console.log("Unexpected response format:", res.data);
-        setFaqs([]);
+        setFaqs(allFaqs);
       }
-    } catch (error) {
-      console.log("Error fetching FAQs:", error);
+    } else {
+      console.log("Unexpected response format:", res.data);
       setFaqs([]);
     }
-    finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (error) {
+    console.log("Error fetching FAQs:", error);
+    setFaqs([]);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
     fetchFaqs();
   }, []);
@@ -63,7 +122,7 @@ const FAQ = () => {
       <View
         style={{
           top: insets.top,
-          zIndex: 1,
+          zIndex: 1, 
         }}
         className="p-6 absolute w-full "
       >
@@ -109,7 +168,7 @@ const FAQ = () => {
             {openIndex === index ? (
               <Entypo name="minus" size={24} color="#164F90" />
             ) : (
-              <FontAwesome6 name="plus" size={24} color="#164F90" />
+              <FontAwesome6 name="plus" size={24} color="#164F90" /> 
             )}
           </TouchableOpacity>
 

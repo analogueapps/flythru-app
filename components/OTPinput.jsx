@@ -6,11 +6,12 @@ const OTPinput = ({ codes, refs, errorMessages, onChangeCode , onKeyPress }) => 
 <View className="flex flex-row justify-center items-center mt-8 w-[90%] mx-auto">
 {codes.map((code, index) => (
         <TextInput
+        style={{ fontFamily: "Lato" }}
           key={index}
           autoComplete="one-time-code"
           enterKeyHint="next"
           keyboardType="numeric"
-          className={`text-[16px] h-[50px] w-[62px] rounded-lg bg-[#ededed] mx-2 px-2 py-1 text-center border-[#e0e0e0] focus:bg-white  border focus:border-[#0A80FB] ${
+          className={`text-[25px] h-[50px] w-[62px] font-bold text-[#164F90] rounded-lg bg-[#ededed] mx-2 px-2 py-1 text-center border-[#e0e0e0] focus:bg-white  border focus:border-[#0A80FB] ${
             errorMessages !== undefined
               ? "border border-[#ef4444] text-[#ef4444]"
               : "text-[#000]"

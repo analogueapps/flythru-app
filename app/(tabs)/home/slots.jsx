@@ -184,6 +184,22 @@ const slots = () => {
 
   // Then render:
 
+  const DashedLine = ({ dashCount = 30, dashColor = "white" }) => (
+    <View className="flex-row flex-1 justify-between items-center">
+      {Array.from({ length: dashCount }).map((_, index) => (
+        <View
+          key={index}
+          style={{
+            width: 4,
+            height: 1,
+            backgroundColor: dashColor,
+            marginRight: index !== dashCount - 1 ? 2 : 0,
+          }}
+        />
+      ))}
+    </View>
+  );
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -219,27 +235,39 @@ const slots = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: "Lato" }}
+            >
               {" "}
               {flight?.departure?.iata ?? "--"}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>Departure</Text>
+            <Text className="text-white" style={{ fontFamily: "Lato" }}>
+              Departure
+            </Text>
           </View>
+
           <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center ">
-              <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
-                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
+            <View className="w-full flex-row items-center justify-center">
+              <View className="flex-1 relative justify-center">
+                <DashedLine dashColor="white" />
+                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 z-10 ">
                   <PlaneIcon />
                 </View>
               </View>
             </View>
           </View>
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: "Lato" }}
+            >
               {" "}
               {flight?.arrival?.iata ?? "--"}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>Arrival</Text>
+            <Text className="text-white" style={{ fontFamily: "Lato" }}>
+              Arrival
+            </Text>
           </View>
         </View>
         {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
@@ -300,8 +328,9 @@ const slots = () => {
               mode="date"
               minimumDate={new Date()}
               maximumDate={
-                depDate instanceof Date && !isNaN(depDate) ? depDate : undefined
-              }
+                depDate instanceof Date && !isNaN(depDate)
+                ? new Date(depDate.getTime() + 24 * 60 * 60 * 1000)
+                : undefined              }
               display="default"
               onChange={async (event, selectedDate) => {
                 setShowDatePicker(false);
@@ -366,7 +395,10 @@ const slots = () => {
           )}
 
           {formik.touched.date && formik.errors.date && (
-            <Text className="text-red-500 w-[90%] mx-auto mb-2" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-red-500 w-[90%] mx-auto mb-2"
+              style={{ fontFamily: "Lato" }}
+            >
               {formik.errors.date}
             </Text>
           )}
@@ -413,7 +445,10 @@ const slots = () => {
           />
 
           {formik.touched.time && formik.errors.time && (
-            <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-red-500 w-[90%] mx-auto"
+              style={{ fontFamily: "Lato" }}
+            >
               {formik.errors.time}
             </Text>
           )}
@@ -426,7 +461,10 @@ const slots = () => {
               formik.handleSubmit();
             }}
           >
-            <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-center text-black font-semibold"
+              style={{ fontFamily: "Lato" }}
+            >
               {applanguage === "eng"
                 ? Translations.eng.continue
                 : Translations.arb.continue}
@@ -439,3 +477,15 @@ const slots = () => {
 };
 
 export default slots;
+
+{
+  /* <View className="flex-1 items-center px-2">
+            <View className="w-full flex-row items-center justify-center ">
+              <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
+                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
+                  <PlaneIcon />
+                </View>
+              </View>
+            </View>
+          </View> */
+}

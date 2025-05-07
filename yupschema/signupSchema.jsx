@@ -7,6 +7,17 @@ const signupSchema = (applanguage) =>
              applanguage === "eng" ? "Email is required" : "البريد الإلكتروني مطلوب"
            )
            .test(
+            "no-leading-spaces",
+            applanguage === "eng"
+              ? "Email cannot start with a space"
+              : "لا يمكن أن يبدأ البريد الإلكتروني بمسافة",
+            (value) => {
+              if (!value) return false;
+              return !/^\s/.test(value); // checks for leading whitespace
+            }
+          )
+          
+           .test(
              "no-spaces",
              applanguage === "eng"
                ? "Email should not contain any spaces"
@@ -15,29 +26,29 @@ const signupSchema = (applanguage) =>
                return value ? !/\s/.test(value) : false;
              }
            )  
-           .test(
-             "valid-domain",
-             applanguage === "eng"
-               ? "Invalid email domain format"
-               : "تنسيق نطاق البريد الإلكتروني غير صالح",
-             (value) => {
-               if (!value) return false;
+          //  .test(
+          //    "valid-domain",
+          //    applanguage === "eng"
+          //      ? "Invalid email domain format"
+          //      : "تنسيق نطاق البريد الإلكتروني غير صالح",
+          //    (value) => {
+          //      if (!value) return false;
            
-               const parts = value.split("@");
-               if (parts.length !== 2) return false;
+          //      const parts = value.split("@");
+          //      if (parts.length !== 2) return false;
            
-               const domainPart = parts[1];
-               if (!domainPart || !domainPart.includes(".")) return false;
+          //      const domainPart = parts[1];
+          //      if (!domainPart || !domainPart.includes(".")) return false;
            
-               const [domainName, topLevelDomain] = domainPart.split(".");
-               if (!domainName || !topLevelDomain) return false;
+          //      const [domainName, topLevelDomain] = domainPart.split(".");
+          //      if (!domainName || !topLevelDomain) return false;
            
-               const validDomains = [
-                 "com", "org", "net", "edu", "gov", "mil", "in", "us", "uk", "au", "ca", "eu"
-               ];
-               return validDomains.includes(topLevelDomain);
-             }
-           )
+          //      const validDomains = [
+          //        "com", "org", "net", "edu", "gov", "mil", "in", "us", "uk", "au", "ca", "eu"
+          //      ];
+          //      return validDomains.includes(topLevelDomain);
+          //    }
+          //  )
            .test(
              "valid-email",
              applanguage === "eng"
@@ -69,22 +80,11 @@ const signupSchema = (applanguage) =>
                  );
                }
      
-               const domain = value.split(".").pop();
-               const validDomains = [
-                 "com",
-                 "org",
-                 "net",
-                 "edu",
-                 "gov",
-                 "mil",
-                 "in",
-                 "us",
-                 "uk",
-                 "au",
-                 "ca",
-                 "eu",
-               ];
-               if (!validDomains.includes(domain)) return false;
+              //  const domain = value.split(".").pop();
+              //  const validDomains = [
+               
+              //  ];
+              //  if (!validDomains.includes(domain)) return false;
      
                return true;
              }
@@ -114,8 +114,8 @@ const signupSchema = (applanguage) =>
                if (value && /\s/.test(value)) return false;
                return true;
              }
-           )
-      .transform((value) => (value ? value.toLowerCase().trim() : value)),
+           ),
+      // .transform((value) => (value ? value.toLowerCase().trim() : value)),
 
     password: Yup.string()
     .min(

@@ -256,7 +256,7 @@ const onRefresh = async () => {
            
           </View>
 
-          <View className="flex flex-row justify-between items-center my-7 gap-2">
+          {/* <View className="flex flex-row justify-between items-center my-7 gap-2 bg-slate-400">
             <View className="flex flex-row ">
 
             {bookingData?.booking?.driver?.driverName && <Image
@@ -278,7 +278,116 @@ const onRefresh = async () => {
               } : {bookingData?.booking?.updateStatus || "-"}</Text>
 
             </View>
-          </View>
+          </View> */}
+
+{/* <View className="flex flex-row justify-between items-center my-7 gap-2 bg-slate-400">
+  <View className="flex flex-row">
+    {bookingData?.booking?.driver?.driverName && (
+      <Image
+        source={{ uri: bookingData?.booking?.driver?.driverSignedUrl }}
+        className="h-16 w-16 rounded-full mr-4"
+        resizeMode="cover"
+      />
+    )}
+
+    <View style={{ flexShrink: 1 }}>
+      <Text
+        className="text-[#164F90] font-thin"
+        style={{
+          fontFamily: "Lato",
+          flexWrap: "wrap",
+          maxWidth: "80%",
+          fontSize: bookingData?.booking?.driver?.driverName.length > 7 ? 18 : 24,  // Decrease font size if length > 7
+        }}
+        numberOfLines={2}
+      >
+        {bookingData?.booking?.driver?.driverName}
+      </Text>
+      <Text
+        style={{
+          fontFamily: "Lato",
+          flexWrap: "wrap",
+          maxWidth: "80%",
+          fontSize: bookingData?.booking?.driver?.driverName.length > 7 ? 14 : 16,  // Optionally adjust address size too
+        }}
+        numberOfLines={2}
+      >
+        {bookingData?.booking?.driver?.driverAddress}
+      </Text>
+    </View>
+  </View>
+
+  <View style={{ maxWidth: 150 }}>
+    <Text
+      className="bg-[#FFB648] p-2 rounded-md px-6"
+      style={{ fontFamily: "Lato", flexShrink: 1 }}
+    >
+      {applanguage === "eng"
+        ? Translations.eng.status
+        : Translations.arb.status} :{" "}
+      {bookingData?.booking?.updateStatus || "-"}
+    </Text>
+  </View>
+</View> */}
+
+<View className="flex flex-wrap flex-row justify-between my-7 gap-2  p-2">
+  {/* Left Section */}
+  <View className="flex flex-row flex-shrink flex-grow basis-[65%]">
+    {bookingData?.booking?.driver?.driverName && (
+      <Image
+        source={{ uri: bookingData?.booking?.driver?.driverSignedUrl }}
+        className="h-16 w-16 rounded-full mr-4"
+        resizeMode="cover"
+      />
+    )}
+
+    <View style={{ flexShrink: 1 }}>
+      <Text
+        className="text-[#164F90] font-thin"
+        style={{
+          fontFamily: "Lato",
+          flexWrap: "wrap",
+          maxWidth: "90%",
+          fontSize:
+            bookingData?.booking?.driver?.driverName.length > 7 ? 18 : 24,
+        }}
+        numberOfLines={2}
+      >
+        {bookingData?.booking?.driver?.driverName}
+      </Text>
+      <Text
+        style={{
+          fontFamily: "Lato",
+          flexWrap: "wrap",
+          maxWidth: "90%",
+          fontSize:
+            bookingData?.booking?.driver?.driverName.length > 7 ? 14 : 16,
+        }}
+        numberOfLines={2}
+      >
+        {bookingData?.booking?.driver?.driverAddress}
+      </Text>
+    </View>
+  </View>
+
+  {/* Right Section (Status) */}
+  <View className="flex-shrink mt-2">
+    <Text
+      className="bg-[#FFB648] p-2 rounded-md text-center"
+      style={{
+        fontFamily: "Lato",
+        minWidth: 100,
+      }}
+    >
+      {applanguage === "eng"
+        ? Translations.eng.status
+        : Translations.arb.status}{" "}
+      : {bookingData?.booking?.updateStatus || "-"}
+    </Text>
+  </View>
+</View>
+
+
 
 
           <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
@@ -340,7 +449,7 @@ const onRefresh = async () => {
         {(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" && 
         
         <Text className="text-red-500 text-center mt-4" style={{ fontFamily: "Lato" }}>
-         This booking is cancelled
+         {applanguage === "eng" ? Translations.eng.this_booking_is_cancelled : Translations.arb.this_booking_is_cancelled}
         </Text>
         }
 

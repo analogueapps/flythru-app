@@ -227,8 +227,8 @@ const Index = () => {
       password: "",
 
 
-//  email: "taruntej.2002@gmail.com",
-//       password: "Tarun@12",
+ email: "tarunaaatej.2002@gmail.com",
+      password: "Tarun@12",
     
     },
     validationSchema: signupSchema(applanguage),
@@ -276,12 +276,15 @@ const Index = () => {
   const loginFormik = useFormik({
     initialValues: {
 
-      email: "",
-      password: "",
+      // email: "",
+      // password: "",
 
       // email: "shiva321@gmail.com",
       // password:"Shiva@12",
 
+      email: "twinkley2002@gmail.com",
+      password:"Twinkle@123",
+ 
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -304,6 +307,8 @@ const Index = () => {
       email: values.email,
       password: values.password,
       fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"
+      
     };
 
     if (values.email) await AsyncStorage.setItem("user_email", values.email);

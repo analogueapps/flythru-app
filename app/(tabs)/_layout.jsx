@@ -8,6 +8,7 @@ import SvgProfile from "../../assets/svgs/bottomTabs/Profile";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
 
+
 const _layout = () => {
   const pathname = usePathname();
 

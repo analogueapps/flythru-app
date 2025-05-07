@@ -7,12 +7,15 @@ import flash from "../assets/images/flash.png";
 import { NetworkContext } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
 import { FirebaseApp, initializeApp } from '@react-native-firebase/app';
+import { langaugeContext } from "../customhooks/languageContext";
+import Translations from "../language";
 
 const app = initializeApp(); // Optional, if not automatically initialized
 
 export default function Index() {
   const { width } = Dimensions.get("window");
   const router = useRouter();
+  const { applanguage } = langaugeContext()
   const { isConnected } = useContext(NetworkContext);
   const [showFlash, setShowFlash] = useState(true);
 
@@ -54,15 +57,15 @@ export default function Index() {
         />
 
         <View className="w-[90%] mt-16  pt-7">
-          <Text className="text-[#164F90] font-bold text-5xl text-left pt-2">
-            Book Services
+          <Text className="text-[#164F90] font-bold text-5xl text-left pt-2" style={{ fontFamily: "Lato" }}>
+          {applanguage === "eng" ? Translations.eng.book_services : Translations.arb.book_services}
           </Text>
-          <Text className="text-[#164F90] font-bold text-6xl text-left mt-1 pt-2">
-            for Hassle-free Trip
+          <Text className="text-[#164F90] font-bold text-4xl text-left mt-1 pt-2" style={{ fontFamily: "Lato" }}>
+          {applanguage === "eng" ? Translations.eng.for_hassle_free_trip : Translations.arb.for_hassle_free_trip}
           </Text>
-          <Text className="text-[#3E3E3E] text-2xl text-left mt-2">
-            Find your flight in just one click to book services.
-          </Text>
+          <Text className="text-[#3E3E3E] text-2xl text-left mt-2" style={{ fontFamily: "Lato" }}>
+          {applanguage === "eng" ? Translations.eng.find_flight_to_book_services : Translations.arb.find_flight_to_book_services}  
+                  </Text>
         </View>
 
         {/* ✅ Add the modal here */}

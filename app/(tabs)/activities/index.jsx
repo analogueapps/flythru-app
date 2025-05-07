@@ -64,9 +64,9 @@ const index = () => {
     
       try {
         const res = await ACTIVITIES(token);
-        console.log("Activities Response:", res.data);
         // Set bookings to res.data.data (the actual array of bookings)
         setBookings(res.data.data || []); // Fallback to empty array if undefined
+        console.log("Activities Response:", res.data);
       } catch (error) {
         console.log("Error fetching bookings:", error?.response);
         // Toast.show({
@@ -209,21 +209,47 @@ const index = () => {
               {booking.pickUpTimings}, {new Date(booking.date).toLocaleDateString()}
             </Text>
             <Text className="text-[#383F47] text-lg" style={{ fontFamily: "Lato" }}>
-              Status: {booking?.updateStatus}
+            {applanguage === "eng" ? Translations.eng.status : Translations.arb.status}: {booking?.updateStatus}
             </Text>
             <Text className="text-[#6a6c6e] text-lg w-[100%]" style={{ fontFamily: "Lato" }}>
-            You can cancel 1hr before the service time
+            {applanguage === "eng" ? Translations.eng.service_time_cancel : Translations.arb.service_time_cancel}
                         </Text>
           </View>
           </View>
             <View className="flex flex-row justify-center   w-full">
-              <TouchableOpacity
+              {/* <TouchableOpacity
               onPress={()=>router.push('/activities/cancellation')}
               className="my-4 mx-2 border-2 border-[#164F90] rounded-xl py-4 px-10  w-[45%]">
                 <Text className="text-center text-[#164F90] font-semibold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng" ? Translations.eng.cancel : Translations.arb.cancel}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
+<TouchableOpacity
+  onPress={() => {
+    if (booking.bookingStatus !== "Cancelled") {
+      router.push("/activities/cancellation");
+    }
+  }}
+  disabled={booking.bookingStatus === "Cancelled"}
+  className={`my-4 mx-2 border-2 rounded-xl py-4 px-10 w-[45%] ${
+    booking.bookingStatus === "Cancelled"
+      ? "border-gray-300 bg-gray-200"
+      : "border-[#164F90]"
+  }`}
+>
+  <Text
+    className={`text-center font-semibold ${
+      booking.bookingStatus === "Cancelled" ? "text-gray-400" : "text-[#164F90]"
+    }`}
+    style={{ fontFamily: "Lato" }}
+  >
+    {applanguage === "eng"
+      ? Translations.eng.cancel
+      : Translations.arb.cancel}
+  </Text>
+</TouchableOpacity>
+
               <TouchableOpacity
                 onPress={() =>
                   router.push({
