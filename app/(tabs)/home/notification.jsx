@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +22,14 @@ const notification = () => {
     const [notifications , setNotifications] = useState([])
     const [notiId , setNotiId] = useState({})
     const [loading , setLoading] = useState(false)
+    const [refreshing, setRefreshing] = useState(false);
+
+
+    const onRefresh = async () => {
+      setRefreshing(true);
+      await fetchActivities(); // Reuse your existing fetch function
+      setRefreshing(false);
+    };
 
     const formatTime = (isoString) => {
       const date = new Date(isoString);
@@ -122,7 +130,11 @@ if (res?.data?.userNotifications) {
       </View>
      
     </View>
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+    <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}
+     refreshControl={
+      <RefreshControl  refreshing={refreshing} onRefresh={onRefresh} />
+    }
+    >
   {loading ? (
     <View className="flex-1 items-center justify-center">
       <ActivityIndicator size="large" color="#164F90" />

@@ -330,7 +330,7 @@ const onRefresh = async () => {
   </View>
 </View> */}
 
-<View className="flex flex-wrap flex-row justify-between my-7 gap-2  p-2">
+<View className="flex flex-wrap flex-row justify-between my-7 gap-2 p-2">
   {/* Left Section */}
   <View className="flex flex-row flex-shrink flex-grow basis-[65%]">
     {bookingData?.booking?.driver?.driverName && (
@@ -346,24 +346,29 @@ const onRefresh = async () => {
         className="text-[#164F90] font-thin"
         style={{
           fontFamily: "Lato",
-          flexWrap: "wrap",
-          maxWidth: "90%",
           fontSize:
-            bookingData?.booking?.driver?.driverName.length > 7 ? 18 : 24,
+            bookingData?.booking?.driver?.driverName?.length > 20 ? 16 :
+            bookingData?.booking?.driver?.driverName?.length > 12 ? 18 :
+            22,
+          maxWidth: "90%",
         }}
-        numberOfLines={2}
+        numberOfLines={1}
+        ellipsizeMode="tail"
       >
         {bookingData?.booking?.driver?.driverName}
       </Text>
+
       <Text
         style={{
           fontFamily: "Lato",
-          flexWrap: "wrap",
-          maxWidth: "90%",
           fontSize:
-            bookingData?.booking?.driver?.driverName.length > 7 ? 14 : 16,
+            bookingData?.booking?.driver?.driverAddress?.length > 30 ? 12 :
+            bookingData?.booking?.driver?.driverAddress?.length > 20 ? 14 :
+            16,
+          maxWidth: "90%",
         }}
-        numberOfLines={2}
+        numberOfLines={1}
+        ellipsizeMode="tail"
       >
         {bookingData?.booking?.driver?.driverAddress}
       </Text>
@@ -382,10 +387,13 @@ const onRefresh = async () => {
       {applanguage === "eng"
         ? Translations.eng.status
         : Translations.arb.status}{" "}
-      : {bookingData?.booking?.updateStatus || "-"}
+      : 
+      {bookingData?.booking?.updateStatus || "-"}
+      {/* hahahahahahahahahahahahaha */}
     </Text>
   </View>
 </View>
+
 
 
 

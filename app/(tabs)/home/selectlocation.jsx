@@ -338,10 +338,10 @@ useEffect(() => {
       const keys = await AsyncStorage.getAllKeys();
       console.log("All AsyncStorage Keys:", keys); // See if 'user_name' exists
   
-      const name = await AsyncStorage.getItem("user_name");
-      console.log("Fetched user_name:", name); // See actual fetched value
+      const userName = await AsyncStorage.getItem("user_name");
+      console.log("Fetched user_name:", userName); // See actual fetched value
   
-      return name ?? "";
+      return userName ?? "";
     } catch (error) {
       console.error("Failed to retrieve the user name:", error);
       return "";

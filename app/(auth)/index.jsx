@@ -227,8 +227,8 @@ const Index = () => {
       password: "",
 
 
- email: "tarunaaatej.2002@gmail.com",
-      password: "Tarun@12",
+//  email: "tarunaaatej.2002@gmail.com",
+//       password: "Tarun@12",
     
     },
     validationSchema: signupSchema(applanguage),
@@ -276,14 +276,14 @@ const Index = () => {
   const loginFormik = useFormik({
     initialValues: {
 
-      // email: "",
-      // password: "",
+      email: "",
+      password: "",
 
       // email: "shiva321@gmail.com",
       // password:"Shiva@12",
 
-      email: "twinkley2002@gmail.com",
-      password:"Twinkle@123",
+      // email: "twinkley2002@gmail.com",
+      // password:"Twinkle@123",
  
     },
     validationSchema: loginSchema(applanguage),

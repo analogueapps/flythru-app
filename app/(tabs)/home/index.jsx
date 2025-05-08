@@ -93,6 +93,15 @@ const Index = () => {
   );
 
   useEffect(() => {
+    const markNotificationsVisited = async () => {
+      await AsyncStorage.setItem("hasVisitedNotifications", "true");
+    };
+  
+    markNotificationsVisited();
+  }, []);
+  
+
+  useEffect(() => {
     (async () => {
       const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
       if (status === "granted") {

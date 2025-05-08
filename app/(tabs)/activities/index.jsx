@@ -125,51 +125,71 @@ const index = () => {
 
   {isLoading ? (
   // Show shimmer placeholders
+ 
+
   [...Array(3)].map((_, index) => (
-    <View className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3 p-4">
-      {/* Top section - Driver info */}
+    <View key={index} className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3 p-4">
+      {/* Top: Driver section */}
       <View className="flex-row items-center mb-4">
         <ShimmerPlaceholder
           LinearGradient={LinearGradient}
-          className="h-14 w-14 rounded-full mr-4"
+          style={{ height: 64, width: 64, borderRadius: 32, marginRight: 12 }}
         />
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient} 
-          className="h-6 w-40 rounded"
-        />
+        <View>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 20, width: 140, borderRadius: 6, marginBottom: 6 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 16, width: 100, borderRadius: 6 }}
+          />
+        </View>
       </View>
-      
+  
       {/* Divider */}
       <ShimmerPlaceholder
         LinearGradient={LinearGradient}
-        className="w-full h-[1px] my-2"
+        style={{ height: 1, width: "100%", marginVertical: 8 }}
       />
-      
-      {/* Bottom section - Booking details */}
-      <View className="flex-row items-center my-4">
+  
+      {/* Bottom: Booking info section */}
+      <View className="flex-row items-center mb-4">
         <ShimmerPlaceholder
           LinearGradient={LinearGradient}
-          className="h-10 w-10 rounded-full mr-4"
+          style={{ height: 24, width: 24, borderRadius: 12, marginRight: 12 }}
         />
-        <ShimmerPlaceholder
-          LinearGradient={LinearGradient}
-          className="h-6 w-48 rounded"
-        />
+        <View>
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 20, width: 180, borderRadius: 6, marginBottom: 6 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 16, width: 120, borderRadius: 6, marginBottom: 6 }}
+          />
+          <ShimmerPlaceholder
+            LinearGradient={LinearGradient}
+            style={{ height: 16, width: 160, borderRadius: 6 }}
+          />
+        </View>
       </View>
-      
-      {/* Buttons */}
-      <View className="flex-row justify-between mt-4">
+  
+      {/* Buttons section */}
+      <View className="flex-row justify-between">
         <ShimmerPlaceholder
           LinearGradient={LinearGradient}
-          className="h-12 w-[45%] rounded-xl"
+          style={{ height: 48, width: "45%", borderRadius: 12 }}
         />
         <ShimmerPlaceholder
           LinearGradient={LinearGradient}
-          className="h-12 w-[45%] rounded-xl"
+          style={{ height: 48, width: "45%", borderRadius: 12 }}
         />
       </View>
     </View>
   ))
+  
+
 ) : bookings.length === 0 ? (
   <Text className="text-center mt-36" style={{ fontFamily: "Lato" }}>
     {applanguage === "eng" ? Translations.eng.no_booking_available : Translations.arb.no_booking_available}
@@ -209,7 +229,7 @@ const index = () => {
               {booking.pickUpTimings}, {new Date(booking.date).toLocaleDateString()}
             </Text>
             <Text className="text-[#383F47] text-lg" style={{ fontFamily: "Lato" }}>
-            {applanguage === "eng" ? Translations.eng.status : Translations.arb.status}: {booking?.updateStatus}
+            {applanguage === "eng" ? Translations.eng.status : Translations.arb.status}: {booking?.updateStatus || "-"}
             </Text>
             <Text className="text-[#6a6c6e] text-lg w-[100%]" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng" ? Translations.eng.service_time_cancel : Translations.arb.service_time_cancel}

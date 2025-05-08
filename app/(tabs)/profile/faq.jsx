@@ -162,7 +162,7 @@ const fetchFaqs = async () => {
             className="flex-row justify-between items-center"
             onPress={() => toggleAnswer(index)}
           >
-            <Text className="text-[16px] font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
+            <Text className="text-[16px] font-bold text-[#164F90] w-[85%] " style={{ fontFamily: "Lato" }}>
               {faq.question}
             </Text>
             {openIndex === index ? (

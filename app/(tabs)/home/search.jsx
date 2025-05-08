@@ -62,6 +62,23 @@ const Search = () => {
       </View>
     );
 
+    const DashedLine2 = ({ dashCount = 40, dashColor = '#cdcdcd', dashWidth = 4, dashSpacing = 1 }) => (
+      <View className="flex-row flex-1 justify-between items-center">
+        {Array.from({ length: dashCount }).map((_, index) => (
+          <View
+            key={index}
+            style={{
+              width: dashWidth,
+              height: 1,
+              backgroundColor: dashColor,
+              marginRight: index !== dashCount - 1 ? dashSpacing : 0,
+            }}
+          />
+        ))}
+      </View>
+    );
+    
+
 
     
     const checkLoginStatus = async () => {
@@ -550,7 +567,12 @@ const Search = () => {
                 </View>
 
                 {/* Divider */}
-                <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" />
+                {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
+
+                <View className="w-full px-2">
+  <DashedLine2/>
+</View>
+
 
                 {/* Flight Details */}
                 <View className="flex-row justify-between items-center py-6 px-5">
@@ -668,7 +690,12 @@ const Search = () => {
                 </View>
 
                 {/* Divider */}
-                <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" />
+                {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
+
+                <View className="w-full px-2">
+  <DashedLine2/>
+</View>
+
 
                 {/* Flight Details */}
                 <View className="flex-row justify-between items-center py-6 px-5">
