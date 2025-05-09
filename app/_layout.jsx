@@ -60,10 +60,8 @@ const _layout = () => {
         finalStatus = status;
       }
 
-      if (finalStatus !== "granted") {
-        alert("Permission not granted!");
-        return;
-      }
+     
+
 
       const token = (await Notifications.getExpoPushTokenAsync()).data;
       console.log("Expo Push Token:", token);
