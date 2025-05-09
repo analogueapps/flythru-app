@@ -41,9 +41,8 @@ const notificationdetail = () => {
             console.error("Error fetching notification:", error);
             // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
             Toast.show({
-              type: "info",
-              text1: "Alert",
-              text2: error?.response?.data?.message || "Failed to fetch notifications",
+              type: "info",     
+              text1: error?.response?.data?.message || "Failed to fetch notifications",
             });
           }
         };

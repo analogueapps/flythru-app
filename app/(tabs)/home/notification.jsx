@@ -80,8 +80,7 @@ if (res?.data?.userNotifications) {
         // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: error?.response?.data?.message || "Failed to fetch notifications",
+          text1: error?.response?.data?.message || "Failed to fetch notifications",
         });
       }
         finally {

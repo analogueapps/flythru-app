@@ -88,8 +88,7 @@ const [loading, setLoading] = useState(false);
         // Toast.show("No token found. Please log in.");
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: "Please login to add address",
+          text1: "Please login to add address",
         });
         return;
       }
@@ -108,8 +107,8 @@ const [loading, setLoading] = useState(false);
       // Toast.show(error?.response?.data?.message || "Failed to submit address");
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: error?.response?.data?.message || "Failed to submit address",
+       
+        text1: error?.response?.data?.message || "Failed to submit address",
     })
   }
     finally { 

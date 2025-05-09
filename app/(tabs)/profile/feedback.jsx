@@ -93,8 +93,8 @@ const feedback = () => {
         if (!token) {
           Toast.show({
             type: "info",
-            text1: "Alert",
-            text2: "Please login",
+           
+            text1: "Please login",
           }
           ); 
           return;
@@ -114,8 +114,8 @@ const feedback = () => {
         setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: error?.response?.data?.message || "Failed to submit feedback",
+       
+          text1: error?.response?.data?.message || "Failed to submit feedback",
         });
       }
       finally {

@@ -49,8 +49,7 @@ const cancellation = () => {
     if (!token) {
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Please login",
+        text1: "Please login",
       });
       return;
     }

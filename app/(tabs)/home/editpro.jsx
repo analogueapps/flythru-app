@@ -92,8 +92,7 @@ const editpro = () => {
       if (!token) {
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: "Please login again",
+          text1: "Please login again",
         });
         return;
       }
@@ -116,8 +115,7 @@ const editpro = () => {
       console.log("Error fetching profile:", error);
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Failed to load profile data",
+        text1: "Failed to load profile data",
       });
     }
   };
@@ -153,8 +151,7 @@ const editpro = () => {
       console.log("Error updating profile:", error?.response);
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: error.response?.data?.message || "Failed to update profile",
+        text1: error.response?.data?.message || "Failed to update profile",
       });
     } finally {
       setLoading(false);

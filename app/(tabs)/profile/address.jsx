@@ -30,8 +30,8 @@ const Address = () => {
       // Toast.show("No token found. Please log in.");
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Please login to add address",
+       
+        text1: "Please login to add address",
       });
       return;
     }
@@ -60,8 +60,8 @@ const Address = () => {
     if (!addressId) {
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Invalid address ID",
+     
+        text1: "Invalid address ID",
       });
       return;
     }
@@ -72,8 +72,8 @@ const Address = () => {
     if (!token) {
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Please login to add address",
+   
+        text1: "Please login to add address",
       });
       return;
     }
@@ -95,8 +95,8 @@ const Address = () => {
       Toast.show("Failed to delete address");
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: error?.response?.data?.message || "Failed to delete address",
+  
+        text1: error?.response?.data?.message || "Failed to delete address",
       });
     }
   };

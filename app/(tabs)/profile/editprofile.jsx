@@ -109,8 +109,8 @@ const editprofile = () => {
       
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: "Please login",
+      
+          text1: "Please login",
         });
         setInitialLoading(false); // 👈 prevent loader from hanging
         return;
@@ -136,8 +136,8 @@ const editprofile = () => {
       console.log("Error fetching profile:", error);
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Failed to load profile data",
+  
+        text1: "Failed to load profile data",
       });
     } 
     finally {
@@ -151,8 +151,8 @@ const editprofile = () => {
     if (!token) {
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Failed to load profile data",
+     
+        text1: "Failed to load profile data",
       });
       return;
     }
@@ -177,8 +177,8 @@ const editprofile = () => {
       console.log("Error updating profile:", error?.response);
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: error.response?.data?.message || "Failed to update profile",
+    
+        text1: error.response?.data?.message || "Failed to update profile",
       });
     } finally {
       setLoading(false);

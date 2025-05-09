@@ -616,7 +616,7 @@ const Index = () => {
                       />
                     </Animated.View>
                   ) : (
-                    <Text className="text-center  text-[#08203C] font-bold text-lg" style={{ fontFamily: "Lato" }}>
+                    <Text className="text-center  text-[#164F90] font-bold text-lg" style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng"
                         ? Translations.eng.log_in
                         : Translations.arb.log_in}
@@ -763,7 +763,7 @@ const Index = () => {
                       />
                     </Animated.View>
                   ) : (
-                    <Text className="text-[#08203C] font-bold text-lg"  style={{ fontFamily: "Lato" }}>
+                    <Text className="text-[#164F90] font-bold text-lg "  style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng"
                         ? Translations.eng.sign_up
                         : Translations.arb.sign_up}

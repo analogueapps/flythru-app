@@ -181,8 +181,7 @@ useEffect(() => {
         // Toast.show("No token found. Please log in.");
         Toast.show({
           type: "info",
-          text1: "Alert",
-          text2: "Please login again",
+          text1: "Please login again",
         });
         return;
       }
@@ -266,8 +265,7 @@ useEffect(() => {
       // Toast.show("No token found. Please log in.");
       Toast.show({
         type: "info",
-        text1: "Alert",
-        text2: "Please login again",
+        text1: "Please login again",
       });
       return;
     }
