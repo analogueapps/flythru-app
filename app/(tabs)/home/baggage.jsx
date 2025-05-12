@@ -6,6 +6,7 @@ import {
   ScrollView,
   Dimensions,
   TextInput,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -298,7 +299,7 @@ const baggage = () => {
       <View>
         <Image
           source={images.HeaderImg2}
-          className="w-full h-auto relative"
+          className={`w-full ${Platform.OS==="android"?"h-auto":"h-[250px]"} relative`}
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -380,7 +381,7 @@ const baggage = () => {
         </View>
       </View>
       <View
-        className="bg-white self-center absolute top-[170px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
+        className="bg-white self-center absolute top-[190px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
         style={{
           maxHeight: "79%",
         }}

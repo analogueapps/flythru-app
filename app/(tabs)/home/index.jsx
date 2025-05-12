@@ -7,6 +7,7 @@ import {
   TextInput,
   Linking,
   Platform,
+  Modal,
 } from "react-native";
 import * as Calendarpicker from "expo-calendar";
 import React, { useCallback, useEffect, useState } from "react";
@@ -52,7 +53,7 @@ const Index = () => {
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
   const {loadToken}=useAuth()
-
+  // const [showDatePicker,setshowDatePicker]
   // Swap function
   const handleSwap = () => {
     const temp = fromValue;
@@ -236,7 +237,7 @@ const Index = () => {
           <Bell color="black" size={18} />
         </TouchableOpacity>
       </View>
-      <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg">
+      <View className={`bg-white self-center absolute ${Platform.OS==="android"?"top-36":"top-44"} z-10  p-6 rounded-2xl w-[90%] shadow-lg`}>
         <TouchableOpacity
           onPress={() => {
             setShowDatePicker(true);
@@ -271,15 +272,58 @@ const Index = () => {
           </Text>
         )}
 
-        {showDatePicker && (
+        {showDatePicker  &&(
           <DateTimePicker
             value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
             mode="date"
-            display="default"
+            display={Platform.OS==="android"?"default":"spinner"}
             onChange={handleDateChange}
             minimumDate={new Date()}
           />
         )}
+{/* {Platform.OS === "ios" && (
+  <Modal
+    transparent={true}
+    animationType="slide"
+    visible={showDatePicker}
+    onRequestClose={() => setShowDatePicker(false)}
+  >
+    <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.5)" }}>
+      <View style={{ backgroundColor: "white", padding: 16 }}>
+       <DateTimePicker
+  value={selectedDate ? new Date(selectedDate) : new Date()}
+  mode="date"
+  display="spinner"
+  onChange={(event, date) => {
+    if (event.type === "set" && date) {
+      const today = new Date();
+      const selected = new Date(date);
+
+      // Remove time from both dates for accurate day comparison
+      today.setHours(0, 0, 0, 0);
+      selected.setHours(0, 0, 0, 0);
+
+      if (selected < today) {
+        Toast.show({
+          type: 'error',
+          text1: 'Invalid Date',
+          text2: 'Please select a future date.',
+        });
+        return; // Don't close or set the date
+      }
+
+      handleDateChange(event, selected); // your own handler
+      setShowDatePicker(false);
+    }
+  }}
+  minimumDate={new Date()} // optional if you want to prevent past dates entirely
+/>
+
+      </View>
+    </View>
+  </Modal>
+)} */}
+
 
         <TextInput
           maxLength={6}
@@ -316,12 +360,12 @@ const Index = () => {
           placeholderTextColor="#2D2A29"
         />
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="z-[100] absolute right-10 top-[203px]"
           onPress={handleSwap}
         >
           <Fromto size={20} color="#6B7280" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TextInput
           placeholder={

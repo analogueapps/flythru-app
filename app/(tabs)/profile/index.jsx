@@ -11,6 +11,7 @@ import {
   TextInput,
   ActivityIndicator,
   Linking,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -373,7 +374,7 @@ const index = () => {
         ref={drefRBSheet}
         closeOnDragDown={true}
         closeOnPressMask={true}
-        height={Dimensions.get("window").height / 1.35}
+        height={Platform.OS==="android"?Dimensions.get("window").height / 1.35:Dimensions.get("window").height / 1.65}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -550,6 +551,8 @@ const index = () => {
               </Text>
 
               <TextInput
+              style={{ height: 170 }}
+                multiline={true}
                 numberOfLines={7}
                 onChangeText={(text) => {
                   // If user types manually, deselect radio
