@@ -433,20 +433,18 @@ const index = () => {
                   setSelectedRadioReason(value);
 
                   const reasonMap = {
-                    1: Translations.eng.reason_service_not_good,
-                    2: Translations.eng.reason_no_proper_customer_care,
-                    3: Translations.eng.reason_driver_rude,
-                    4: Translations.eng.reason_poor_experience,
+                    1: Translations.eng. reason_I_no_longer_need_this_service_or_app,
+                    2: Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues,
+                   
                   };
 
                   const selectedReason =
                     applanguage === "eng"
                       ? reasonMap[value]
                       : {
-                          1: Translations.arb.reason_service_not_good,
-                          2: Translations.arb.reason_no_proper_customer_care,
-                          3: Translations.arb.reason_driver_rude,
-                          4: Translations.arb.reason_poor_experience,
+                          1: Translations.arb. reason_I_no_longer_need_this_service_or_app,
+                          2: Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues,
+                         
                         }[value];
 
                   // ✅ Set in Formik but don't show in the input
@@ -469,8 +467,8 @@ const index = () => {
                       }}
                     >
                       {applanguage === "eng"
-                        ? Translations.eng.reason_service_not_good
-                        : Translations.arb.reason_service_not_good}
+                        ? Translations.eng. reason_I_no_longer_need_this_service_or_app
+                        : Translations.arb. reason_I_no_longer_need_this_service_or_app}
                     </Text>
                   }
                 />
@@ -493,14 +491,14 @@ const index = () => {
                         }}
                       >
                         {applanguage === "eng"
-                          ? Translations.eng.reason_no_proper_customer_care
-                          : Translations.arb.reason_no_proper_customer_care}
+                          ? Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues
+                          : Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues}
                       </Text>
                     </View>
                   }
                 />
 
-                <View className="h-3"></View>
+                {/* <View className="h-3"></View>
 
                 <RadioButtonItem
                   value="3"
@@ -539,7 +537,7 @@ const index = () => {
                         : Translations.arb.reason_poor_experience}
                     </Text>
                   }
-                />
+                /> */}
               </RadioButtonGroup>
             </View>
 
@@ -742,7 +740,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/chat")}
           >
@@ -755,7 +753,7 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
@@ -817,7 +815,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/cancellationpolicy")}
           >
@@ -830,9 +828,9 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/refundpolicy")}
           >
@@ -845,7 +843,7 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           {isLoggedIn && (
             <TouchableOpacity

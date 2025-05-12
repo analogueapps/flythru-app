@@ -152,6 +152,8 @@ const Index = () => {
     initialValues: {
       departureDate: "",
       flightNumber: "",
+      from:'kwi',
+      to:''
     },
     validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
@@ -215,9 +217,10 @@ const Index = () => {
         }}
         className="flex-row justify-between items-center p-6 absolute w-full"
       >
+        <View></View>
         <Image
           source={images.whiteLogo}
-          className="w-[100px] h-[30px]"
+          className="w-[100px] h-[30px] ms-3"
           resizeMode="contain"
         />
         <TouchableOpacity
@@ -293,11 +296,11 @@ const Index = () => {
           placeholderTextColor="#2D2A29"
         />
 
-        {formik.touched.flightNumber && formik.errors.flightNumber && (
+        {/* {formik.touched.flightNumber && formik.errors.flightNumber && (
           <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
             {formik.errors.flightNumber}
           </Text>
-        )}
+        )} */}
 
         <TextInput
           placeholder={
@@ -305,9 +308,11 @@ const Index = () => {
               ? Translations.eng.from
               : Translations.arb.from
           }
-          value={fromValue}
-          onChangeText={(text) => setFromValue(text)}
-          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
+          value={formik.values.from}
+          readOnly
+          // value={fromValue}
+          // onChangeText={(text) => setFromValue(text)}
+          className="border h-[50px] border-gray-300 my-2 rounded-xl text-black px-4 py-3 bg-gray-50"
           placeholderTextColor="#2D2A29"
         />
 
@@ -322,8 +327,9 @@ const Index = () => {
           placeholder={
             applanguage === "eng" ? Translations.eng.to : Translations.arb.to
           }
-          value={toValue}
-          onChangeText={(text) => setToValue(text)}
+          value={formik.values.to}
+          // value={toValue}
+          // onChangeText={(text) => setToValue(text)}
           className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
           placeholderTextColor="#2D2A29"
         />
@@ -360,7 +366,7 @@ const Index = () => {
             shadowRadius: 3.84,
           }}
         >
-          <Text className="text-center text-black font-bold text-base"  style={{ fontFamily: "Lato" }}>
+          <Text className="text-center text-[#164E8D] font-bold text-base"  style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.search
               : Translations.arb.search}

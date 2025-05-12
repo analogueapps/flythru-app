@@ -467,7 +467,7 @@ const Index = () => {
           />
 
           {/* Tab Headers */}
-          <View className="flex-row mx-8 relative rounded-full my-4 bg-blue-400">
+          {/* <View className="flex-row mx-8 relative rounded-full my-4 bg-blue-400">
             <Animated.View
               style={{
                 flex: widthAnim.interpolate({
@@ -512,6 +512,66 @@ const Index = () => {
                     activeTab === "signup" ? "#164E8D" : "#E3F8F9",
                 }}
                 className="items-center py-3 rounded-r-full"
+              >
+                <Text
+                 style={{ fontFamily: "Lato" }}
+                  className={`text-lg font-semibold ${
+                    activeTab === "signup" ? "text-white" : "text-[#164E8D]"
+                  }`}
+                >
+                  {applanguage === "eng"
+                    ? Translations.eng.sign_up
+                    : Translations.arb.sign_up}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          </View> */}
+
+           <View className="flex-row mx-8 relative rounded-full my-4 ">
+            <Animated.View
+              style={{
+                flex: widthAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 1],
+                }),
+              }}
+            >
+              <Pressable
+                onPress={() => animateTab("login")}
+                style={{
+                  backgroundColor:
+                    activeTab === "login" ? "#164E8D" : "rgba(0,0,0,0)",
+                }}
+                className={`items-center py-3 rounded-full border-2 ${activeTab === "signup" ? "border-[#164E8D]" : "border-[#164E8D]"}`}
+              >
+                <Text
+                style={{ fontFamily: "Lato" }}
+                  className={`text-lg font-semibold ${
+                    activeTab === "login" ? "text-white " : "text-[#164E8D]"
+                  }`}
+                >
+                  {applanguage === "eng"
+                    ? Translations.eng.log_in
+                    : Translations.arb.log_in}
+                </Text>
+              </Pressable>
+            </Animated.View>
+            <View className="w-2 " />
+            <Animated.View
+              style={{
+                flex: widthAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 1],
+                }),
+              }}
+            >
+              <Pressable
+                onPress={() => animateTab("signup")}
+                style={{
+                  backgroundColor:
+                    activeTab === "signup" ? "#164E8D" : "rgba(0,0,0,0)",
+                }}
+                className={`items-center py-3 rounded-full border-2 ${activeTab === "signup" ? "border-[#164E8D]" : "border-[#164E8D]"}`}
               >
                 <Text
                  style={{ fontFamily: "Lato" }}

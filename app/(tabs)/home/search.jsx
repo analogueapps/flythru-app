@@ -88,9 +88,9 @@ const Search = () => {
       setLoginChecked(true); // ✅ ensure login state is ready
     };
 
-    useEffect(() => {
-      console.log("yayayayayayaya",departureDate)
-    },[])
+    // useEffect(() => {
+    //   console.log("yayayayayayaya",departureDate)
+    // },[])
     
   
   // useFocusEffect for re-checking when screen gains focus
@@ -153,10 +153,10 @@ const Search = () => {
       const isToday = selectedDate.toDateString() === today.toDateString();
   
       // Debug logs to verify inputs
-      console.log(`LOCAL_URL: ${LOCAL_URL}`);
-      console.log(`Departure Date: ${departureDate}`);
-      console.log(`Flight Number: ${flightNumber}`);
-      console.log(`Is Today: ${isToday}`);
+      // console.log(`LOCAL_URL: ${LOCAL_URL}`);
+      // console.log(`Departure Date: ${departureDate}`);
+      // console.log(`Flight Number: ${flightNumber}`);
+      // console.log(`Is Today: ${isToday}`);
   
       const formatTime = (timeString) => {
         if (!timeString) return "N/A";
@@ -381,7 +381,7 @@ const Search = () => {
 
         {/* Display Date */}
         <View className="flex flex-row gap-x-4 items-center mb-4 mx-auto">
-          <Text className="text-[#696969] text-lg">
+          <Text className="text-[#696969] ">
             {" "}
             {applanguage === "eng"
               ? Translations.eng.date

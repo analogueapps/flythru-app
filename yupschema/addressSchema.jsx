@@ -12,13 +12,13 @@ const addaddresSchema = (applanguage) =>
         3,
         applanguage === "eng"
           ? "Address must be at least 3 characters long"
-          : "يجب أن يتكون العنوان من 5 أحرف على الأقل"
+          : "يجب أن يتكون العنوان من 3 أحرف على الأقل"
       )
       .max(
         50,
         applanguage === "eng"
           ? "Address cannot exceed 50 characters"
-          : "لا يمكن أن يتجاوز العنوان 100 حرف"
+          : "لا يمكن أن يتجاوز العنوان 50 حرف"
       )
       .matches(
         /^(?=.*[a-zA-Z])(?!.*[@#$%^&*()<>])(?!^\d+$)[a-zA-Z0-9\s\/\-.,#]+$/,
@@ -40,10 +40,10 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم المدينة على أحرف، مسافات، شرطات، وعلامات اقتباس فقط"
       )
       .min(
-        5,
+        3,
         applanguage === "eng"
-          ? "City must be at least 5 characters long"
-          : "يجب أن يتكون اسم المدينة من 5 أحرف على الأقل"
+          ? "City must be at least 3 characters long"
+          : "يجب أن يتكون اسم المدينة من 3 أحرف على الأقل"
       )
       .max(
         20,
@@ -65,10 +65,10 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم الولاية على أحرف، مسافات، شرطات، وعلامات اقتباس فقط"
       )
       .min(
-        5,
+        3,
         applanguage === "eng"
-          ? "State must be at least 5 characters long"
-          : "يجب أن يتكون اسم الولاية من 5 أحرف على الأقل"
+          ? "State must be at least 3 characters long"
+          : "يجب أن يتكون اسم الولاية من 3 أحرف على الأقل"
       )
       .max(
         20,
@@ -119,7 +119,7 @@ const addaddresSchema = (applanguage) =>
           : "يمكن أن يحتوي اسم الموقع على أحرف وأرقام ومسافات وشرطات ونقاط وفواصل وعلامات هاش فقط"
       )
       .min(
-        5,
+        2,
         applanguage === "eng"
           ? "Location name must be at least 2 characters long"
           : "يجب أن يتكون اسم الموقع من حرفين على الأقل"

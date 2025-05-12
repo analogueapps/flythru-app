@@ -159,13 +159,14 @@ const [loading, setLoading] = useState(false);
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="w-full flex-col gap-5">
-          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
+         <View>
+         <Text className="mb-2" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.address:Translations.arb.address
               }<Text className="text-red-500">*</Text>
           </Text>
           <TextInput
           maxLength={50}
-            className="bg-white p-3 w-[90%] m-auto rounded-lg"
+            className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
             // onChangeText={formik.handleChange("addressData")}
             onChangeText={(text) => {
               const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
@@ -182,10 +183,12 @@ const [loading, setLoading] = useState(false);
           />
  
           {formik.touched.addressData && formik.errors.addressData && (
-            <Text className="text-red-500 w-[90%]  px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.addressData}</Text>
+            <Text className="text-red-500   px-3" style={{ fontFamily: "Lato" }}>{formik.errors.addressData}</Text>
           )}
+         </View>
 
-          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
+         <View>
+         <Text className="mb-2" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.city:Translations.arb.city
               }<Text className="text-red-500">*</Text>
           </Text>
@@ -195,7 +198,7 @@ const [loading, setLoading] = useState(false);
             const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
             formik.setFieldValue("city", cleanedText);
           }}
-            className="bg-white p-3 w-[90%] m-auto rounded-lg"
+            className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
             // onChangeText={formik.handleChange("city")}
             onBlur={formik.handleBlur("city")}
             value={formik.values.city}
@@ -208,10 +211,12 @@ const [loading, setLoading] = useState(false);
           />
 
           {formik.touched.city && formik.errors.city && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.city}</Text>
+            <Text className="text-red-500  px-3" style={{ fontFamily: "Lato" }}>{formik.errors.city}</Text>
           )}
+         </View>
 
-          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
+         <View>
+         <Text className="mb-2" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.state:Translations.arb.state
               }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
           </Text>
@@ -221,7 +226,7 @@ const [loading, setLoading] = useState(false);
             formik.setFieldValue("state", cleanedText);
           }}
           maxLength={20}
-            className="bg-white p-3 w-[90%] m-auto rounded-lg"
+            className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
             // onChangeText={formik.handleChange("state")}
             onBlur={formik.handleBlur("state")}
             value={formik.values.state}
@@ -233,17 +238,19 @@ const [loading, setLoading] = useState(false);
             }          />
 
           {formik.touched.state && formik.errors.state && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto" style={{ fontFamily: "Lato" }}>{formik.errors.state}</Text>
+            <Text className="text-red-500  px-3" style={{ fontFamily: "Lato" }}>{formik.errors.state}</Text>
           )}
+         </View>
 
-          <Text className="w-[90%] m-auto" style={{ fontFamily: "Lato" }}>
+         <View>
+         <Text className="mb-2" style={{ fontFamily: "Lato" }}>
           {applanguage==="eng"?Translations.eng.postal_code:Translations.arb.postal_code
               }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
           </Text>
           <TextInput
           maxLength={5}
           keyboardType="number-pad"
-            className="bg-white p-3 w-[90%] m-auto rounded-lg"
+            className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
             onChangeText={formik.handleChange("postalCode")}
             onBlur={formik.handleBlur("postalCode")}
             value={formik.values.postalCode.trim()}
@@ -255,18 +262,19 @@ const [loading, setLoading] = useState(false);
             }          />
 
           {formik.touched.postalCode && formik.errors.postalCode && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.postalCode}</Text>
+            <Text className="text-red-500  px-3">{formik.errors.postalCode}</Text>
           )}
+         </View>
 
-          <Text className="w-[90%] m-auto">{applanguage==="eng"?Translations.eng.location_name:Translations.arb.location_name
-              }</Text>
+          <View>
+          <Text className="mb-2">{applanguage==="eng"?Translations.eng.location_name:Translations.arb.location_name}</Text>
           <TextInput
           maxLength={50}
           onChangeText={(text) => {
             const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
             formik.setFieldValue("locationName", cleanedText);
           }}
-            className="bg-white p-3 w-[90%] m-auto rounded-lg"
+            className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
             // onChangeText={formik.handleChange("locationName")}
             onBlur={formik.handleBlur("locationName")}
             value={formik.values.locationName}
@@ -278,8 +286,9 @@ const [loading, setLoading] = useState(false);
             }          />
 
           {formik.touched.locationName && formik.errors.locationName && (
-            <Text className="text-red-500 w-[90%] px-3 m-auto">{formik.errors.locationName}</Text>
+            <Text className="text-red-500  px-3">{formik.errors.locationName}</Text>
           )}
+          </View>
         </View>
       </ScrollView>
       <TouchableOpacity

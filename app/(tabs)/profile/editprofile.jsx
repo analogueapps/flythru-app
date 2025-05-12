@@ -27,11 +27,14 @@ import editprofileSchema from "../../../yupschema/editProfileSchema";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
+import { Alert } from 'react-native';
+import CustomAlert from "../../../components/PopupModel";
 
 const editprofile = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
   const [loading, setLoading] = useState(false);
+const [alertShow,setAlertShow] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true); // 👈 for page loader
 
   const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
@@ -93,7 +96,6 @@ const editprofile = () => {
     setInitialLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
-      console.log("Token:", token);
       
       if (!token) {
         // Clear form values
@@ -106,14 +108,20 @@ const editprofile = () => {
         // Clear context values
         await SaveName("");
         await SavePhone("");
+        setAlertShow(true)
+        // Alert.alert(
+        //   'My Title',
+        //   'This is my message.',
+        //   [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+        //   { cancelable: true }
+        // );
+        // Toast.show({
+        //   type: "info",
       
-        Toast.show({
-          type: "info",
-      
-          text1: "Please login",
-        });
+        //   text1: "Please login",
+        // });
         setInitialLoading(false); // 👈 prevent loader from hanging
-        return;
+        return ;
       }
       
 
@@ -196,6 +204,7 @@ const editprofile = () => {
 
   return (
     <View className="flex-1">
+      <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={()=> {router.push('/(auth)'); setAlertShow(false)}}/>
       {/* Header Background Image */}
       <View>
         <Image

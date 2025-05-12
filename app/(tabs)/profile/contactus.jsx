@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import mail from "../../../assets/images/mail.png";
 import call from "../../../assets/images/callicon2.png";
 import whatsapp from "../../../assets/images/whatsapp.png";
@@ -17,6 +17,8 @@ import Call from "../../../assets/svgs/call";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Chat from "../../../assets/svgs/chat2";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const ContactUs = () => {
   const insets = useSafeAreaInsets();
@@ -24,7 +26,7 @@ const ContactUs = () => {
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const { applanguage } = langaugeContext()
-
+  const router = useRouter();
 
   const fetchContacts = async () => {
     try {
@@ -45,28 +47,28 @@ const ContactUs = () => {
     fetchContacts();
   }, []);
 
-  
+
   const handleEmailPress = () => {
     if (email) {
-      Linking.openURL(`mailto:${email}`).catch((err) => 
+      Linking.openURL(`mailto:${email}`).catch((err) =>
         console.log("Error opening email:", err)
       );
     }
   };
 
-  
+
   const handleWhatsappPress = () => {
     if (whatsappNumber) {
-      Linking.openURL(`whatsapp://send?phone=${whatsappNumber}`).catch((err) => 
+      Linking.openURL(`whatsapp://send?phone=${whatsappNumber}`).catch((err) =>
         console.log("Error opening WhatsApp:", err)
       );
     }
   };
 
-  
+
   const handleCallPress = () => {
     if (contactNumber) {
-      Linking.openURL(`tel:${contactNumber}`).catch((err) => 
+      Linking.openURL(`tel:${contactNumber}`).catch((err) =>
         console.log("Error opening dialer:", err)
       );
     }
@@ -102,8 +104,8 @@ const ContactUs = () => {
             className="text-[18px] text-white ml-3"
             style={{ fontFamily: "CenturyGothic" }}
           >
-           {applanguage==="eng"?Translations.eng.contact_us:Translations.arb.contact_us
-              }
+            {applanguage === "eng" ? Translations.eng.contact_us : Translations.arb.contact_us
+            }
           </Text>
         </View>
       </View>
@@ -111,7 +113,7 @@ const ContactUs = () => {
       {/* Scrollable Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         {/* Email */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="flex-row justify-between items-center py-6"
           onPress={handleEmailPress}
         >
@@ -120,47 +122,63 @@ const ContactUs = () => {
 
             {/* <Mail/> */}
             <View className="w-12 h-12 m-auto  flex justify-center items-center ">
-  {/* <Mail width={26} height={26}  className="w-max m-auto"/> */}
-  <AntDesign name="mail" size={24} color="black" />
-</View>
+              {/* <Mail width={26} height={26}  className="w-max m-auto"/> */}
+              <AntDesign name="mail" size={24} color="black" />
+            </View>
 
 
-            <Text className="text-[#515151] text-xl"  style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.send_mail:Translations.arb.send_mail
-              }</Text>
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage === "eng" ? Translations.eng.send_mail : Translations.arb.send_mail
+            }</Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>
 
         {/* WhatsApp */}
-        <TouchableOpacity 
+        <TouchableOpacity
           className="flex-row justify-between items-center py-6"
           onPress={handleWhatsappPress}
         >
           <View className="flex-row items-center gap-4">
             {/* <Image source={whatsapp} className="h-8 w-8" resizeMode="contain" /> */}
             <View className="w-12 h-12 m-auto  flex justify-center items-center ">
-  {/* <Whatsappicon width={26} height={26}/> */}
-  <FontAwesome name="whatsapp" size={24} color="black" />
-</View>
-            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.chat_in_whatsapp:Translations.arb.chat_in_whatsapp
-              }</Text>
+              {/* <Whatsappicon width={26} height={26}/> */}
+              <FontAwesome name="whatsapp" size={24} color="black" />
+            </View>
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage === "eng" ? Translations.eng.chat_in_whatsapp : Translations.arb.chat_in_whatsapp
+            }</Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>
 
         {/* Call */}
-        <TouchableOpacity 
+        {/* <TouchableOpacity
           className="flex-row justify-between items-center py-6"
           onPress={handleCallPress}
         >
           <View className="flex-row items-center gap-4">
-            {/* <Image source={call} className="h-8 w-8" resizeMode="contain" /> */}
             <View className="w-12 h-12 m-auto  flex justify-center items-center ">
-  {/* <Call  width={26} height={26}/> */}
-  <Ionicons name="call-outline" size={24} color="black" />
-</View>
-            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.call:Translations.arb.call
-              }</Text>
+              <Ionicons name="call-outline" size={24} color="black" />
+            </View>
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>{applanguage === "eng" ? Translations.eng.call : Translations.arb.call
+            }</Text>
+          </View>
+          <Rightarrow />
+        </TouchableOpacity> */}
+
+        {/* Chat With Support Team */}
+        <TouchableOpacity
+          className="flex-row justify-between items-center py-6"
+          onPress={() => router.push("/profile/chat")}
+        >
+          <View className="flex-row gap-4 items-center">
+            <View className="w-12 h-12 m-auto  flex justify-center items-center ">
+              <MaterialCommunityIcons name="message-text-outline" size={24} color="black" />
+            </View>
+            <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+              {applanguage === "eng"
+                ? Translations.eng.chat_with_support
+                : Translations.arb.chat_with_support}
+            </Text>
           </View>
           <Rightarrow />
         </TouchableOpacity>

@@ -168,10 +168,13 @@ const Address = () => {
     <ActivityIndicator size="large" color="#164F90" />
   </View>
 ) : (
-  <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-    <TouchableOpacity onPress={() => router.push("/profile/addaddress")}>
-      <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
+  <ScrollView className="flex-1" contentContainerStyle={{ paddingVertical: 15 }}>
+    <TouchableOpacity className="mb-2" onPress={() => router.push("/profile/addaddress")}>
+      {/* <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
         {applanguage === "eng" ? Translations.eng.add : Translations.arb.add} +
+      </Text> */}
+      <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
+        {applanguage === "eng" ? Translations.eng.addnewAddress : Translations.arb.addnewAddress}
       </Text>
     </TouchableOpacity>
 

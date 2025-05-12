@@ -6,12 +6,17 @@ export const baggageSchema = (applanguage) =>
       applanguage === "eng"
         ? "Number of persons is required"
         : "عدد الأشخاص مطلوب"
-    ),
+    ).min(1, applanguage === "eng"
+        ? "Minimum person count should be 1"
+        :"يجب أن يكون الحد الأدنى لعدد الأشخاص 1"
+),
     baggageCount: Yup.number().required(
       applanguage === "eng"
         ? "Number of bags is required"
         : "عدد الحقائب مطلوب"
-    ),
+    ).min(1, applanguage === "eng"
+        ? "Minimum baggage count should be 1"
+        : "يجب أن يكون الحد الأدنى لعدد الحقائب 1"),
     baggagePictures: Yup.array()
       .of(Yup.string())
       // .min(

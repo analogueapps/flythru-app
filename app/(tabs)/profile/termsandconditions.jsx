@@ -14,6 +14,9 @@ import TranslateText from "../../../network/translate";
 const TermsAndConditions = () => {
   const insets = useSafeAreaInsets();
   const [termsContent, setTermsContent] = useState("");
+  const [cancellationContent, setCancellationContent] = useState("");
+  const [refundContent, setRefundContent] = useState("");
+
   const { applanguage } = langaugeContext();
 
   function splitTextIntoChunks(text, chunkSize = 4500) {
@@ -49,6 +52,49 @@ const TermsAndConditions = () => {
         } else {
           console.log("Terms not available");
           setTermsContent("<p>No terms available.</p>");
+        }
+
+        if (settings?.refundPolicy) {
+          // ✅ Replace newlines with HTML breaks
+          const formattedContent = settings.refundPolicy.replace(
+            /\r\n|\n/g,
+            // "<br>"
+          );
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(formattedContent);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setRefundContent(finalHtml);
+          } else {
+            setRefundContent(formattedContent);
+          }
+
+        } else {
+          console.log("Refund policy not available");
+          setRefundContent("<p>No refund policy available.</p>");
+        }
+
+        if (settings?.cancellationPolicy) {
+          const formattedContent = settings.cancellationPolicy.replace(
+            /\r\n|\n/g,
+            "<br>"
+          );
+          if (applanguage !== "eng") {
+            const chunks = splitTextIntoChunks(formattedContent);
+            const translatedChunks = await Promise.all(
+              chunks.map((chunk) => TranslateText(chunk, "ar"))
+            );
+            finalHtml = translatedChunks.join("");
+            setCancellationContent(finalHtml);
+          } else {
+            setCancellationContent(formattedContent);
+          }
+
+        } else {
+          console.log("Cancellation policy not available");
+          setCancellationContent("<p>No cancellation policy available.</p>");
         }
       } else {
         console.log("Unexpected response format:", res.data);
@@ -103,6 +149,7 @@ const TermsAndConditions = () => {
 
       {/* Terms and Conditions Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+        <Text  className="text-[19px] mb-1 font-semibold">{applanguage==="arb"?Translations.arb.terms_and_conditions:Translations.eng.terms_and_conditions}</Text>
         {termsContent ? (
           <RenderHTML
             contentWidth={350}
@@ -117,6 +164,32 @@ const TermsAndConditions = () => {
           </Text>
         )}
 
+        <Text  className="text-[19px] mb-1 font-semibold">{applanguage==="arb"?Translations.arb.cancellation_policy:Translations.eng.cancellation_policy}</Text>
+
+{cancellationContent ? (
+          <RenderHTML
+            contentWidth={350}
+            source={{ html: cancellationContent }}
+            enableExperimentalMarginCollapsing={true}
+          />
+        ) : (
+          <Text className="text-[15px] font-thin" style={{ fontFamily: "Lato" }}>
+  {applanguage==="eng"?Translations.eng.cancellation_policy:Translations.arb.cancellation_policy
+              }          </Text>
+            )}
+
+<Text className="text-[19px] mb-3 font-semibold">{applanguage==="arb"?Translations.arb.refund_policy:Translations.eng.refund_policy}  </Text>
+            {refundContent ? (
+                     <RenderHTML
+                       contentWidth={350}
+                       source={{ html: refundContent }}
+                       enableExperimentalMarginCollapsing={true}
+                     />
+                   ) : (
+                     <Text className="text-[15px] font-thin" style={{ fontFamily: "Lato" }}>
+           {applanguage==="eng"?Translations.eng.loading_refund_policy:Translations.arb.loading_refund_policy
+                         }          </Text>
+                   )}
         <View className="flex justify-center ">
           <Image
             source={logo}
