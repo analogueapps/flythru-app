@@ -3,7 +3,9 @@ import { InteractionManager } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import flash from "../assets/images/flash.png";
+// import flash from "../assets/images/flash.png";
+import logo from '../assets/images/mainLogo.png'
+import flash from "../assets/flash.gif";
 import { NetworkContext } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
 import { FirebaseApp, initializeApp } from '@react-native-firebase/app';
@@ -50,6 +52,11 @@ export default function Index() {
   if (showFlash) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
+        <Image
+          source={logo}
+          className="w-60 self-center"
+          resizeMode="contain"
+        />
         <Image
           source={flash}
           style={{ width: width * 0.9, height: width * 0.9 }}

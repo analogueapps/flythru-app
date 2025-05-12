@@ -24,7 +24,6 @@ const Address = () => {
   const fetchAddress = async () => {
     setLoading(true);
     const token = await AsyncStorage.getItem('authToken');
-    console.log("Token:", token);
   
     if (!token) {
       // Toast.show("No token found. Please log in.");
@@ -126,6 +125,7 @@ const Address = () => {
   );
   
 
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -169,14 +169,23 @@ const Address = () => {
   </View>
 ) : (
   <ScrollView className="flex-1" contentContainerStyle={{ paddingVertical: 15 }}>
-    <TouchableOpacity className="mb-2" onPress={() => router.push("/profile/addaddress")}>
       {/* <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
         {applanguage === "eng" ? Translations.eng.add : Translations.arb.add} +
-      </Text> */}
-      <Text className="text-[#164F90] font-bold text-right mx-5"style={{ fontFamily: "Lato" }}>
+        </Text> */}
+      <View className="flex flex-row justify-end">
+        <TouchableOpacity  style={{
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }} className="mb-2" onPress={() => router.push("/profile/addaddress")}>
+
+      <Text  className="text-[#164F90] bg-[#194F901A] font-bold text-right p-2 rounded-md  mx-5"style={{ fontFamily: "Lato" }}>
         {applanguage === "eng" ? Translations.eng.addnewAddress : Translations.arb.addnewAddress}
       </Text>
     </TouchableOpacity>
+      </View>
 
     {addresses.length > 0 ? (
       addresses.map((address, index) => (
@@ -184,10 +193,14 @@ const Address = () => {
           <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
             <View>
               <Text className="text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>Home</Text>
-              <Text className="w-72" style={{ fontFamily: "Lato" }}>{address.addressData}</Text>
+              <Text className="w-72" style={{ fontFamily: "Lato" }}>{address.addressName}</Text>
             </View>
-            <TouchableOpacity onPress={() => address.id && handleDelete(address.id)}>
+            {/* <TouchableOpacity onPress={() => address.id && handleDelete(address.id)}>
               <AntDesign name="delete" size={19} color="red" />
+            </TouchableOpacity> */}
+            <TouchableOpacity onPress={() => router.push({pathname:"/profile/updateaddress", params: address})}>
+              {/* <AntDesign name="delete" size={19} color="red" /> */}
+              <AntDesign name="edit" size={19} color="black" />
             </TouchableOpacity>
           </View>
         </View>

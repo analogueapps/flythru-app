@@ -9,6 +9,7 @@ import {
   Easing,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -16,11 +17,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg";
 import { Calendar } from "lucide-react-native";
 import Send from "../../../assets/svgs/send";
-import { ADD_ADDRESS } from "../../../network/apiCallers";
+import { ADD_ADDRESS, DELETE_ADDRESS, UPDATE_ADDRESS } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Translations from "../../../language";
@@ -28,15 +29,18 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import addaddresSchema from "../../../yupschema/addressSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
+import { AntDesign } from "@expo/vector-icons";
 
 
-const addaddress = () => {
+const updateaddress = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext()
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
   const translateX = useRef(new Animated.Value(0)).current;
-
+  const paramAddressData = useLocalSearchParams();
+  console.log(paramAddressData);
 
   const startAnimation = () => {
     translateX.setValue(-40); // Reset position
@@ -65,14 +69,14 @@ const addaddress = () => {
 
   const formik = useFormik({
     initialValues: {
-      addressName: "",
-      area: "",
-      block: "",
-      streetAddress: "",
-      avenue: "",
-      buildingNumber: "",
-      floorNo: "",
-      flatNo: "",
+      addressName: paramAddressData.addressName,
+      area: paramAddressData.area,
+      block: paramAddressData.block,
+      streetAddress: paramAddressData.streetAddress,
+      avenue: paramAddressData.avenue,
+      buildingNumber: paramAddressData.buildingNumber,
+      floorNo: paramAddressData.floorNo,
+      flatNo: paramAddressData.flatNo,
     },
     validationSchema: addaddresSchema(applanguage),
     validateOnChange: true,
@@ -84,8 +88,6 @@ const addaddress = () => {
   });
 
   const handleAddress = async (values) => {
-    console.log(values);
-    
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -97,15 +99,19 @@ const addaddress = () => {
         });
         return;
       }
+console.log('paramAddressData.id',paramAddressData.id);
 
-      const res = await ADD_ADDRESS(values, token);
-      // Toast.show("Address saved successfully");
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Address saved successfully",
-      });
-      router.back();
+      const res = await UPDATE_ADDRESS(values,paramAddressData.id, token);
+      console.log("Address saved successfully", res.data);
+      if(res.data && res.status == 200){
+
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: res.data.message,
+        });
+        router.back();
+      }
     } catch (error) {
       console.log("Error:", error.response);
       // Toast.show(error?.response?.data?.message || "Failed to submit address");
@@ -120,7 +126,65 @@ const addaddress = () => {
     }
   };
 
+  const deleteAddress = async (addressId) => {
+    if (!addressId) {
+      Toast.show({
+        type: "info",
 
+        text1: "Invalid address ID",
+      });
+      return;
+    }
+
+    const token = await AsyncStorage.getItem('authToken');
+    console.log("Token:", token);
+
+    if (!token) {
+      Toast.show({
+        type: "info",
+
+        text1: "Please login to add address",
+      });
+      return;
+    }
+
+    try {
+      await DELETE_ADDRESS(addressId, token);
+
+
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Address deleted",
+      });
+      // router.replace('/profile/address');
+      router.back();
+
+    } catch (error) {
+      console.log(error);
+
+      Toast.show({
+        type: "info",
+
+        text1: error?.response?.data?.message || "Failed to delete address",
+      });
+    }
+  };
+
+  const handleDelete = (addressId) => {
+    Alert.alert(
+      "Delete Address",
+      "Are you sure you want to delete this address?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: () => deleteAddress(addressId),
+          style: "destructive",
+        },
+      ]
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -155,7 +219,7 @@ const addaddress = () => {
                 className="text-[18px] text-white ml-3"
                 style={{ fontFamily: "CenturyGothic" }}
               >
-                {applanguage === "eng" ? Translations.eng.add_address : Translations.arb.add_address
+                {applanguage === "eng" ? Translations.eng.update_address : Translations.arb.update_address
                 }
               </Text>
             </View>
@@ -169,7 +233,7 @@ const addaddress = () => {
                 }<Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                // maxLength={50}
+                maxLength={50}
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 // onChangeText={formik.handleChange("addressName")}
                 onChangeText={(text) => {
@@ -197,7 +261,7 @@ const addaddress = () => {
                 }<Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                // maxLength={20}
+                maxLength={20}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("area", cleanedText);
@@ -229,7 +293,7 @@ const addaddress = () => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("block", cleanedText);
                 }}
-                // maxLength={20}
+                maxLength={20}
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 // onChangeText={formik.handleChange("block")}
                 onBlur={formik.handleBlur("block")}
@@ -252,8 +316,8 @@ const addaddress = () => {
                 }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
               </Text>
               <TextInput
-                // maxLength={5}
-               
+                maxLength={5}
+                keyboardType="number-pad"
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 onChangeText={formik.handleChange("streetAddress")}
                 onBlur={formik.handleBlur("streetAddress")}
@@ -273,7 +337,7 @@ const addaddress = () => {
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                // maxLength={50}
+                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("avenue", cleanedText);
@@ -296,7 +360,7 @@ const addaddress = () => {
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.house_building : Translations.arb.house_building}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                // maxLength={50}
+                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("buildingNumber", cleanedText);
@@ -319,8 +383,7 @@ const addaddress = () => {
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                // maxLength={50}
-                 keyboardType="number-pad"
+                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("floorNo", cleanedText);
@@ -343,8 +406,7 @@ const addaddress = () => {
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                // maxLength={50}
-                 keyboardType="number-pad"
+                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("flatNo", cleanedText);
@@ -364,47 +426,63 @@ const addaddress = () => {
                 <Text className="text-red-500  px-3">{formik.errors.flatNo}</Text>
               )}
             </View>
-          </View>
-        </ScrollView>
-        <TouchableOpacity
-          style={{
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.50,
-            shadowRadius: 3.84,
-          }}
-          className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
-          onPress={() => {
-            formik.handleSubmit()
-          }}
-        >
-          {loading ? (
-            <Animated.View
+           <View className="mt-4 flex flex-row gap-x-3 mb-10">
+             <TouchableOpacity
+                style={{
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }}
+              className="border border-red-600 bg-white rounded-lg h-14 flex-1 max-w-[500px] mx-auto flex items-center justify-center" onPress={() => paramAddressData.id && handleDelete(paramAddressData.id)}>
+              {/* <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.delete : Translations.arb.delete
+          }</Text> */}
+              <AntDesign name="delete" size={19} color="red" />
+            </TouchableOpacity>
+            <TouchableOpacity
               style={{
-                transform: [{ translateX }],
-
-                width: 100,
-                height: 100,
-                alignSelf: "center",
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }}
+              className="bg-[#FFB648] rounded-lg flex-1 max-w-[500px] h-14 mx-auto flex items-center justify-center "
+              onPress={() => {
+                formik.handleSubmit()
               }}
             >
-              <Image
-                source={flightloader}
-                style={{ width: 100, height: 100 }}
-                resizeMode="contain"
+              {loading ? (
+                <Animated.View
+                  style={{
+                    transform: [{ translateX }],
 
-              />
-            </Animated.View>
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
 
-          ) : (
-            <Text className="font-bold text-center text-black " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
-            }</Text>
-          )}
-        </TouchableOpacity>
+                  />
+                </Animated.View>
+
+              ) : (
+                <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
+                }</Text>
+              )}
+            </TouchableOpacity>
+           </View>
+          </View>
+        </ScrollView>
+
       </View>
     </KeyboardAvoidingView>
   );
 };
 
-export default addaddress;
+export default updateaddress;

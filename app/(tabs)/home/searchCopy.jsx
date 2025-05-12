@@ -46,7 +46,7 @@ const Search = () => {
   const [loginChecked, setLoginChecked] = useState(false);
 
 
-  const DashedLine = ({ dashCount = 20, dashColor = '#164F90' }) => (
+  const DashedLine = ({ dashCount = 30, dashColor = '#164F90' }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
         <View
@@ -79,24 +79,11 @@ const Search = () => {
   );
 
 
-  const formatDate = (isoDateStr) => {
-    const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
-
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    const day = date.getDate().toString().padStart(2, '0');       // dd
-    const month = months[date.getMonth()];                        // MMM
-    const year = date.getFullYear();                              // yyyy
-    const weekday = days[date.getDay()];                          // Day
-
-    return `${day} ${month} ${year} ${weekday}`;
-  };
 
 
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("authToken");
+    console.log("Token in checkLoginStatus:", token);
     setIsLoggedIn(!!token);
     setLoginChecked(true); // ✅ ensure login state is ready
   };
@@ -134,8 +121,6 @@ const Search = () => {
   const fetchSingleFlights = async () => {
     try {
       const res = await ALL_FLIGHTS({ flightNumber, departureDate });
-      console.log("resres res res res res res res", res);
-
       if (res?.data?.allFlights) {
         let transformedFlights = res.data.allFlights.map((flight) => ({
           _id: flight._id,
@@ -292,7 +277,8 @@ const Search = () => {
           getAllFlight(), // Now this will properly return the flight data
         ]);
 
-
+        console.log("Special flights from DB:", dbFlights);
+        console.log("Flights from aviation API:", apiFlights); // Will show actual data now
 
         setSpecialflightDatas(dbFlights || []);
         setFlightDatas(apiFlights || []);
@@ -306,22 +292,6 @@ const Search = () => {
 
     fetchAllFlights();
   }, [departureDate, flightNumber]);
-  const getFlightDuration = (departure, arrival) => {
-    const depTime = new Date(departure);
-    const arrTime = new Date(arrival);
-
-    const diffMs = arrTime - depTime; // Difference in milliseconds
-    const diffMins = Math.floor(diffMs / 60000); // Convert to total minutes
-
-    const hours = Math.floor(diffMins / 60);
-    const minutes = diffMins % 60;
-
-    let result = '';
-    if (hours > 0) result += `${hours} hour${hours > 1 ? 's' : ''} `;
-    if (minutes > 0) result += `${minutes} minute${minutes > 1 ? 's' : ''}`;
-
-    return result.trim() || '0 minutes';
-  };
 
 
   return (
@@ -543,10 +513,8 @@ const Search = () => {
         ) : (specialflightDatas.length || flightDatas.length) ? (
           <>
             {/* Special Flights */}
-            {specialflightDatas.map((flight, index) => {
-              console.log("flight flight", flight);
-
-              return <TouchableOpacity
+            {specialflightDatas.map((flight, index) => (
+              <TouchableOpacity
                 key={`special-${index}`}
                 // onPress={() => {
                 //   if (!loginChecked) return;
@@ -561,7 +529,7 @@ const Search = () => {
                 //   }
                 // }}
                 onPress={() => {
-
+              
                   if (isLoggedIn) {
                     console.log("Navigating to baggage...");
                     router.push({
@@ -572,7 +540,7 @@ const Search = () => {
                       },
                     });
                   } else {
-
+                  
                     setShowLoginPopup(true);
                   }
                 }}
@@ -580,33 +548,43 @@ const Search = () => {
                 className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
               >
                 {/* Flight Header */}
+                <View className="flex-row items-center py-6 px-4">
+                  {/* <TempAirWaysLogo /> */}
 
+
+                  <View className="w-10 h-10 rounded-full border-[1px] border-[#164F90] justify-center items-center">
+                    <Image
+                      source={flightlogo} className="h-10" resizeMode="contain"
+                    />
+                  </View>
+
+                  <View className="ml-2 flex flex-col items-start">
+                    <Text className="text-gray-600">{flight.airline?.name || "Unknown Airline"}</Text>
+                    <Text className="text-[#164F90] text-lg font-bold">{flight.flight?.number || "N/A"}</Text>
+                  </View>
+                </View>
 
                 {/* Divider */}
                 {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
 
-
+                <View className="w-full px-2">
+                  <DashedLine2 />
+                </View>
 
 
                 {/* Flight Details */}
-                <View className="flex-row justify-between items-center py-6 px-5" style={{ fontFamily: 'lato' }}>
+                <View className="flex-row justify-between items-center py-6 px-5">
                   {/* Departure */}
-                  <View className="items-start w-24 ">
-                    <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold text-center text-[13px] ">
-                      {flight.departure?.airport.toUpperCase() || "N/A"}
-                    </Text>
-                    <Text className="text-[20px]  ">
+                  <View className="items-center">
+                    <Text className="text-2xl font-bold text-[#003C71]">
                       {
                         flight.departure?.scheduled?.includes("T")
                           ? flight.departure.scheduled.split("T")[1].slice(0, 5)
                           : flight.departure?.scheduled || "N/A"
                       }
                     </Text>
-                    <Text className="text-gray-400 text-start text-[13px] ">
-                      {flight.departure?.scheduled?.includes("T")
-                        ? formatDate(flight.departure.scheduled)
-                        : formatDate(flight.departure?.scheduled) || "N/A"}
+                    <Text className="text-gray-500 text-center">
+                      {flight.departure?.airport || "N/A"}
                     </Text>
                   </View>
 
@@ -621,45 +599,33 @@ const Search = () => {
                     </View>
                   </View> */}
 
-                  <View className="flex-1 items-center h-full mt-8" style={{ fontFamily: 'lato' }}>
-                    <Text className="text-[#000000] text-[14px] font-bold">{flight.flight?.number || "N/A"}</Text>
+                  <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
-                      <View className=" relative justify-center">
+                      <View className="flex-1 relative justify-center">
                         <DashedLine />
                         <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
                           <FontAwesome5 name="plane" size={16} color="#164F90" />
                         </View>
                       </View>
                     </View>
-                    <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text>
                   </View>
 
                   {/* Arrival */}
-                  <View className="items-end w-24" style={{ fontFamily: 'lato' }}>
-                    <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold  text-[13px] ">
-                      {flight.arrival?.airport.toUpperCase() || "N/A"}
-                    </Text>
-                    <Text className="text-[20px]  ">
+                  <View className="items-center">
+                    <Text className="text-2xl font-bold text-[#003C71]">
                       {
                         flight.arrival?.scheduled?.includes("T")
                           ? flight.arrival.scheduled.split("T")[1].slice(0, 5)
                           : flight.arrival?.scheduled || "N/A"
                       }
                     </Text>
-                    <View className="">
-                      <Text className="text-gray-400 text-right text-[13px] ">
-                        {
-                          flight.arrival?.scheduled?.includes("T")
-                            ? formatDate(flight.arrival?.scheduled)
-                            : formatDate(flight.arrival?.scheduled) || "N/A"
-                        }
-                      </Text>
-                    </View>
+                    <Text className="text-gray-500 text-center">
+                      {flight.arrival?.airport || "N/A"}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
-            })}
+            ))}
 
             {/* Normal Flights */}
             {flightDatas.map((flight, index) => (

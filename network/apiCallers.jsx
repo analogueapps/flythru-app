@@ -3,7 +3,7 @@ import { BASE_URL, LOCAL_URL, AVIATION_URL, API_KEY } from "./environment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const aviationApi = axios.create({
-  baseURL: BASE_URL,
+  baseURL: LOCAL_URL,
   params: {
     access_key: API_KEY,
   },
@@ -346,8 +346,17 @@ export const FEEDBACK = async (data, token) => {
 };
 
 export const ADD_ADDRESS = async (data, token) => {
-  console.log();
   return await axios.post(`${LOCAL_URL}/user/address`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // 'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+export const UPDATE_ADDRESS = async (data,id, token) => {
+  console.log("data",data,id);
+  
+  return await axios.post(`${LOCAL_URL}/user/update-address/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
       // 'Content-Type': 'multipart/form-data',

@@ -40,6 +40,7 @@ const _layout = () => {
     "/profile/privacypolicy",
     "/profile/cancellationpolicy",
     "/profile/refundpolicy",
+    "/profile/updateaddress"
   ];
 
   // Check if current path is in the hideTabsRoutes list

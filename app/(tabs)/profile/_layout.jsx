@@ -28,6 +28,11 @@ const _layout = () => {
       />
 
       <Stack.Screen
+        name="updateaddress"
+        options={{ gestureEnabled: true, animation: "slide_from_right" }}
+      />
+
+      <Stack.Screen
         name="language"
         options={{ gestureEnabled: true, animation: "slide_from_right" }}
       />
