@@ -85,19 +85,19 @@ const selectlocation = () => {
 
   const [hasVisited, setHasVisited] = useState(false);
 
-useEffect(() => {
-  const checkVisit = async () => {
-    const value = await AsyncStorage.getItem('hasVisitedLocationSheet');
-    if (value !== 'true') {
-      // First time visit
-      locationrefRBSheet.current?.open();
-      await AsyncStorage.setItem('hasVisitedLocationSheet', 'true');
-    }
-    setHasVisited(true); // Mark visited (used if needed elsewhere)
-  };
+  useEffect(() => {
+    const checkVisit = async () => {
+      const value = await AsyncStorage.getItem('hasVisitedLocationSheet');
+      if (value !== 'true') {
+        // First time visit
+        locationrefRBSheet.current?.open();
+        await AsyncStorage.setItem('hasVisitedLocationSheet', 'true');
+      }
+      setHasVisited(true); // Mark visited (used if needed elsewhere)
+    };
 
-  checkVisit();
-}, []);
+    checkVisit();
+  }, []);
 
 
   const translateX = useRef(new Animated.Value(0)).current;
@@ -144,9 +144,8 @@ useEffect(() => {
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
       });
-      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${
-        geo.city || ""
-      }`;
+      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${geo.city || ""
+        }`;
       setAddress(formattedAddress);
       formik.setFieldValue("pickUpLocation", formattedAddress);
     } catch (error) {
@@ -247,12 +246,12 @@ useEffect(() => {
         setShouldOpenSheet(false); // ✅ also reset the open flag
       }
     });
-  
+
     return () => {
       subscription.remove(); // Clean up listener
     };
   }, []);
-  
+
 
   // pament api handler
 
@@ -335,17 +334,17 @@ useEffect(() => {
     try {
       const keys = await AsyncStorage.getAllKeys();
       console.log("All AsyncStorage Keys:", keys); // See if 'user_name' exists
-  
+
       const userName = await AsyncStorage.getItem("user_name");
       console.log("Fetched user_name:", userName); // See actual fetched value
-  
+
       return userName ?? "";
     } catch (error) {
       console.error("Failed to retrieve the user name:", error);
       return "";
     }
   };
-  
+
   useEffect(() => {
     const fetchUserName = async () => {
       const name = await getUserName();
@@ -357,7 +356,7 @@ useEffect(() => {
 
 
 
-  
+
 
   useEffect(() => {
     console.log("pickUpLocation updated:", formik.values.pickUpLocation);
@@ -378,11 +377,11 @@ useEffect(() => {
           },
           draggableIcon: {
             backgroundColor: "#000",
-          }, 
+          },
         }}
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <View className="flex flex-row justify-between items-center my-7 gap-2">
+          <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
             <View className="flex flex-row ">
               {/* <Image
                 source={dp}
@@ -391,49 +390,49 @@ useEffect(() => {
               /> */}
 
               <View>
-                <Text className=" text-3xl font-thin" style={{ fontFamily: "Lato" }}>{userName}</Text>
+                <Text className=" text-[24px] font-thin" style={{ fontFamily: "Lato" }}>{userName}</Text>
                 {/* <Text>Dubai</Text> */}
               </View>
             </View>
 
             <View>
-              <Text className="text-[#164F90] text-2xl font-bold" style={{ fontFamily: "Lato" }}>
+              <Text className="text-[#164F90] text-[18px] font-bold" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.total
                   : Translations.arb.total}{" "}
                 : {price}
               </Text>
-              <Text style={{ fontFamily: "Lato" }}>
+              <Text className="text-[14px]" style={{ fontFamily: "Lato" }}>
                 {pickupdate} {time}{" "}
               </Text>
             </View>
           </View>
 
           <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
-          <Image
-  source={verticalline}
-  className="h-24 mt-3" // add negative margin-top
-  resizeMode="contain"
-/>
+            <Image
+              source={verticalline}
+              className="h-24 mt-3" // add negative margin-top
+              resizeMode="contain"
+            />
 
 
             <View className="flex-col gap-5">
-              <View className="flex-col gap-3">
-                <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>
+              <View className="flex-col gap-1">
+                <Text className="text-[#164F90] text-[18px] font-bold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.pick_up
                     : Translations.arb.pick_up}{" "}
                 </Text>
-                <Text className="text-lg" style={{ fontFamily: "Lato" }}>{pickuploaction}</Text>
+                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>{pickuploaction}</Text>
               </View>
 
-              <View className="flex-col gap-3">
-                <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>
+              <View className="flex-col gap-1">
+                <Text className="text-[#164F90] text-[18px] font-bold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.drop_off
                     : Translations.arb.drop_off}{" "}
                 </Text>
-                <Text className="text-lg" style={{ fontFamily: "Lato" }}>Airport</Text>
+                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>Airport</Text>
               </View>
             </View>
           </View>
@@ -444,10 +443,10 @@ useEffect(() => {
             <SwipeButton
               title="Swipe Right to Book"
               thumbIconBackgroundColor="#FFB648"
-              thumbIconWidth={65}
+              thumbIconWidth={60}
               thumbIconBorderColor="#FFB800"
               thumbIconComponent={() => (
-                <AntDesign name="arrowright" size={24} color="black" />
+                <AntDesign name="arrowright" size={24} color="#164F90" />
               )}
               railBackgroundColor="white"
               railBorderColor="#A6A6A6"
@@ -511,108 +510,106 @@ useEffect(() => {
         </View>
       </View>
       <View className="bg-white self-center absolute top-36 z-10  p-6 rounded-2xl w-[90%] shadow-lg"
-       style={{
-        elevation: 9, // 👈 Android shadow
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.50,
-        shadowRadius: 3.84,
-      }}
+        style={{
+          elevation: 9, // 👈 Android shadow
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.50,
+          shadowRadius: 3.84,
+        }}
       >
-  
 
-<View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
 
-<SelectDropdown
-    data={
-      addresses.length > 0
-        ? addresses
-        : [{ label: "No address found", disabled: true }]
-    }
-    onSelect={(selectedItem, index) => {
-      if (!selectedItem.disabled) {
-        formik.setFieldValue("pickUpLocation", selectedItem.label);
-      }
-    }}
-    buttonStyle={{
-      width: 40,    // 👈 Keep button small so that icon fits
-      height: 30,
-      backgroundColor: "transparent",
-      padding: 0,
-      margin: 0,
-    }}
-    renderButton={(selectedItem, isOpened) => (
-      <TouchableOpacity className="flex-row items-center justify-center">
-        <Icon
-          name={isOpened ? "chevron-up" : "chevron-down"}
-          size={20}
-          color="#6B7280"
-          backgroundColor="#194F901A"
-          className="mr-2 rounded-lg"
-        />
-      </TouchableOpacity>
-    )}
-    renderItem={(item, index, isSelected) => (
-      <View
-        className={`px-4 py-3 w-full ${
-          isSelected ? "bg-gray-200" : "bg-white"
-        }`}
-      >
-        <Text
-          className={`text-base ${
-            item.disabled ? "text-gray-400" : "text-gray-900"
-          }`}
-          style={{ fontFamily: "Lato" }}>
-          {item.label}
-        </Text>
-      </View>
-    )}
-    dropdownOverlayStyle={{
-      // backgroundColor: "transparent",
-      backgroundColor: "#194F901A",
-      justifyContent: "center",
-      alignItems: "center",
-      flex: 1,
-    }}
-    dropdownStyle={{
-      borderRadius: 12,
-      backgroundColor: "#194F901A",
-      borderColor: "#D1D5DB",
-      borderWidth: 1,
-      width: "70%",     // ✅ dropdown is centered with 90% width
-      maxWidth: "70%",
-      alignSelf: "center",
-    }}
-    showsVerticalScrollIndicator={false}
-  />
-  <TextInput
-    placeholder={
-      applanguage === "eng"
-        ? Translations.eng.select_location
-        : Translations.arb.select_location
-    }
-    className="flex-1 h-[30px]"
-    placeholderTextColor="#2D2A29"
-    value={formik.values.pickUpLocation}
-    onChangeText={handleLocationInput}
-  />
+        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
+
+          <SelectDropdown
+            data={
+              addresses.length > 0
+                ? addresses
+                : [{ label: "No address found", disabled: true }]
+            }
+            onSelect={(selectedItem, index) => {
+              if (!selectedItem.disabled) {
+                formik.setFieldValue("pickUpLocation", selectedItem.label);
+              }
+            }}
+            buttonStyle={{
+              width: 40,    // 👈 Keep button small so that icon fits
+              height: 30,
+              backgroundColor: "transparent",
+              padding: 0,
+              margin: 0,
+            }}
+            renderButton={(selectedItem, isOpened) => (
+              <TouchableOpacity className="flex-row items-center justify-center">
+                <Icon
+                  name={isOpened ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#6B7280"
+                  backgroundColor="#194F901A"
+                  className="mr-2 rounded-lg"
+                />
+              </TouchableOpacity>
+            )}
+            renderItem={(item, index, isSelected) => (
+              <View
+                className={`px-4 py-3 w-full ${isSelected ? "bg-gray-200" : "bg-white"
+                  }`}
+              >
+                <Text
+                  className={`text-base ${item.disabled ? "text-gray-400" : "text-gray-900"
+                    }`}
+                  style={{ fontFamily: "Lato" }}>
+                  {item.label}
+                </Text>
+              </View>
+            )}
+            dropdownOverlayStyle={{
+              // backgroundColor: "transparent",
+              backgroundColor: "#194F901A",
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 1,
+            }}
+            dropdownStyle={{
+              borderRadius: 12,
+              backgroundColor: "#194F901A",
+              borderColor: "#D1D5DB",
+              borderWidth: 1,
+              width: "70%",     // ✅ dropdown is centered with 90% width
+              maxWidth: "70%",
+              alignSelf: "center",
+            }}
+            showsVerticalScrollIndicator={false}
+          />
+          <TextInput
+            placeholder={
+              applanguage === "eng"
+                ? Translations.eng.select_location
+                : Translations.arb.select_location
+            }
+            className="flex-1 h-[30px]"
+            placeholderTextColor="#2D2A29"
+            value={formik.values.pickUpLocation}
+            onChangeText={handleLocationInput}
+          />
 
 
 
-  <TouchableOpacity onPress={searchLocation}>
-    <Ionicons
-      name="search-outline"
-      size={26}
-      color="#194F90"
-      style={{
-        backgroundColor: "#194F901A",
-        padding: 8,
-        borderRadius: 12,
-        marginLeft: 8,
-      }}
-    />
-  </TouchableOpacity>
-</View>
+          <TouchableOpacity onPress={searchLocation}>
+            <Ionicons
+              name="search-outline"
+              size={26}
+              color="#194F90"
+              style={{
+                backgroundColor: "#194F901A",
+                padding: 8,
+                borderRadius: 12,
+                marginLeft: 8,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
 
 
 
@@ -624,9 +621,8 @@ useEffect(() => {
         )}
 
         <View
-          className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${
-            showSuggestions ? "-z-10 " : ""
-          }`}
+          className={`flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50 ${showSuggestions ? "-z-10 " : ""
+            }`}
         >
           <TextInput
             placeholder={
@@ -658,9 +654,8 @@ useEffect(() => {
             shadowOpacity: 0.50,
             shadowRadius: 3.84,
           }}
-          className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${
-            showSuggestions ? "-z-10" : ""
-          }`}
+          className={`bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center${showSuggestions ? "-z-10" : ""
+            }`}
         >
           {loading ? (
             <Animated.View
