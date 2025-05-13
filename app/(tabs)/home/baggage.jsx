@@ -534,7 +534,7 @@ const baggage = () => {
             }}
             className="bg-[#FFB800] rounded-xl py-4"
           >
-            <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
+            <Text className="text-center text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.continue
                 : Translations.arb.continue}

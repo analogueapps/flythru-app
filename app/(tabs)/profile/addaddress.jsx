@@ -28,12 +28,13 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import addaddresSchema from "../../../yupschema/addressSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
-
+import Checkbox from 'expo-checkbox';
 
 const addaddress = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext()
   const [loading, setLoading] = useState(false);
+  const [isDefault, setIsDefault] = useState(false);
 
   const translateX = useRef(new Animated.Value(0)).current;
 
@@ -78,14 +79,11 @@ const addaddress = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("Submitting values:", values);
       await handleAddress(values)
     },
   });
 
   const handleAddress = async (values) => {
-    console.log(values);
-    
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -98,7 +96,11 @@ const addaddress = () => {
         return;
       }
 
-      const res = await ADD_ADDRESS(values, token);
+      const forSenddata = { ...values, defaultAddress: isDefault }
+
+
+
+      const res = await ADD_ADDRESS(forSenddata, token);
       // Toast.show("Address saved successfully");
       Toast.show({
         type: "success",
@@ -253,11 +255,16 @@ const addaddress = () => {
               </Text>
               <TextInput
                 // maxLength={5}
-               
+
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-                onChangeText={formik.handleChange("streetAddress")}
+                onChangeText={(text) => {
+                  const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
+                  formik.setFieldValue("streetAddress", cleanedText);
+                }}
+                // onChangeText={
+                //   formik.handleChange("streetAddress")}
                 onBlur={formik.handleBlur("streetAddress")}
-                value={formik.values.streetAddress.trim()}
+                value={formik.values.streetAddress}
                 name="streetAddress"
                 placeholder={
                   applanguage === "eng"
@@ -320,7 +327,7 @@ const addaddress = () => {
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
                 // maxLength={50}
-                 keyboardType="number-pad"
+                keyboardType="number-pad"
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("floorNo", cleanedText);
@@ -344,7 +351,7 @@ const addaddress = () => {
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
                 // maxLength={50}
-                 keyboardType="number-pad"
+                keyboardType="number-pad"
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("flatNo", cleanedText);
@@ -364,44 +371,54 @@ const addaddress = () => {
                 <Text className="text-red-500  px-3">{formik.errors.flatNo}</Text>
               )}
             </View>
-          </View>
-        </ScrollView>
-        <TouchableOpacity
-          style={{
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.50,
-            shadowRadius: 3.84,
-          }}
-          className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
-          onPress={() => {
-            formik.handleSubmit()
-          }}
-        >
-          {loading ? (
-            <Animated.View
+            <View className="flex flex-row gap-2 ">
+              <Checkbox
+                value={isDefault}
+                className="border-[#164F90]"
+                name="default"
+                onValueChange={() => setIsDefault(prev => !prev)}
+                color="#164F90"
+              />
+              <Text onPress={()=>setIsDefault(prev => !prev)} className="mb-2 ">{applanguage === "eng" ? Translations.eng.select_as_default : Translations.arb.select_as_default}</Text>
+            </View>
+            <TouchableOpacity
               style={{
-                transform: [{ translateX }],
-
-                width: 100,
-                height: 100,
-                alignSelf: "center",
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }}
+              className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto mt-4 flex items-center justify-center mb-3"
+              onPress={() => {
+                formik.handleSubmit()
               }}
             >
-              <Image
-                source={flightloader}
-                style={{ width: 100, height: 100 }}
-                resizeMode="contain"
+              {loading ? (
+                <Animated.View
+                  style={{
+                    transform: [{ translateX }],
 
-              />
-            </Animated.View>
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
 
-          ) : (
-            <Text className="font-bold text-center text-black " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
-            }</Text>
-          )}
-        </TouchableOpacity>
+                  />
+                </Animated.View>
+
+              ) : (
+                <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
+                }</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </KeyboardAvoidingView>
   );

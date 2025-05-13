@@ -191,7 +191,7 @@ useEffect(() => {
         const raw = res?.data?.addresses || [];
 
         const mapped = raw.map((addr) => ({
-          label: `${addr.addressData}, ${addr.city}, ${addr.state}`,
+          label: `${addr.addressName}`,
           value: addr.id, // or addr._id if that's your backend key
           fullData: addr, // optional, if you want original data
         }));
@@ -678,7 +678,7 @@ useEffect(() => {
               />
             </Animated.View>
           ) : (
-            <Text className="text-center text-black font-semibold text-base" style={{ fontFamily: "Lato" }}>
+            <Text className="text-center text-[#164F90] font-semibold text-base" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.submit
                 : Translations.arb.submit}

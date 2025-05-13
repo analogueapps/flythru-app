@@ -30,6 +30,7 @@ import addaddresSchema from "../../../yupschema/addressSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import { AntDesign } from "@expo/vector-icons";
+import Checkbox from 'expo-checkbox';
 
 
 const updateaddress = () => {
@@ -39,8 +40,14 @@ const updateaddress = () => {
   const navigation = useNavigation();
 
   const translateX = useRef(new Animated.Value(0)).current;
-  const paramAddressData = useLocalSearchParams();
-  console.log(paramAddressData);
+
+  const {address} = useLocalSearchParams();
+
+  const paramAddressData = JSON.parse(address)
+
+  const ischecked = paramAddressData.default
+  const [isDefault, setIsDefault] = useState(ischecked);
+  console.log("paramAddressData.default", paramAddressData,isDefault);
 
   const startAnimation = () => {
     translateX.setValue(-40); // Reset position
@@ -82,7 +89,6 @@ const updateaddress = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("Submitting values:", values);
       await handleAddress(values)
     },
   });
@@ -99,11 +105,11 @@ const updateaddress = () => {
         });
         return;
       }
-console.log('paramAddressData.id',paramAddressData.id);
+      const forSenddata = { ...values, defaultAddress: isDefault }
+     
+      const res = await UPDATE_ADDRESS(forSenddata, paramAddressData.id, token);
 
-      const res = await UPDATE_ADDRESS(values,paramAddressData.id, token);
-      console.log("Address saved successfully", res.data);
-      if(res.data && res.status == 200){
+      if (res.data && res.status == 200) {
 
         Toast.show({
           type: "success",
@@ -233,7 +239,6 @@ console.log('paramAddressData.id',paramAddressData.id);
                 }<Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                maxLength={50}
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 // onChangeText={formik.handleChange("addressName")}
                 onChangeText={(text) => {
@@ -261,7 +266,6 @@ console.log('paramAddressData.id',paramAddressData.id);
                 }<Text className="text-red-500">*</Text>
               </Text>
               <TextInput
-                maxLength={20}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("area", cleanedText);
@@ -293,7 +297,6 @@ console.log('paramAddressData.id',paramAddressData.id);
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("block", cleanedText);
                 }}
-                maxLength={20}
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 // onChangeText={formik.handleChange("block")}
                 onBlur={formik.handleBlur("block")}
@@ -316,12 +319,11 @@ console.log('paramAddressData.id',paramAddressData.id);
                 }<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text>
               </Text>
               <TextInput
-                maxLength={5}
-                keyboardType="number-pad"
+
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
                 onChangeText={formik.handleChange("streetAddress")}
                 onBlur={formik.handleBlur("streetAddress")}
-                value={formik.values.streetAddress.trim()}
+                value={formik.values.streetAddress}
                 name="streetAddress"
                 placeholder={
                   applanguage === "eng"
@@ -337,7 +339,6 @@ console.log('paramAddressData.id',paramAddressData.id);
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("avenue", cleanedText);
@@ -360,7 +361,6 @@ console.log('paramAddressData.id',paramAddressData.id);
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.house_building : Translations.arb.house_building}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                maxLength={50}
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("buildingNumber", cleanedText);
@@ -383,7 +383,7 @@ console.log('paramAddressData.id',paramAddressData.id);
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                maxLength={50}
+                keyboardType="number-pad"
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("floorNo", cleanedText);
@@ -406,7 +406,7 @@ console.log('paramAddressData.id',paramAddressData.id);
             <View>
               <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
               <TextInput
-                maxLength={50}
+                keyboardType="number-pad"
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
                   formik.setFieldValue("flatNo", cleanedText);
@@ -426,57 +426,67 @@ console.log('paramAddressData.id',paramAddressData.id);
                 <Text className="text-red-500  px-3">{formik.errors.flatNo}</Text>
               )}
             </View>
-           <View className="mt-4 flex flex-row gap-x-3 mb-10">
-             <TouchableOpacity
+            <View className="flex flex-row gap-2">
+              <Checkbox
+                value={isDefault}
+                className="border-[#164F90]"
+                name="default"
+                onValueChange={() => setIsDefault(prev => !prev)}
+                color="#164F90"
+              />
+              <Text onPress={()=>setIsDefault(prev => !prev)} className="mb-2">{applanguage === "eng" ? Translations.eng.select_as_default : Translations.arb.select_as_default}</Text>
+            </View>
+            <View className="mt-4 flex flex-row gap-x-3 mb-3">
+              <TouchableOpacity
                 style={{
-                elevation: 5,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.50,
-                shadowRadius: 3.84,
-              }}
-              className="border border-red-600 bg-white rounded-lg h-14 flex-1 max-w-[500px] mx-auto flex items-center justify-center" onPress={() => paramAddressData.id && handleDelete(paramAddressData.id)}>
-              {/* <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.delete : Translations.arb.delete
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.50,
+                  shadowRadius: 3.84,
+                }}
+                className="border border-red-600 bg-white rounded-lg h-14 flex-1 max-w-[500px] mx-auto flex items-center justify-center" onPress={() => paramAddressData.id && handleDelete(paramAddressData.id)}>
+                {/* <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.delete : Translations.arb.delete
           }</Text> */}
-              <AntDesign name="delete" size={19} color="red" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                elevation: 5,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.50,
-                shadowRadius: 3.84,
-              }}
-              className="bg-[#FFB648] rounded-lg flex-1 max-w-[500px] h-14 mx-auto flex items-center justify-center "
-              onPress={() => {
-                formik.handleSubmit()
-              }}
-            >
-              {loading ? (
-                <Animated.View
-                  style={{
-                    transform: [{ translateX }],
+                <AntDesign name="delete" size={19} color="red" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  elevation: 5,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.50,
+                  shadowRadius: 3.84,
+                }}
+                className="bg-[#FFB648] rounded-lg flex-1 max-w-[500px] h-14 mx-auto flex items-center justify-center "
+                onPress={() => {
+                  formik.handleSubmit()
+                }}
+              >
+                {loading ? (
+                  <Animated.View
+                    style={{
+                      transform: [{ translateX }],
 
-                    width: 100,
-                    height: 100,
-                    alignSelf: "center",
-                  }}
-                >
-                  <Image
-                    source={flightloader}
-                    style={{ width: 100, height: 100 }}
-                    resizeMode="contain"
+                      width: 100,
+                      height: 100,
+                      alignSelf: "center",
+                    }}
+                  >
+                    <Image
+                      source={flightloader}
+                      style={{ width: 80, height: 100 }}
+                      resizeMode="contain"
 
-                  />
-                </Animated.View>
+                    />
+                  </Animated.View>
 
-              ) : (
-                <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
-                }</Text>
-              )}
-            </TouchableOpacity>
-           </View>
+                ) : (
+                  <Text className="font-bold text-center text-[#164F90] " >{applanguage === "eng" ? Translations.eng.save : Translations.arb.save
+                  }</Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
 
