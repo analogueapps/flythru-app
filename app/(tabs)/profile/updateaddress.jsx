@@ -236,7 +236,7 @@ const updateaddress = () => {
             <View>
               <Text className="mb-2" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng" ? Translations.eng.enter_address_name : Translations.arb.enter_address_name
-                }<Text className="text-red-500">*</Text>
+                }
               </Text>
               <TextInput
                 className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
@@ -337,7 +337,7 @@ const updateaddress = () => {
             </View>
 
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}</Text>
               <TextInput
                 onChangeText={(text) => {
                   const cleanedText = text.replace(/\s{2,}/g, " "); // Replace multiple spaces with one
@@ -381,7 +381,7 @@ const updateaddress = () => {
               )}
             </View>
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}</Text>
               <TextInput
                 keyboardType="number-pad"
                 onChangeText={(text) => {
@@ -404,7 +404,7 @@ const updateaddress = () => {
               )}
             </View>
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}</Text>
               <TextInput
                 keyboardType="number-pad"
                 onChangeText={(text) => {

@@ -190,12 +190,12 @@ const [selectedId, setSelectedId] = useState(null);
             addresses.map((address, index) => (
               <View key={address?.id || index} className="w-full flex-col gap-5">
                 <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
-                  <View className="flex-row items-center gap-3">
+                  <View className="flex-row items-center justify-between gap-3">
 
                     <View>
                       {/* <Text className="text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>Home</Text> */}
                      {address.default===true &&<Text className="text-gray-500 text-[11px]">Default Address</Text>}
-                      <Text className="w-72 text-[#164F90] font-bold text-[15px]" style={{ fontFamily: "Lato" }}>{address.addressName}</Text>
+                      <Text className="w-72 text-[#164F90] font-bold text-[15px]" style={{ fontFamily: "Lato" }}>{address.addressName || "Address"}</Text>
                       <Text className="text-[12px] " style={{ fontFamily: "Lato" }}>{address.area}</Text>
                     </View>
                     {/* <TouchableOpacity onPress={() => address.id && handleDelete(address.id)}>

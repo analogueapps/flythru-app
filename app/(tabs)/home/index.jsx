@@ -19,7 +19,7 @@ import images from "../../../constants/images";
 import { StatusBar } from "expo-status-bar";
 import { Bell } from "lucide-react-native";
 import ad from "../../../assets/images/adbanner.png";
-
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import icongrey from "../../../assets/images/icongrey.png";
 import { Calendar } from "lucide-react-native";
 import DateTimePicker from "@react-native-community/datetimepicker"; // Import DateTimePicker
@@ -52,7 +52,7 @@ const Index = () => {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
-  const {loadToken}=useAuth()
+  const { loadToken } = useAuth()
   // const [showDatePicker,setshowDatePicker]
   // Swap function
   const handleSwap = () => {
@@ -97,10 +97,10 @@ const Index = () => {
     const markNotificationsVisited = async () => {
       await AsyncStorage.setItem("hasVisitedNotifications", "true");
     };
-  
+
     markNotificationsVisited();
   }, []);
-  
+
 
   useEffect(() => {
     (async () => {
@@ -116,12 +116,16 @@ const Index = () => {
     })();
   }, []);
 
-  const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      const formattedDate = selectedDate.toISOString().split("T")[0];
+  const handleDateChange = (event, date) => {
+    if (Platform.OS === "android") {
+      // Dismiss the picker whether selected or cancelled
+      setShowDatePicker(false);
+    }
+
+    if (date) {
+      const formattedDate = date.toISOString().split("T")[0];
       setSelectedDate(formattedDate);
-      formik.setFieldValue("departureDate", formattedDate); // Update formik state
+      formik.setFieldValue("departureDate", formattedDate);
     }
   };
 
@@ -153,8 +157,8 @@ const Index = () => {
     initialValues: {
       departureDate: "",
       flightNumber: "",
-      from:'kwi',
-      to:''
+      from: 'kwi',
+      to: ''
     },
     validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
@@ -171,7 +175,7 @@ const Index = () => {
     },
   });
 
-  
+
 
   const allbanners = async () => {
     try {
@@ -198,6 +202,18 @@ const Index = () => {
     allbanners();
   }, []);
 
+
+
+  const hideDatePicker = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleConfirm = (date) => {
+    const formattedDate = date.toISOString().split("T")[0];
+    setSelectedDate(formattedDate);
+    formik.setFieldValue("departureDate", formattedDate);
+    hideDatePicker();
+  };
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -237,7 +253,7 @@ const Index = () => {
           <Bell color="black" size={18} />
         </TouchableOpacity>
       </View>
-      <View className={`bg-white self-center absolute ${Platform.OS==="android"?"top-36":"top-44"} z-10  p-6 rounded-2xl w-[90%] shadow-lg`}>
+      <View className={`bg-white self-center absolute ${Platform.OS === "android" ? "top-36" : "top-44"} z-10  p-6 rounded-2xl w-[90%] shadow-lg`}>
         <TouchableOpacity
           onPress={() => {
             setShowDatePicker(true);
@@ -245,16 +261,29 @@ const Index = () => {
           }}
           className="flex-row my-2 justify-between items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50"
         >
-          <TextInput
-            placeholder="yyyy-mm-dd"
-        
-            onChangeText={formik.handleChange("departureDate")}
-            onBlur={formik.handleBlur("departureDate")}
-            value={formik.values.departureDate}
-            name="departureDate"
-            className="flex h-[30px]"
-            placeholderTextColor="#2D2A29"
-          />
+          {showDatePicker ?
+
+            // <DateTimePicker
+            //   value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
+            //   mode="date"
+            //   display={Platform.OS === "android" ? "default" : "compact"}
+            //   onChange={handleDateChange}
+            //   minimumDate={new Date()}
+            // />
+            <DateTimePickerModal
+              isVisible={showDatePicker}
+              mode="date"
+              onConfirm={handleConfirm}
+              onCancel={hideDatePicker}
+              minimumDate={new Date()}
+            />
+            :
+            <TouchableOpacity className="bg-gray-200 p-3 rounded-lg" onPress={() => setShowDatePicker(true)}>
+
+              <Text>{selectedDate || "yyyy-mm-dd"}</Text>
+            </TouchableOpacity>
+          }
+
           <TouchableOpacity
             className=""
             onPress={() => {
@@ -267,20 +296,20 @@ const Index = () => {
         </TouchableOpacity>
 
         {formik.touched.departureDate && formik.errors.departureDate && (
-          <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
+          <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
             {formik.errors.departureDate}
           </Text>
         )}
 
-        {showDatePicker  &&(
-          <DateTimePicker
-            value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
-            mode="date"
-            display={Platform.OS==="android"?"default":"spinner"}
-            onChange={handleDateChange}
-            minimumDate={new Date()}
-          />
-        )}
+        {/* {showDatePicker  &&( 
+        <DateTimePicker
+          //   value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
+          //   mode="date"
+          //   display={Platform.OS==="android"?"default":"default"}
+          //   onChange={handleDateChange}
+          //   minimumDate={new Date()}
+          // />
+        // )}
 {/* {Platform.OS === "ios" && (
   <Modal
     transparent={true}
@@ -393,8 +422,8 @@ const Index = () => {
               Toast.show({
                 type: "error",
                 text1:
-                 " Please fill at least one field"
-                    ,
+                  " Please fill at least one field"
+                ,
               });
             } else {
               formik.handleSubmit();
@@ -410,7 +439,7 @@ const Index = () => {
             shadowRadius: 3.84,
           }}
         >
-          <Text className="text-center text-[#164E8D] font-bold text-base"  style={{ fontFamily: "Lato" }}>
+          <Text className="text-center text-[#164E8D] font-bold text-base" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.search
               : Translations.arb.search}
@@ -422,7 +451,7 @@ const Index = () => {
         <View className="flex-1 items-center justify-center mt-64 mx-6 ">
           {/* Ad Card */}
           {Array.isArray(banners) && banners.length > 0 && (
-            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start"  style={{ fontFamily: "Lato" }}>
+            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start" style={{ fontFamily: "Lato" }}>
               {applanguage === "eng"
                 ? Translations.eng.ad
                 : Translations.arb.ad}

@@ -168,7 +168,7 @@ const addaddress = () => {
             <View>
               <Text className="mb-2" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng" ? Translations.eng.enter_address_name : Translations.arb.enter_address_name
-                }<Text className="text-red-500">*</Text>
+                }
               </Text>
               <TextInput
                 // maxLength={50}
@@ -278,7 +278,7 @@ const addaddress = () => {
             </View>
 
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.avenue : Translations.arb.avenue}</Text>
               <TextInput
                 // maxLength={50}
                 onChangeText={(text) => {
@@ -324,7 +324,7 @@ const addaddress = () => {
               )}
             </View>
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.floor_no : Translations.arb.floor_no}</Text>
               <TextInput
                 // maxLength={50}
                 keyboardType="number-pad"
@@ -348,7 +348,7 @@ const addaddress = () => {
               )}
             </View>
             <View>
-              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}<Text className="text-red-500" style={{ fontFamily: "Lato" }}>*</Text></Text>
+              <Text className="mb-2">{applanguage === "eng" ? Translations.eng.flat_no : Translations.arb.flat_no}</Text>
               <TextInput
                 // maxLength={50}
                 keyboardType="number-pad"

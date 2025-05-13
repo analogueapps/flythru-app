@@ -18,6 +18,7 @@ import { ALL_TIME_SLOTS } from "../../../network/apiCallers";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import slotsSchema from "../../../yupschema/slotsSchema";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 // import { useFlightContext } from "../../../UseContext/useFlightContext";
 
 const slots = () => {
@@ -291,19 +292,63 @@ const slots = () => {
             onPress={() => setShowDatePicker(true)}
             className=" flex-row my-4 justify-between items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]"
           >
-            <TextInput
-              placeholder={
-                applanguage === "eng"
-                  ? Translations.eng.select_date
-                  : Translations.arb.select_date
-              }
-              className="flex h-[30px] "
-              placeholderTextColor="#2D2A29"
-              onChangeText={formik.handleChange("date")}
-              onBlur={formik.handleBlur("date")}
-              value={formik.values.date}
-              name="date"
+                  {showDatePicker ?
+            <DateTimePickerModal
+              isVisible={showDatePicker}
+              mode="date"
+              onConfirm={async (selectedDate) => {
+                if (!selectedDate) return;
+
+                const formattedDate = selectedDate.toISOString().split("T")[0];
+                setSelectedDate(formattedDate);
+                formik.setFieldValue("date", formattedDate);
+
+                const filteredTimeSlots = timeslot.filter((item) => {
+                  if (!item.date) return false;
+                  const itemDate = new Date(item.date).toISOString().split("T")[0];
+                  return itemDate === formattedDate && item.isActive;
+                });
+
+                const flightScheduledDateTime = flight.departure.scheduled.includes('T')
+                  ? new Date(flight.departure.scheduled)
+                  : new Date(`${departureDate}T${flight.departure.scheduled}:00`);
+
+                const givenDepartureDate = new Date(departureDate);
+                const dateformate = new Date(formattedDate);
+
+                const filterTimeSlotsBefore6Hours = filteredTimeSlots.filter((slot) => {
+                  const slotDateStr = `${formattedDate}T${slot.timeSlot}:00.000Z`;
+                  const slotDateTime = new Date(slotDateStr);
+
+                  // If selected date is before flight date, return all slots
+                  if (dateformate > givenDepartureDate) {
+                    return true;
+                  }
+
+                  const diffMs = flightScheduledDateTime - slotDateTime;
+                  const diffHours = diffMs / (1000 * 60 * 60);
+                  return diffHours >= 6;
+                });
+
+                const data = filterTimeSlotsBefore6Hours.map((item) => ({
+                  key: item._id,
+                  value: item.timeSlot,
+                }));
+
+                console.log("Filtered time slots: ", data);
+                setFilterTimeSlot(data);
+                setShowDatePicker(false);
+              }}
+
+              onCancel={() => setShowDatePicker(false)}
+              minimumDate={new Date()}
             />
+            :
+            <TouchableOpacity className="bg-gray-200 p-3 rounded-lg" onPress={() => setShowDatePicker(true)}>
+
+              <Text>{selectedDate || "yyyy-mm-dd"}</Text>
+            </TouchableOpacity>
+          }
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <View
                 style={{
@@ -317,90 +362,7 @@ const slots = () => {
             </TouchableOpacity>
           </TouchableOpacity>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={
-                depDate instanceof Date && !isNaN(depDate)
-                  ? depDate
-                  : new Date()
-              }
-              mode="date"
-              minimumDate={new Date()}
-              maximumDate={
-                depDate instanceof Date && !isNaN(depDate)
-                  ? new Date(depDate.getTime() )
-                  : undefined}
-              display="default"
-              onChange={async (event, selectedDate) => {
-                setShowDatePicker(false);
-                if (!selectedDate) return;
-
-                const formattedDate = selectedDate.toISOString().split("T")[0];
-                // console.log("formateDate", formattedDate);
-                setSelectedDate(formattedDate);
-                formik.setFieldValue("date", formattedDate);
-                const filteredTimeSlots = timeslot.filter((item) => {
-                  if (!item.date) return false;
-                  const itemDate = new Date(item.date)
-                    .toISOString()
-                    .split("T")[0];
-
-
-                  return itemDate === formattedDate && item.isActive;
-                });
-
-                const flightScheduledDateTime = flight.departure.scheduled.includes('T') ? new Date(flight.departure.scheduled) : new Date(
-                  `${departureDate}T${flight.departure.scheduled}:00`
-                ); // Adding :00 for seconds
-
-                
-
-                const givenDepartureDate = new Date(departureDate);
-                const dateformate = new Date(formattedDate);
-                const filterTimeSlotsBefore6Hours = filteredTimeSlots.filter(
-                  (slot) => {
-                    const slotDateStr = `${formattedDate}T${slot.timeSlot}:00.000Z`;
-                    // const [year, month, day] = formattedDate.split('-').map(Number);
-                    // const [hour, minute] = slot.timeSlot.split(':').map(Number);
-                    // console.log("year, month - 1, day, hour, minute",year, month - 1, day, hour, minute);
-                    
-                    const slotDateTime = new Date(slotDateStr);
-                    // const slotDateTime = new Date(slotDateStr);
-                    console.log(
-                      "==09-09889677656",
-                      dateformate,
-                      givenDepartureDate,
-                      slotDateStr,
-                      slotDateTime
-                    );
-                    // If selected date is before flight date, return all slots
-                    if (dateformate > givenDepartureDate) {
-                      return true;
-                    }
-
-                    const diffMs = flightScheduledDateTime - slotDateTime;
-                    // console.log("diffMs diffMs diffMs v diffMs", flightScheduledDateTime, slotDateTime, diffMs);
-
-                    const diffHours = diffMs / (1000 * 60 * 60);
-                    // console.log("diffMs diffMs diffMs v diffMs", diffHours, diffHours >= 6);
-                    return diffHours >= 6;
-                  }
-                );
-                // If you need to ensure it's in the local time zone, you can log it as local time
-                // console.log(
-                //   "Local Flight Scheduled DateTime:",
-                //   filterTimeSlotsBefore6Hours
-                // );
-                const data = filterTimeSlotsBefore6Hours.map((item) => ({
-                  key: item._id,
-                  value: item.timeSlot,
-                }));
-                console.log("tarun testing this one ", data)
-                setFilterTimeSlot(data);
-                // setFilteredSlotTimes(filterTimeSlotsBefore6Hours);
-              }}
-            />
-          )}
+   
 
           {formik.touched.date && formik.errors.date && (
             <Text

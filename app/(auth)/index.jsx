@@ -45,6 +45,7 @@ import { getApp } from "@react-native-firebase/app";
 import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth, GoogleAuthProvider, signInWithCredential } from "@react-native-firebase/auth";
+import { StatusBar } from "expo-status-bar";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("signup");
@@ -173,30 +174,30 @@ const Index = () => {
     const toValue = tab === "login" ? 0 : 1;
     setActiveTab(tab);
 
-    Animated.parallel([
-      Animated.spring(slideAnim, {
-        toValue,
-        useNativeDriver: true,
-        friction: 8,
-      }),
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 550,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 550,
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.spring(widthAnim, {
-        toValue,
-        useNativeDriver: false,
-        friction: 8,
-      }),
-    ]).start();
+    // Animated.parallel([
+    //   Animated.spring(slideAnim, {
+    //     toValue,
+    //     useNativeDriver: true,
+    //     friction: 8,
+    //   }),
+    //   Animated.sequence([
+    //     Animated.timing(fadeAnim, {
+    //       toValue: 0,
+    //       duration: 550,
+    //       useNativeDriver: true,
+    //     }),
+    //     Animated.timing(fadeAnim, {
+    //       toValue: 1,
+    //       duration: 550,
+    //       useNativeDriver: true,
+    //     }),
+    //   ]),
+    //   Animated.spring(widthAnim, {
+    //     toValue,
+    //     useNativeDriver: false,
+    //     friction: 8,
+    //   }),
+    // ]).start();
 
     setTimeout(() => {
       setActiveTab(tab);
@@ -427,6 +428,7 @@ const Index = () => {
 
   return (
     <SafeAreaView className="flex-1">
+      <StatusBar style="dark"/>
       {/* {authPopupVisible && (
   <View className="absolute top-10 left-5 right-5 bg-white px-4 py-3 rounded-xl shadow-lg border border-[#FFB648] z-50">
     <Text className="text-black text-center font-medium">
