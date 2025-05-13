@@ -262,7 +262,7 @@ const feedback = () => {
                 </Animated.View>
                 
                 ) : (
-                <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
+                <Text className="font-bold text-center text-[#164F90] " style={{ fontFamily: "Lato" }}>{applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
               }</Text>
             )}
               </TouchableOpacity>

@@ -79,20 +79,37 @@ const Search = () => {
   );
 
 
-  const formatDate = (isoDateStr) => {
-    const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
+  // const formatDate = (isoDateStr) => {
+    
+  //   const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
+    
+  //   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  //   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  //     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+  //     const day = date.getDate().toString().padStart(2, '0');       // dd
+  //     const month = months[date.getMonth()];                        // MMM
+  //     const year = date.getFullYear();                              // yyyy
+  //     const weekday = days[date.getDay()];                          // Day
+  //     console.log('isoDateStr,',date,date.getDate(),day,month,year,weekday);
 
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  //   return `${day} ${month} ${year} ${weekday}`;
+  // };
 
-    const day = date.getDate().toString().padStart(2, '0');       // dd
-    const month = months[date.getMonth()];                        // MMM
-    const year = date.getFullYear();                              // yyyy
-    const weekday = days[date.getDay()];                          // Day
+const formatDate = (isoDateStr) => {
+  const date = new Date(isoDateStr);
 
-    return `${day} ${month} ${year} ${weekday}`;
-  };
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const day = date.getUTCDate().toString().padStart(2, '0');
+  const month = months[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+  const weekday = days[date.getUTCDay()];
+
+  return `${day} ${month} ${year} ${weekday}`;
+};
 
 
   const checkLoginStatus = async () => {
@@ -134,7 +151,7 @@ const Search = () => {
   const fetchSingleFlights = async () => {
     try {
       const res = await ALL_FLIGHTS({ flightNumber, departureDate });
-      console.log("resres res res res res res res", res);
+      console.log("resres res res res res res res", res?.data?.allFlights,departureDate);
 
       if (res?.data?.allFlights) {
         let transformedFlights = res.data.allFlights.map((flight) => ({
@@ -544,7 +561,7 @@ const Search = () => {
           <>
             {/* Special Flights */}
             {specialflightDatas.map((flight, index) => {
-              console.log("flight flight", flight);
+              console.log("flight flight", flight.departure.scheduled.split("T")[0]);
 
               return <TouchableOpacity
                 key={`special-${index}`}
@@ -599,13 +616,13 @@ const Search = () => {
                     <Text className="text-[20px]  ">
                       {
                         flight.departure?.scheduled?.includes("T")
-                          ? flight.departure.scheduled.split("T")[1].slice(0, 5)
+                          ? flight.departure?.scheduled.split("T")[1].slice(0, 5)
                           : flight.departure?.scheduled || "N/A"
                       }
                     </Text>
                     <Text className="text-gray-400 text-start text-[13px] ">
                       {flight.departure?.scheduled?.includes("T")
-                        ? formatDate(flight.departure.scheduled)
+                        ? formatDate(flight.departure?.scheduled)
                         : formatDate(flight.departure?.scheduled) || "N/A"}
                     </Text>
                   </View>

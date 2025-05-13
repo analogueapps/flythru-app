@@ -318,7 +318,7 @@ const index = () => {
                   <ActivityIndicator size="small" color="#000000" />
                 </View>
               ) : (
-                <Text className="text-center text-black font-semibold" style={{ fontFamily: "Lato" }}>
+                <Text className="text-center text-[#164F90] font-semibold" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.yes_logout
                     : Translations.arb.yes_logout}
@@ -611,7 +611,7 @@ const index = () => {
                   />
                 </Animated.View>
               ) : (
-                <Text className="font-bold text-center text-black" style={{ fontFamily: "Lato" }}>
+                <Text className="font-bold text-center text-[#164F90]" style={{ fontFamily: "Lato" }}>
                   {" "}
                   {applanguage === "eng"
                     ? Translations.eng.delete_account

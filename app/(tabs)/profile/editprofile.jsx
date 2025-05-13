@@ -249,7 +249,7 @@ const [alertShow,setAlertShow] = useState(false)
       ):(
      
       <ScrollView className="flex-1 " contentContainerStyle={{ padding: 15 , display:"flex" , justifyContent:"space-between", height:"100%"}}>
-        <View className="px-7 flex-col gap-y-4">
+        <View className=" flex-col gap-y-4">
           <View className="mb-2">
             <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
               {" "}
@@ -334,7 +334,7 @@ const [alertShow,setAlertShow] = useState(false)
 
       <TouchableOpacity
         disabled={loading}
-        className="bg-[#FFB648] rounded-lg w-[80%] h-14 mx-auto mt-4 flex items-center justify-center mb-10"
+        className="bg-[#FFB648] rounded-lg w-full h-14 mx-auto mt-4 flex items-center justify-center mb-10"
         style={{
           elevation: 5,
           shadowColor: '#000',
@@ -360,7 +360,7 @@ const [alertShow,setAlertShow] = useState(false)
               />
           </Animated.View>
         ) : (
-          <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
+          <Text className="font-bold text-center text-[#164F90] " style={{ fontFamily: "Lato" }}>
             {" "}
             {applanguage === "eng" ? Translations.eng.save : Translations.arb.save}
           </Text>

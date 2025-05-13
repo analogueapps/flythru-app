@@ -20,7 +20,6 @@ const Index = () => {
     setIsLoading(true);
     try {
       const res = await ALL_SERVICES();
-      console.log("API Response:", res.data);
 
       if (res?.data?.allServices && Array.isArray(res.data.allServices)) {
         setServices(res.data.allServices);
@@ -103,7 +102,7 @@ const Index = () => {
               </Text>
 
               {/* Service Description */}
-              <View className="gap-2 px-4">
+              <View className="gap-2 ">
                 {typeof service.description === "string" &&
                   (() => {
                     const lines = cleanDescription(service.description)
@@ -152,7 +151,7 @@ const Index = () => {
                 activeOpacity={0.8}
                 onPress={() => router.push("/home")}
               >
-                <Text className="text-center text-black font-semibold text-lg" style={{ fontFamily: "Lato" }}>
+                <Text className="text-center text-[#164F90] font-bold text-lg" style={{ fontFamily: "Lato" }}>
                   {applanguage === "eng"
                     ? Translations.eng.book_now
                     : Translations.arb.book_now}
