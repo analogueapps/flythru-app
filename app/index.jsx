@@ -27,7 +27,7 @@ export default function Index() {
     const handleNavigation = async () => {
       if (!isConnected) return; // Modal will show automatically, don't navigate
 
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setShowFlash(false);
 
       try {

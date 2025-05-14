@@ -9,10 +9,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/adaptive-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
-      "imageUrl":"./assets/adaptive-icon.png"
+      "imageUrl":"./assets/splash.png"
     },
     "ios": {
       "supportsTablet": true,

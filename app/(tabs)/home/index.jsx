@@ -402,7 +402,8 @@ const Index = () => {
           }
           value={formik.values.to}
           // value={toValue}
-          // onChangeText={(text) => setToValue(text)}
+          onChangeText={(text) => formik.handleChange("to")}
+          onBlur={formik.handleBlur("to")}
           className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
           placeholderTextColor="#2D2A29"
         />
