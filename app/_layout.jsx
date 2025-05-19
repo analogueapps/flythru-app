@@ -17,7 +17,6 @@ import Toast from "react-native-toast-message";
 import { NetworkProvider } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
 
-
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
 const _layout = () => {

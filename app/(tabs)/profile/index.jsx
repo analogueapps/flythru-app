@@ -41,7 +41,7 @@ import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 // import {  signOut } from "firebase/auth";
-import auth, {
+import  {
   firebase,
   getAuth,
   GoogleAuthProvider,
@@ -61,7 +61,7 @@ import Cut from "../../../assets/svgs/cut";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import Constants from "expo-constants";
-
+import {auth} from "../../../firebaseConfig"
 // import { Alert, Button } from "react-native";
 
 // const handleSignOut = async () => {
@@ -85,8 +85,8 @@ import Constants from "expo-constants";
 
 const handleSignOut = async () => {
   try {
-    const app = getApp();
-    const auth = getAuth(app);
+    // const app = getApp();
+    // const auth = getAuth(app);
 
     const currentUser = auth.currentUser;
 
