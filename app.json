@@ -24,14 +24,12 @@
         
         "NSCameraUsageDescription": "This app requires camera access so you can take photos of your baggage for check-in and update your profile picture.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload images of your baggage or update your profile photo.",
-        "NSMicrophoneUsageDescription": "This app uses the microphone only if voice communication features are enabled in the future.",
+"NSMicrophoneUsageDescription": "This app requires microphone access for voice communication with your driver or support team.",
         "NSUserNotificationAlertUsageDescription": "This app sends notifications to alert you about driver updates, service confirmations, and baggage check-in progress.",
         "NSUserNotificationSoundUsageDescription": "This app uses sound alerts to notify you of important updates from your assigned driver or service changes.",
         "NSUserNotificationBadgeUsageDescription": "This app displays badges to indicate pending notifications about your bookings or driver status.",
         "UIBackgroundModes": ["remote-notification"],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help assign a nearby driver and manage pickup for your booked service.",
-        "NSLocationAlwaysUsageDescription": "This app may use your location in the background to keep your driver updated while you are en route or awaiting pickup.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to improve service accuracy and ensure timely baggage check-in and driver coordination.",
        "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
