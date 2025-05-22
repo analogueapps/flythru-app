@@ -234,7 +234,7 @@ const index = () => {
     try {
       await handleSignOut();
       // Redirect to login/sign-in screen
-      router.replace("/(auth)");
+      // router.replace("/(auth)");
     } catch (error) {
       console.log("Error", error.message); // or toast.show(...)
     }

@@ -8,11 +8,11 @@ import Toast from "react-native-toast-message";
 const PaymentData = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [paymentId, setPaymentId] = useState(null);
-    c
+  const [paymentId, setPaymentId] = useState(null);
 
 
- 
+
+
 
 
 
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <PaymentData.Provider
       value={{
-   
+
       }}
     >
       {children}

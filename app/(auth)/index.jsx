@@ -473,7 +473,7 @@ const Index = () => {
     const token = await AsyncStorage.getItem("authToken");
     if (token) {
       // Navigate to home directly if token exists
-      router.replace("/home");
+      // router.replace("/home");
 
     };
     console.log("Token in checkLoginStatus:", token); // Ensure the token is saved
@@ -484,9 +484,9 @@ const Index = () => {
     try {
       const res = await OAUTH(oAuthToken);
       console.log("OAuth response:", res);
-
+ router.replace("/home")
       await checkLoginStatus();
-      router.replace("/home")
+     
       Toast.show({
         type: "success",
         text1: res.data.message || "OAuth successful",
