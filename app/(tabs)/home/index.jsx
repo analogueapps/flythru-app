@@ -126,14 +126,17 @@ const Index = () => {
               });
               return
             }
+            const [day, month, year] = departureDate.split('/');
+// const parsedDepartureDate = `${year}-${month}-${day}`;
+const parsedDepartureDate = `${day}-${month}-${year}`;
 
               router.push({
                 // pathname: "/home/search",
                 pathname: "/home/search",
                 params: {
-                  departureDate: values.departureDate,
-                  flightNumber: values.flightNumber,
-                  departureTime: values.departureTime,
+                  departureDate: parsedDepartureDate,
+                  flightNumber: flightNumber,
+                  departureTime: departureTime,
                 },
               });
             
