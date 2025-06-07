@@ -29,8 +29,8 @@ import Toast from "react-native-toast-message";
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
-  // const { flightData, departureDate } = useLocalSearchParams();
-  // const flight = JSON.parse(flightData);
+  const { flightData, departureDate } = useLocalSearchParams();
+  const flight = JSON.parse(flightData);
   const [persons, setPersons] = useState("1");
   const [bags, setBags] = useState("1");
   const [bagimages, setBagimages] = useState([]);
@@ -160,7 +160,7 @@ const baggage = () => {
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {/* {flight?.departure?.iata} */}
+              {flight?.departure?.iata}
             </Text>
             <Text
               className="text-white "
@@ -198,7 +198,7 @@ const baggage = () => {
 
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {/* {flight?.arrival?.iata} */}
+              {flight?.arrival?.iata}
             </Text>
             <Text className="text-white " style={{
               flexWrap: "wrap",

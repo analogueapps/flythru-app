@@ -29,36 +29,36 @@ const slots = () => {
   const [filteredSlotTimes, setFilteredSlotTimes] = useState([]);
   const [timeslot, setTimeslots] = useState([]);
   const [filterTimeSlot, setFilterTimeSlot] = useState([]);
-  // const { flightData, departureDate } = useLocalSearchParams();
+  const { flightData, departureDate } = useLocalSearchParams();
 
-  // const flight = JSON.parse(flightData);
+  const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
-  // const time =
-  //   flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
-  //     ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
-  //     } `
-  //     : flight.departure.scheduled;
+  const time =
+    flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
+      ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
+      } `
+      : flight.departure.scheduled;
   const [depDate, setdepDate] = useState("");
   const { applanguage } = langaugeContext();
 const dateTimeSlot = [{date:'04/08/2025',times:['09:40','07:35','05:44','13:06']},{date:'05/08/2025',times:['09:40','07:35','05:44','13:06']}]
-  // const { personsCount, baggageCount } =
-  //   useLocalSearchParams();
+  const { personsCount, baggageCount } =
+    useLocalSearchParams();
 
-  // const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
-  // const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
+  const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
+  const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
   
 
-  // useEffect(() => {
-  //   if (departureDate) {
-  //     const parsedDepartureDate = new Date(departureDate);
-  //     if (!isNaN(parsedDepartureDate.getTime())) {
-  //       setdepDate(parsedDepartureDate);
-  //     } else {
-  //       console.error("Invalid departureDate format:", departureDate);
-  //     }
-  //   }
-  // }, [departureDate]);
+  useEffect(() => {
+    if (departureDate) {
+      const parsedDepartureDate = new Date(departureDate);
+      if (!isNaN(parsedDepartureDate.getTime())) {
+        setdepDate(parsedDepartureDate);
+      } else {
+        console.error("Invalid departureDate format:", departureDate);
+      }
+    }
+  }, [departureDate]);
 
   const alltimeslots = async () => {
     try {
@@ -104,16 +104,16 @@ const dateTimeSlot = [{date:'04/08/2025',times:['09:40','07:35','05:44','13:06']
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("values", values);
-      console.log("baggssaaaaa", baggaevalues);
+      // console.log("values", values);
+      // console.log("baggssaaaaa", baggaevalues);
       router.push({
         pathname: "/home/selectlocation",
-        // params: {
-        //   date: values.date,
-        //   time: values.time,
-        //   personsCount: personsCount,
-        //   baggageCount: baggageCount,
-        // },
+        params: {
+          date: values.date,
+          time: values.time,
+          personsCount: personsCount,
+          baggageCount: baggageCount,
+        },
       });
     },
   });
@@ -228,7 +228,7 @@ const dateTimeSlot = [{date:'04/08/2025',times:['09:40','07:35','05:44','13:06']
               style={{ fontFamily: "Lato" }}
             >
               {" "}
-              {/* {flight?.departure?.iata ?? "--"} */}
+              {flight?.departure?.iata ?? "--"}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Departure
@@ -251,7 +251,7 @@ const dateTimeSlot = [{date:'04/08/2025',times:['09:40','07:35','05:44','13:06']
               style={{ fontFamily: "Lato" }}
             >
               {" "}
-              {/* {flight?.arrival?.iata ?? "--"} */}
+              {flight?.arrival?.iata ?? "--"}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Arrival
