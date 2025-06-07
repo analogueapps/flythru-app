@@ -48,7 +48,7 @@ import { getAuth, GoogleAuthProvider, signInWithCredential } from "@react-native
 import { StatusBar } from "expo-status-bar";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("signup");
+  const [activeTab, setActiveTab] = useState("login");
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const widthAnim = useRef(new Animated.Value(1)).current;
@@ -591,7 +591,7 @@ const Index = () => {
 
           {/* Form Container */}
           <Animated.View
-            className="w-full px-4 pt-4"
+            className="w-full max-w-[500px] px-4 pt-4"
             style={{ opacity: fadeAnim }}
           >
             {activeTab === "login" ? (
@@ -656,6 +656,10 @@ const Index = () => {
                       {loginFormik.errors.password}
                     </Text>
                   )}
+                <View className=" w-[90%] flex flex-row justify-end">
+
+                <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold">Forgot Password ?</Text></TouchableOpacity>
+                </View>
 
                 <TouchableOpacity
                   onPress={loginFormik.handleSubmit}

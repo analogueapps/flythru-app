@@ -29,40 +29,36 @@ const slots = () => {
   const [filteredSlotTimes, setFilteredSlotTimes] = useState([]);
   const [timeslot, setTimeslots] = useState([]);
   const [filterTimeSlot, setFilterTimeSlot] = useState([]);
-  const { flightData, departureDate } = useLocalSearchParams();
+  // const { flightData, departureDate } = useLocalSearchParams();
 
-  const flight = JSON.parse(flightData);
+  // const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
-  console.log("departureDate", departureDate, flight);
-  const time =
-    flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
-      ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
-      } `
-      : flight.departure.scheduled;
-  console.log("flight  timeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", time);
+  // const time =
+  //   flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
+  //     ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
+  //     } `
+  //     : flight.departure.scheduled;
   const [depDate, setdepDate] = useState("");
   const { applanguage } = langaugeContext();
+const dateTimeSlot = [{date:'04/08/2025',times:['09:40','07:35','05:44','13:06']},{date:'05/08/2025',times:['09:40','07:35','05:44','13:06']}]
+  // const { personsCount, baggageCount } =
+  //   useLocalSearchParams();
 
-  const { personsCount, baggageCount, baggagePictures } =
-    useLocalSearchParams();
+  // const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
+  // const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
+  
 
-  const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
-  const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
-  const parsedBaggagePictures = baggagePictures
-    ? JSON.parse(decodeURIComponent(baggagePictures))
-    : [];
-
-  useEffect(() => {
-    if (departureDate) {
-      const parsedDepartureDate = new Date(departureDate);
-      if (!isNaN(parsedDepartureDate.getTime())) {
-        setdepDate(parsedDepartureDate);
-      } else {
-        console.error("Invalid departureDate format:", departureDate);
-      }
-    }
-  }, [departureDate]);
+  // useEffect(() => {
+  //   if (departureDate) {
+  //     const parsedDepartureDate = new Date(departureDate);
+  //     if (!isNaN(parsedDepartureDate.getTime())) {
+  //       setdepDate(parsedDepartureDate);
+  //     } else {
+  //       console.error("Invalid departureDate format:", departureDate);
+  //     }
+  //   }
+  // }, [departureDate]);
 
   const alltimeslots = async () => {
     try {
@@ -97,7 +93,7 @@ const slots = () => {
     alltimeslots();
   }, []);
 
-  const baggaevalues = { personsCount, baggagePictures, baggageCount };
+  // const baggaevalues = { personsCount, baggagePictures, baggageCount };
 
   const formik = useFormik({
     initialValues: {
@@ -112,25 +108,17 @@ const slots = () => {
       console.log("baggssaaaaa", baggaevalues);
       router.push({
         pathname: "/home/selectlocation",
-        params: {
-          date: values.date,
-          time: values.time,
-          personsCount: personsCount,
-          baggagePictures: baggagePictures,
-          baggageCount: baggageCount,
-        },
+        // params: {
+        //   date: values.date,
+        //   time: values.time,
+        //   personsCount: personsCount,
+        //   baggageCount: baggageCount,
+        // },
       });
     },
   });
 
-  useEffect(() => {
-    console.log(
-      "baggage details valuessaaaaaaa",
-      parsedBaggagePictures,
-      parsedBaggageCount,
-      parsedPersonsCount
-    );
-  }, [parsedBaggagePictures, parsedBaggageCount, parsedPersonsCount]);
+  
 
   useEffect(() => {
     (async () => {
@@ -240,7 +228,7 @@ const slots = () => {
               style={{ fontFamily: "Lato" }}
             >
               {" "}
-              {flight?.departure?.iata ?? "--"}
+              {/* {flight?.departure?.iata ?? "--"} */}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Departure
@@ -263,7 +251,7 @@ const slots = () => {
               style={{ fontFamily: "Lato" }}
             >
               {" "}
-              {flight?.arrival?.iata ?? "--"}
+              {/* {flight?.arrival?.iata ?? "--"} */}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Arrival
@@ -273,115 +261,17 @@ const slots = () => {
         {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
       </View>
 
-      <View
+      {/* <View
         className="bg-white self-center absolute top-[190px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
         style={{
           maxHeight: "79%",
         }}
-      >
-        <ScrollView className="" showsVerticalScrollIndicator={false}>
-          <Text
-            className="font-bold text-xl text-[#164F90]"
-            style={{ fontFamily: "CenturyGothic" }}
-          >
-            {applanguage === "eng"
-              ? Translations.eng.pick_up_date
-              : Translations.arb.pick_up_date}
-          </Text>
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            className=" flex-row my-4 justify-between items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]"
-          >
-                  {showDatePicker ?
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              onConfirm={async (selectedDate) => {
-                if (!selectedDate) return;
+      > */}
+        <ScrollView className="px-4" showsVerticalScrollIndicator={false}>
+        
+         
 
-                const formattedDate = selectedDate.toISOString().split("T")[0];
-                setSelectedDate(formattedDate);
-                formik.setFieldValue("date", formattedDate);
-
-                const filteredTimeSlots = timeslot.filter((item) => {
-                  if (!item.date) return false;
-                  const itemDate = new Date(item.date).toISOString().split("T")[0];
-                  return itemDate === formattedDate && item.isActive;
-                });
-
-                const flightScheduledDateTime = flight.departure.scheduled.includes('T')
-                  ? new Date(flight.departure.scheduled)
-                  : new Date(`${departureDate}T${flight.departure.scheduled}:00`);
-
-                const givenDepartureDate = new Date(departureDate);
-                const dateformate = new Date(formattedDate);
-
-                const filterTimeSlotsBefore6Hours = filteredTimeSlots.filter((slot) => {
-                  const slotDateStr = `${formattedDate}T${slot.timeSlot}:00.000Z`;
-                  const slotDateTime = new Date(slotDateStr);
-
-                  // If selected date is before flight date, return all slots
-                  if (dateformate > givenDepartureDate) {
-                    return true;
-                  }
-
-                  const diffMs = flightScheduledDateTime - slotDateTime;
-                  const diffHours = diffMs / (1000 * 60 * 60);
-                  return diffHours >= 6;
-                });
-
-                const data = filterTimeSlotsBefore6Hours.map((item) => ({
-                  key: item._id,
-                  value: item.timeSlot,
-                }));
-
-                console.log("Filtered time slots: ", data);
-                setFilterTimeSlot(data);
-                setShowDatePicker(false);
-              }}
-
-              onCancel={() => setShowDatePicker(false)}
-              minimumDate={new Date()}
-            />
-            :
-            <TouchableOpacity className="bg-gray-200 p-3 rounded-lg" onPress={() => setShowDatePicker(true)}>
-
-              <Text>{selectedDate || "yyyy-mm-dd"}</Text>
-            </TouchableOpacity>
-          }
-            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-              <View
-                style={{
-                  backgroundColor: "#194F901A",
-                  padding: 8,
-                  borderRadius: 12,
-                }}
-              >
-                <AntDesign name="calendar" size={26} color="#194F90" />
-              </View>
-            </TouchableOpacity>
-          </TouchableOpacity>
-
-   
-
-          {formik.touched.date && formik.errors.date && (
-            <Text
-              className="text-red-500 w-[90%] mx-auto mb-2"
-              style={{ fontFamily: "Lato" }}
-            >
-              {formik.errors.date}
-            </Text>
-          )}
-          <Text
-            className="font-bold text-xl text-[#164F90]"
-            style={{ fontFamily: "CenturyGothic" }}
-          >
-            {applanguage === "eng"
-              ? Translations.eng.pick_up_time
-              : Translations.arb.pick_up_time}
-          </Text>
-
-          <SelectList
+          {/* <SelectList
             setSelected={(val) => formik.setFieldValue("time", val)} // ✅ Bind to formik state
             value={formik.values.time}
             data={filterTimeSlot}
@@ -412,7 +302,23 @@ const slots = () => {
               fontSize: 16,
               color: "#333",
             }}
-          />
+          /> */}
+
+          {dateTimeSlot.map((item,index)=>{
+return <View key={index} className="mt-4">
+  <Text className="text-[#164F90] text-lg mb-2 font-bold">{item.date}</Text>
+  <View className="flex flex-row flex-wrap gap-4 justify-center my-4">
+
+  {item.times.map((timeslot,i)=>{
+    const slot = `${item.date},${timeslot}`
+    return <TouchableOpacity
+    onPress={()=>setSelected(slot)}
+     className={`${slot == selected ? 'bg-[#164F90] border border-[#FFB648]': 'border'}  rounded-xl p-2 px-5`}><Text className={`${slot == selected ? ' text-white ': ''}`} key={i}>{timeslot}</Text></TouchableOpacity
+    >
+  })}
+  </View>
+</View>
+          })}
 
           {formik.touched.time && formik.errors.time && (
             <Text
@@ -441,7 +347,7 @@ const slots = () => {
             </Text>
           </TouchableOpacity>
         </ScrollView>
-      </View>
+      {/* </View> */}
     </View>
   );
 };

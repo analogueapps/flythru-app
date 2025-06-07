@@ -7,6 +7,7 @@ import {
   Animated,
   ActivityIndicator,
   Modal,
+  Platform,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
@@ -29,6 +30,8 @@ import { LOCAL_URL } from "../../../network/environment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightlogo from "../../../assets/images/flight.png";
 import Toast from "react-native-toast-message";
+import { useFormik } from "formik";
+import FlightForm from "../../../components/FlightForm";
 
 
 const Search = () => {
@@ -61,6 +64,31 @@ const Search = () => {
       ))}
     </View>
   );
+
+   const formik = useFormik({
+      initialValues: {
+        departureDate: "",
+        departureTime: "",
+        flightNumber: "",
+        from: 'kwi',
+        to: ''
+      },
+      // validationSchema: AllflightSchema(applanguage),
+      // validateOnChange: false, // Disable auto-validation on change
+      // validateOnBlur: false, // Disable auto-validation on blur
+      onSubmit: async (values) => {
+        console.log('Done');
+        
+        router.push({
+          pathname: "/home/baggage",
+        //   params: {
+        //     departureDate: values.departureDate,
+        //     flightNumber: values.flightNumber,
+        //     departureTime: values.departureTime,
+        //   },
+        });
+      },
+    });
 
   const DashedLine2 = ({ dashCount = 40, dashColor = '#cdcdcd', dashWidth = 4, dashSpacing = 1 }) => (
     <View className="flex-row flex-1 justify-between items-center">
@@ -427,7 +455,7 @@ const formatDate = (isoDateStr) => {
         </Modal>
 
         {/* Display Date */}
-        <View className="flex flex-row gap-x-4 items-center mb-4 mx-auto">
+        <View className="flex flex-row gap-x-4 items-center mb-2 mx-auto">
           <Text className="text-[#696969] ">
             {" "}
             {applanguage === "eng"
@@ -794,8 +822,20 @@ const formatDate = (isoDateStr) => {
             ))}
           </>
         ) : (
-          <View className="h-40 justify-center items-center">
-            <Text className="text-gray-500 text-2xl">No Flights Found</Text>
+          <View className="h-full  justify-center items-center">
+            <Text className=" text-lg text-[#164E8D] font-semibold">“No matching flights found.”</Text>
+                <View className={`bg-white self-center mt-3 z-10  p-6 rounded-2xl w-[95%] shadow-xl`}
+                style={{
+                   shadowColor: '#000',
+  shadowOffset: { width: 3, height: 6 },
+  shadowOpacity: 0.3,
+  shadowRadius: 8,
+  elevation: 10 
+                }}>
+             <View><Text className="text-[#164E8D] font-bold mb-2">Add Manually</Text></View>
+     <FlightForm formik={formik}/>
+     </View>
+            
           </View>
         )}
       </ScrollView>

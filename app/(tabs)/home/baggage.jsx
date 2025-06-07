@@ -29,8 +29,8 @@ import Toast from "react-native-toast-message";
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
-  const { flightData, departureDate } = useLocalSearchParams();
-  const flight = JSON.parse(flightData);
+  // const { flightData, departureDate } = useLocalSearchParams();
+  // const flight = JSON.parse(flightData);
   const [persons, setPersons] = useState("1");
   const [bags, setBags] = useState("1");
   const [bagimages, setBagimages] = useState([]);
@@ -67,117 +67,22 @@ const baggage = () => {
     }
   };
 
-  const removeImage = (index) => {
-    setBagimages((prev) => {
-      const updatedImages = prev.filter((_, i) => i !== index);
-      formik.setFieldValue("baggagePictures", updatedImages);
-      return updatedImages;
-    });
-  };
 
-  const requestPermission = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access gallery is required!");
-    }
-  };
-
-  useEffect(() => {
-    requestPermission();
-  }, []);
+ 
 
   useEffect(() => {
     formik.setValues({
       personsCount: persons,
       baggageCount: bags,
-      baggagePictures: bagimages,
     });
-  }, [persons, bags, bagimages]);
+  }, [persons, bags]);
 
-  const pickImage = async () => {
-    if (bagimages.length >= 10) {
-      alert("You can only upload up to 10 images.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      const newImage = result.assets[0].uri;
-      const image = result.assets[0];
-      const imageSizeInMB = (image.base64.length * (3 / 4)) / (1024 * 1024);
-
-      if (imageSizeInMB > 5) {
-        Toast.show({
-          type: "error",
-          text1: "Image must be smaller than 5MB.",
-          position: "top",
-          visibilityTime: 2000,
-          autoHide: true,
-          topOffset: 40,
-        });
-        return;
-      }
-      setBagimages((prev) => {
-        const updatedImages = [...prev, newImage];
-        formik.setFieldValue("baggagePictures", updatedImages);
-        return updatedImages;
-      });
-    }
-  };
-
-  const takePhoto = async () => {
-    if (bagimages.length >= 10) {
-      alert("You can only upload up to 10 images.");
-      return;
-    }
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access camera is required!");
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      const newImage = result.assets[0].uri;
-      const image = result.assets[0];
-      const imageSizeInMB = (image.base64.length * (3 / 4)) / (1024 * 1024);
-
-      if (imageSizeInMB > 5) {
-        Toast.show({
-          type: "error",
-          text1: "Image must be smaller than 5MB.",
-          position: "top",
-          visibilityTime: 2000,
-          autoHide: true,
-          topOffset: 40,
-        }); return;
-      }
-      setBagimages((prev) => {
-        const updatedImages = [...prev, newImage];
-        formik.setFieldValue("baggagePictures", updatedImages);
-        return updatedImages;
-      });
-    }
-  };
+  
 
   const formik = useFormik({
     initialValues: {
       personsCount: persons,
       baggageCount: bags,
-      baggagePictures: [],
     },
     validationSchema: baggageSchema(applanguage),
     validateOnChange: true,
@@ -191,7 +96,6 @@ const baggage = () => {
         params: {
           personsCount: String(values.personsCount),
           baggageCount: String(values.baggageCount),
-          baggagePictures: JSON.stringify(values.baggagePictures),
           flightData: JSON.stringify(flight),
           departureDate: departureDate
         },
@@ -201,79 +105,7 @@ const baggage = () => {
 
   console.log("Formik errors:", formik.errors);
 
-  const handleImagePicker = () => {
-    return (
-      <RBSheet
-        ref={imagerefRBSheet}
-        closeOnDragDown={true}
-        closeOnPressMask={true}
-        draggable={false}
-        height={Dimensions.get("window").height / 3.5}
-        customStyles={{
-          wrapper: {
-            backgroundColor: "rgba(0,0,0,0.2)",
-          },
-          container: {
-            backgroundColor: "#fff",
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: -3, // Lift shadow upwards
-            },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 5, // For Android shadow
-          },
-          draggableIcon: {
-            backgroundColor: "#ccc",
-            width: 40,
-            height: 5,
-            borderRadius: 10,
-          },
-        }}
-      >
-        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <Text className="text-center mb-4 pb-4 border-b-[1px] border-[#E0E0E0] text-2xl font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
-            Upload Photo
-          </Text>
-
-          <View className="flex flex-row justify-evenly ">
-            <View className="">
-              <TouchableOpacity
-                className=" border-2 border-[#164F90] p-3 rounded-2xl border-dashed"
-                onPress={takePhoto}
-              >
-                <Feather
-                  name="camera"
-                  size={50}
-                  color="#164F90"
-                  className="m-auto w-max "
-                />
-                <Text className="mt-2 font-bold" style={{ fontFamily: "Lato" }}>Click From Camera</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="">
-              <TouchableOpacity
-                className=" border-2 border-[#164F90] p-3 rounded-2xl  border-dashed"
-                onPress={pickImage}
-              >
-                <FontAwesome
-                  name="photo"
-                  size={50}
-                  color="#164F90"
-                  className="m-auto "
-                />
-                <Text className="mt-2 font-bold" style={{ fontFamily: "Lato" }}>Select From Gallery</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </RBSheet>
-    );
-  };
+ 
 
   const DashedLine = ({ dashCount = 30, dashColor = 'white' }) => (
     <View className="flex-row flex-1 justify-between items-center">
@@ -295,7 +127,6 @@ const baggage = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
-      {handleImagePicker()}
       <View>
         <Image
           source={images.HeaderImg2}
@@ -329,7 +160,7 @@ const baggage = () => {
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {flight.departure.iata}
+              {/* {flight?.departure?.iata} */}
             </Text>
             <Text
               className="text-white "
@@ -367,7 +198,7 @@ const baggage = () => {
 
           <View className="flex-col items-center">
             <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {flight.arrival.iata}
+              {/* {flight?.arrival?.iata} */}
             </Text>
             <Text className="text-white " style={{
               flexWrap: "wrap",
@@ -424,7 +255,7 @@ const baggage = () => {
                     formik.setFieldValue("personsCount", numericValue);
                   }}
                   keyboardType="numeric"
-                  className="text-[#194f90] w-10"
+                  className="text-[#194f90] w-8 border-b"
                   style={{ fontFamily: "Lato", minWidth: 30, textAlign: "center" }}
                 />
                 <TouchableOpacity
@@ -468,7 +299,7 @@ const baggage = () => {
                     formik.setFieldValue("baggageCount", numericValue);
                   }}
                   keyboardType="numeric"
-                  className="text-[#194f90] w-10"
+                  className="text-[#194f90] w-8 border-b"
                   style={{ fontFamily: "Lato", minWidth: 30, textAlign: "center" }}
                 />
                 <TouchableOpacity className="ml-3">
@@ -483,7 +314,7 @@ const baggage = () => {
                  <Text className="text-red-500 text-[11px]">{formik.errors.baggageCount}</Text>
           </View>
           {/* Image Upload */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <TouchableOpacity
               className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
               onPress={() => {
@@ -518,7 +349,7 @@ const baggage = () => {
                 </View>
               ))}
             </View>
-          </View>
+          </View> */}
 
           {/* Continue Button */}
           <TouchableOpacity

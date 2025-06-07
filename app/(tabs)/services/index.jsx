@@ -87,7 +87,7 @@ const Index = () => {
       </View>
 
       {/* Services List */}
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView className="p-4 px-2" showsVerticalScrollIndicator={false}>
         {isLoading ? (
           // Shimmer loading effect
           <View className="flex-1 justify-center items-center">
@@ -110,7 +110,7 @@ const Index = () => {
                       .filter((line) => line.trim() !== "");
 
                     return (
-                      <View className="gap-2 px-4">
+                      <View className="gap-2 px-2">
                         {lines.length > 0 && (
                           <View className="flex-row items-start mb-2">
                             <Image
@@ -140,7 +140,7 @@ const Index = () => {
 
               {/* Book Now Button */}
               <TouchableOpacity
-                className="bg-[#FFB800] rounded-xl py-4 my-4 mx-10 active:opacity-80"
+                className="bg-[#FFB800] rounded-xl py-4 my-4 w-[95%] max-w-[300px] mx-auto active:opacity-80"
                 style={{
                   elevation: 5,
                   shadowColor: '#000',

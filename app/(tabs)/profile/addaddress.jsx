@@ -14,12 +14,7 @@ import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
-import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
-import dp from "../../../assets/images/dpfluthru.jpg";
-import { Calendar } from "lucide-react-native";
-import Send from "../../../assets/svgs/send";
 import { ADD_ADDRESS } from "../../../network/apiCallers";
 import { useFormik } from "formik";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,6 +24,11 @@ import addaddresSchema from "../../../yupschema/addressSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import Checkbox from 'expo-checkbox';
+// import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
+// import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+// import dp from "../../../assets/images/dpfluthru.jpg";
+// import { Calendar } from "lucide-react-native";
+// import Send from "../../../assets/svgs/send";
 
 const addaddress = () => {
   const insets = useSafeAreaInsets();

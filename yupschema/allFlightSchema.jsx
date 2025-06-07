@@ -9,6 +9,13 @@ export const AllflightSchema = (applanguage) =>
       .required(applanguage === "eng"
         ? "Departure date is required"
         : "تاريخ المغادرة مطلوب"),
+    departureTime: Yup.string()
+      .matches(/^[a-zA-Z0-9\s\-\/]*$/, applanguage === "eng"
+        ? "Departure Time should not contain special characters"
+        : "يجب ألا يحتوي وقت المغادرة على رموز خاصة")
+      .required(applanguage === "eng"
+        ? "Departure Time is required"
+        : "وقت المغادرة مطلوب"),
 
     flightNumber: Yup.string()
       .min(

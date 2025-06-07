@@ -61,6 +61,9 @@ import Cut from "../../../assets/svgs/cut";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import Constants from "expo-constants";
+import ChangePassword from "../../../assets/svgs/changePass";
+import Followus from "../../../assets/svgs/followus";
+import Aboutus from "../../../assets/svgs/aboutus";
 
 // import { Alert, Button } from "react-native";
 
@@ -295,7 +298,7 @@ const index = () => {
           </View>
 
           <View className="flex flex-row justify-center">
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 "
               onPress={() => logoutrefRBSheet.current.close()}
             >
@@ -306,7 +309,7 @@ const index = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
               onPress={() => {
                 onSignOut();
@@ -374,7 +377,7 @@ const index = () => {
         ref={drefRBSheet}
         closeOnDragDown={true}
         closeOnPressMask={true}
-        height={Platform.OS==="android"?Dimensions.get("window").height / 1.35:Dimensions.get("window").height / 1.65}
+        height={Platform.OS === "android" ? Dimensions.get("window").height / 1.35 : Dimensions.get("window").height / 1.65}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -408,7 +411,7 @@ const index = () => {
                 ? Translations.eng.delete_account
                 : Translations.arb.delete_account}
             </Text>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               onPress={() => drefRBSheet.current.close()}
               className="absolute right-4 top-1/2 -translate-y-1/2"
             >
@@ -434,19 +437,19 @@ const index = () => {
                   setSelectedRadioReason(value);
 
                   const reasonMap = {
-                    1: Translations.eng. reason_I_no_longer_need_this_service_or_app,
-                    2: Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues,
-                   
+                    1: Translations.eng.reason_I_no_longer_need_this_service_or_app,
+                    2: Translations.eng.reason_I_had_a_poor_experience_or_encountered_issues,
+
                   };
 
                   const selectedReason =
                     applanguage === "eng"
                       ? reasonMap[value]
                       : {
-                          1: Translations.arb. reason_I_no_longer_need_this_service_or_app,
-                          2: Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues,
-                         
-                        }[value];
+                        1: Translations.arb.reason_I_no_longer_need_this_service_or_app,
+                        2: Translations.arb.reason_I_had_a_poor_experience_or_encountered_issues,
+
+                      }[value];
 
                   // ✅ Set in Formik but don't show in the input
                   formik.setFieldValue(
@@ -468,8 +471,8 @@ const index = () => {
                       }}
                     >
                       {applanguage === "eng"
-                        ? Translations.eng. reason_I_no_longer_need_this_service_or_app
-                        : Translations.arb. reason_I_no_longer_need_this_service_or_app}
+                        ? Translations.eng.reason_I_no_longer_need_this_service_or_app
+                        : Translations.arb.reason_I_no_longer_need_this_service_or_app}
                     </Text>
                   }
                 />
@@ -492,8 +495,8 @@ const index = () => {
                         }}
                       >
                         {applanguage === "eng"
-                          ? Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues
-                          : Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues}
+                          ? Translations.eng.reason_I_had_a_poor_experience_or_encountered_issues
+                          : Translations.arb.reason_I_had_a_poor_experience_or_encountered_issues}
                       </Text>
                     </View>
                   }
@@ -551,7 +554,7 @@ const index = () => {
               </Text>
 
               <TextInput
-              style={{ height: 170 }}
+                style={{ height: 170 }}
                 multiline={true}
                 numberOfLines={7}
                 onChangeText={(text) => {
@@ -583,7 +586,7 @@ const index = () => {
                 )}
             </View>
 
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               disabled={loading}
               onPress={formik.handleSubmit}
               style={{
@@ -683,7 +686,7 @@ const index = () => {
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="px-4">
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/editprofile")}
           >
@@ -698,7 +701,22 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+          onPress={() => router.push("/profile/changepassword")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <ChangePassword />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.change_password
+                  : Translations.arb.change_password}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/address")}
           >
@@ -713,7 +731,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/language")}
           >
@@ -728,7 +746,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/contactus")}
           >
@@ -743,7 +761,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          {/* <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/chat")}
           >
@@ -758,7 +776,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity> */}
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/faq")}
           >
@@ -773,7 +791,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/feedback")}
           >
@@ -788,7 +806,37 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+            onPress={() => router.push("/profile/followus")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <Followus />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.follow_us
+                  : Translations.arb.follow_us}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+            onPress={() => router.push("/profile/aboutus")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <Aboutus />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.about_us
+                  : Translations.arb.about_us}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/termsandconditions")}
           >
@@ -803,7 +851,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/privacypolicy")}
           >
@@ -818,7 +866,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          {/* <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/cancellationpolicy")}
           >
@@ -831,9 +879,9 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/refundpolicy")}
           >
@@ -849,7 +897,7 @@ const index = () => {
           </TouchableOpacity> */}
 
           {isLoggedIn && (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
               onPress={() => drefRBSheet.current.open()}
             >
@@ -865,7 +913,7 @@ const index = () => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => {
               if (isLoggedIn) {
@@ -883,8 +931,8 @@ const index = () => {
                     ? Translations.eng.logout
                     : Translations.arb.logout
                   : applanguage === "eng"
-                  ? Translations.eng.log_in
-                  : Translations.arb.log_in}
+                    ? Translations.eng.log_in
+                    : Translations.arb.log_in}
               </Text>
             </View>
             <Rightarrow />
@@ -898,7 +946,7 @@ const index = () => {
               : Translations.arb.app_version}{" "}
             -{Constants.expoConfig.version}
           </Text>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             onPress={() => Linking.openURL("https://analogueitsolutions.com/")}
             className=" "
           >

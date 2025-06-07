@@ -16,8 +16,8 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import images from "../../../constants/images";
-import { StatusBar } from "expo-status-bar";
 import { Bell } from "lucide-react-native";
+import { StatusBar } from "expo-status-bar";
 import ad from "../../../assets/images/adbanner.png";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import icongrey from "../../../assets/images/icongrey.png";
@@ -34,32 +34,25 @@ import {
 import { useFormik } from "formik";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
-import { AllflightSchema } from "../../../yupschema/allFlightSchema";
-import Fromto from "../../../assets/svgs/fromto";
-import HomeCal from "../../../assets/homecalender";
-import Homecal from "../../../assets/homecalender";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import { useAuth } from "../../../UseContext/AuthContext";
+import FlightForm from "../../../components/FlightForm";
+import { AllflightSchema } from "../../../yupschema/allFlightSchema";
 
 
 const Index = () => {
   const insets = useSafeAreaInsets();
-  const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
-  const [selectedDate, setSelectedDate] = useState("");
+  
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
-  const [fromValue, setFromValue] = useState("");
-  const [toValue, setToValue] = useState("");
+ 
   const { loadToken } = useAuth()
   // const [showDatePicker,setshowDatePicker]
   // Swap function
-  const handleSwap = () => {
-    const temp = fromValue;
-    setFromValue(toValue);
-    setToValue(temp);
-  };
+ 
 
   const { applanguage } = langaugeContext();
 
@@ -102,76 +95,48 @@ const Index = () => {
   }, []);
 
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Calendarpicker.requestCalendarPermissionsAsync();
-      if (status === "granted") {
-        const calendars = await Calendarpicker.getCalendarsAsync(
-          Calendarpicker.EntityTypes.EVENT
-        );
-        // console.log("Here are all your calendars:", calendars);
-      } else {
-        Alert.alert("Permission required", "Calendar access is needed.");
-      }
-    })();
-  }, []);
 
-  const handleDateChange = (event, date) => {
-    if (Platform.OS === "android") {
-      // Dismiss the picker whether selected or cancelled
-      setShowDatePicker(false);
-    }
 
-    if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
-      setSelectedDate(formattedDate);
-      formik.setFieldValue("departureDate", formattedDate);
-    }
-  };
-
-  const createNewCalendar = async () => {
-    try {
-      const defaultCalendarSource =
-        Platform.OS === "ios"
-          ? await Calendarpicker.getDefaultCalendarAsync()
-          : { isLocalAccount: true, name: "Expo Calendar" };
-
-      const newCalendarID = await Calendarpicker.createCalendarAsync({
-        title: "Flight Schedules",
-        color: "#FFB800",
-        entityType: Calendarpicker.EntityTypes.EVENT,
-        sourceId: defaultCalendarSource.id,
-        source: defaultCalendarSource,
-        name: "Flight Schedules",
-        ownerAccount: "personal",
-        accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
-      });
-
-      // console.log("New calendar ID:", newCalendarID);
-    } catch (error) {
-      console.log("Error creating calendar:", error);
-    }
-  };
+ 
 
   const formik = useFormik({
     initialValues: {
       departureDate: "",
+      departureTime: "",
       flightNumber: "",
       from: 'kwi',
       to: ''
     },
-    validationSchema: AllflightSchema(applanguage),
+    // validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
     validateOnBlur: false, // Disable auto-validation on blur
     onSubmit: async (values) => {
-      console.log("Submitting values:", values);
-      router.push({
-        pathname: "/home/search",
-        params: {
-          departureDate: values.departureDate,
-          flightNumber: values.flightNumber,
-        },
-      });
+
+
+
+       const { departureDate, flightNumber,to,from,departureTime } = values;
+
+            if (!departureDate || !flightNumber || !from || !to || !departureTime) {
+            
+              Toast.show({
+                type: "error",
+                text1:
+                  "Please fill all fields"
+                ,
+              });
+              return
+            }
+
+              router.push({
+                // pathname: "/home/search",
+                pathname: "/home/search",
+                params: {
+                  departureDate: values.departureDate,
+                  flightNumber: values.flightNumber,
+                  departureTime: values.departureTime,
+                },
+              });
+            
     },
   });
 
@@ -204,16 +169,7 @@ const Index = () => {
 
 
 
-  const hideDatePicker = () => {
-    setShowDatePicker(false);
-  };
 
-  const handleConfirm = (date) => {
-    const formattedDate = date.toISOString().split("T")[0];
-    setSelectedDate(formattedDate);
-    formik.setFieldValue("departureDate", formattedDate);
-    hideDatePicker();
-  };
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -254,199 +210,9 @@ const Index = () => {
         </TouchableOpacity>
       </View>
       <View className={`bg-white self-center absolute ${Platform.OS === "android" ? "top-36" : "top-44"} z-10  p-6 rounded-2xl w-[90%] shadow-lg`}>
-        <TouchableOpacity
-          onPress={() => {
-            setShowDatePicker(true);
-            console.log("calender pressed");
-          }}
-          className="flex-row my-2 justify-between items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50"
-        >
-          {showDatePicker ?
-
-            // <DateTimePicker
-            //   value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
-            //   mode="date"
-            //   display={Platform.OS === "android" ? "default" : "compact"}
-            //   onChange={handleDateChange}
-            //   minimumDate={new Date()}
-            // />
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              onConfirm={handleConfirm}
-              onCancel={hideDatePicker}
-              minimumDate={new Date()}
-            />
-            :
-            <TouchableOpacity className="bg-gray-200 p-3 rounded-lg" onPress={() => setShowDatePicker(true)}>
-
-              <Text>{selectedDate || "yyyy-mm-dd"}</Text>
-            </TouchableOpacity>
-          }
-
-          <TouchableOpacity
-            className=""
-            onPress={() => {
-              setShowDatePicker(true);
-              console.log("calender pressed");
-            }}
-          >
-            <Homecal size={24} color="#6B7280" />
-          </TouchableOpacity>
-        </TouchableOpacity>
-
-        {formik.touched.departureDate && formik.errors.departureDate && (
-          <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
-            {formik.errors.departureDate}
-          </Text>
-        )}
-
-        {/* {showDatePicker  &&( 
-        <DateTimePicker
-          //   value={selectedDate ? new Date(selectedDate) : new Date()} // Ensure it has a valid date
-          //   mode="date"
-          //   display={Platform.OS==="android"?"default":"default"}
-          //   onChange={handleDateChange}
-          //   minimumDate={new Date()}
-          // />
-        // )}
-{/* {Platform.OS === "ios" && (
-  <Modal
-    transparent={true}
-    animationType="slide"
-    visible={showDatePicker}
-    onRequestClose={() => setShowDatePicker(false)}
-  >
-    <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.5)" }}>
-      <View style={{ backgroundColor: "white", padding: 16 }}>
-       <DateTimePicker
-  value={selectedDate ? new Date(selectedDate) : new Date()}
-  mode="date"
-  display="spinner"
-  onChange={(event, date) => {
-    if (event.type === "set" && date) {
-      const today = new Date();
-      const selected = new Date(date);
-
-      // Remove time from both dates for accurate day comparison
-      today.setHours(0, 0, 0, 0);
-      selected.setHours(0, 0, 0, 0);
-
-      if (selected < today) {
-        Toast.show({
-          type: 'error',
-          text1: 'Invalid Date',
-          text2: 'Please select a future date.',
-        });
-        return; // Don't close or set the date
-      }
-
-      handleDateChange(event, selected); // your own handler
-      setShowDatePicker(false);
-    }
-  }}
-  minimumDate={new Date()} // optional if you want to prevent past dates entirely
-/>
-
-      </View>
-    </View>
-  </Modal>
-)} */}
-
-
-        <TextInput
-          maxLength={6}
-          placeholder={
-            applanguage === "eng"
-              ? Translations.eng.flight_number
-              : Translations.arb.flight_number
-          }
-          onChangeText={formik.handleChange("flightNumber")}
-          onBlur={formik.handleBlur("flightNumber")}
-          value={formik.values.flightNumber}
-          name="flightNumber"
-          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-          placeholderTextColor="#2D2A29"
-        />
-
-        {/* {formik.touched.flightNumber && formik.errors.flightNumber && (
-          <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
-            {formik.errors.flightNumber}
-          </Text>
-        )} */}
-
-        <TextInput
-          placeholder={
-            applanguage === "eng"
-              ? Translations.eng.from
-              : Translations.arb.from
-          }
-          value={formik.values.from}
-          readOnly
-          // value={fromValue}
-          // onChangeText={(text) => setFromValue(text)}
-          className="border h-[50px] border-gray-300 my-2 rounded-xl text-black px-4 py-3 bg-gray-50"
-          placeholderTextColor="#2D2A29"
-        />
-
-        {/* <TouchableOpacity
-          className="z-[100] absolute right-10 top-[203px]"
-          onPress={handleSwap}
-        >
-          <Fromto size={20} color="#6B7280" />
-        </TouchableOpacity> */}
-
-        <TextInput
-          placeholder={
-            applanguage === "eng" ? Translations.eng.to : Translations.arb.to
-          }
-          value={formik.values.to}
-          // value={toValue}
-          onChangeText={(text) => formik.handleChange("to")}
-          onBlur={formik.handleBlur("to")}
-          className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
-          placeholderTextColor="#2D2A29"
-        />
-
-        <TouchableOpacity
-          onPress={async () => {
-            await formik.validateForm(); // Validate form
-            const { departureDate, flightNumber } = formik.values;
-
-            if (!departureDate && !flightNumber) {
-              formik.setErrors({
-                departureDate: "Please fill at least one field",
-                flightNumber: "Please fill at least one field",
-                airPortName: "Please fill at least one field",
-                city: "Please fill at least one field",
-              });
-              Toast.show({
-                type: "error",
-                text1:
-                  " Please fill at least one field"
-                ,
-              });
-            } else {
-              formik.handleSubmit();
-              createNewCalendar();
-            }
-          }}
-          className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
-          style={{
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.50,
-            shadowRadius: 3.84,
-          }}
-        >
-          <Text className="text-center text-[#164E8D] font-bold text-base" style={{ fontFamily: "Lato" }}>
-            {applanguage === "eng"
-              ? Translations.eng.search
-              : Translations.arb.search}
-          </Text>
-        </TouchableOpacity>
-      </View>
+             <View><Text className="text-[#164E8D] font-semibold mb-2">Search By</Text></View>
+     <FlightForm formik={formik}/>
+     </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
         <View className="flex-1 items-center justify-center mt-64 mx-6 ">
