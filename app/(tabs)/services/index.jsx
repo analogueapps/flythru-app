@@ -87,7 +87,7 @@ const Index = () => {
       </View>
 
       {/* Services List */}
-      <ScrollView className="p-4 px-2" showsVerticalScrollIndicator={false}>
+      <ScrollView className="p-4 px-6" showsVerticalScrollIndicator={false}>
         {isLoading ? (
           // Shimmer loading effect
           <View className="flex-1 justify-center items-center">

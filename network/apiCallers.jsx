@@ -121,7 +121,7 @@ export const OAUTH = async (firebaseToken) => {
     }
 
     return res;
-  } catch (error) {
+  } catch (error) { 
     console.log("OAuth Login Error:", error);
     throw error;
   }
@@ -131,8 +131,29 @@ export const VERIFY_OTP = async (data, token) => {
   console.log();
   return await axios.post(`${LOCAL_URL}/user/verifyotp`, data, {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`, 
     },
+  });
+};
+
+export const FORGOT_PASSWORD_EMAIL= async (data) => {
+  console.log("FORGOT PASSWORD EMAIL API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/forgot-password`, data, {
+   
+  });
+};
+
+export const FORGOT_PASSWORD_OTP= async (data) => {
+  console.log("FORGOT PASSWORD OTP API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/verify-otp`, data, {
+   
+  });
+};
+
+export const RESET_PASSWORD= async (data) => {
+  console.log("FORGOT PASSWORD RESET API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/reset-password`, data, {
+   
   });
 };
 
@@ -258,7 +279,12 @@ export const PAYMENT_VERIFICATION_API = async (data) => {
 
 export const ALL_FLIGHTS = async (data) => {
   console.log("Fetched All flights");
-  return await axios.post(`${LOCAL_URL}/allflights`, data);
+  return await axios.post(`${LOCAL_URL}/allflights`, data); 
+};
+
+export const ADD_FLIGHTS = async (data) => {
+  console.log("Adding flight data:", data);
+  return await axios.post(`${LOCAL_URL}/add-flight`, data); 
 };
 
 export const ALL_FLIGHTS_CLIENT = async (data) => {
@@ -288,6 +314,12 @@ export const ALL_FAQS = async () => {
   console.log("faqs fetched");
 
   return await axios.get(`${LOCAL_URL}/allfaqs`, {});
+};
+
+export const FOLLOW_LINKS = async () => {
+  console.log("FOLLOW LINKS FETCHED");
+
+  return await axios.get(`${LOCAL_URL}/follow_links`, {});
 };
 
 export const ALL_USERS = async () => {

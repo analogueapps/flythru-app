@@ -277,8 +277,6 @@ const { token } = useLocalSearchParams();
   };
 
   
-  
-
   return (
     <SafeAreaView className="flex-1 bg-white p-6">
       <View className="flex-1">

@@ -29,6 +29,8 @@ import axios from "axios";
 import { LOCAL_URL } from "../../../network/environment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightlogo from "../../../assets/images/flight.png";
+import jazeera from "../../../assets/images/jazeera.png";
+
 import Toast from "react-native-toast-message";
 import { useFormik } from "formik";
 import FlightForm from "../../../components/FlightForm";
@@ -180,6 +182,7 @@ const formatDate = (isoDateStr) => {
     try {
       const res = await ALL_FLIGHTS({ flightNumber, departureDate });
       console.log("resres res res res res res res", res?.data?.allFlights,departureDate);
+
 
       if (res?.data?.allFlights) {
         let transformedFlights = res.data.allFlights.map((flight) => ({
@@ -395,7 +398,7 @@ const formatDate = (isoDateStr) => {
           </TouchableOpacity>
           <Text
             className="text-[18px] text-white ml-3 "
-            style={{ fontFamily: "CenturyGothic" }}
+            style={{ fontFamily: "CenturyGothic" }} 
           >
             {applanguage === "eng"
               ? Translations.eng.search_result
@@ -455,12 +458,13 @@ const formatDate = (isoDateStr) => {
         </Modal>
 
         {/* Display Date */}
-        <View className="flex flex-row gap-x-4 items-center mb-2 mx-auto">
-          <Text className="text-[#696969] ">
+        <View className="flex flex-row gap-x-36 items-center mb-6 mx-auto">
+          <Text className="text-[#696969] text-lg">Search Results</Text>
+          <Text className="text-[#164F90] font-bold">
             {" "}
             {applanguage === "eng"
               ? Translations.eng.date
-              : Translations.arb.date}{" "}
+              : Translations.arb.date}{" "}:{" "}
             {departureDate}
           </Text>
         </View>
@@ -630,16 +634,20 @@ const formatDate = (isoDateStr) => {
                 {/* Divider */}
                 {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
 
-
+                <View className="w-full px-2">
+                  <Image
+                      source={jazeera} className="h-11 self-center mt-3" resizeMode="contain"
+                    />
+                </View>
 
 
                 {/* Flight Details */}
-                <View className="flex-row justify-between items-center py-6 px-5" style={{ fontFamily: 'lato' }}>
+                <View className="flex-row justify-between items-center pt-1 pb-6 px-5 " style={{ fontFamily: 'lato' }}>
                   {/* Departure */}
                   <View className="items-start w-24 ">
                     <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold text-center text-[13px] ">
-                      {flight.departure?.airport.toUpperCase() || "N/A"}
+                      ellipsizeMode="tail" className="text-[#003C71] font-bold text-center text-[18px] ">
+                      {flight.departure?.iata.toUpperCase() || "N/A"}
                     </Text>
                     <Text className="text-[20px]  ">
                       {
@@ -665,25 +673,32 @@ const formatDate = (isoDateStr) => {
                       </View>
                     </View>
                   </View> */}
-
+ 
                   <View className="flex-1 items-center h-full mt-8" style={{ fontFamily: 'lato' }}>
                     <Text className="text-[#000000] text-[14px] font-bold">{flight.flight?.number || "N/A"}</Text>
-                    <View className="w-full flex-row items-center justify-center mt-2">
-                      <View className=" relative justify-center">
-                        <DashedLine />
-                        <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
-                          <FontAwesome5 name="plane" size={16} color="#164F90" />
-                        </View>
-                      </View>
-                    </View>
-                    <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text>
+                   <View className="w-full flex-row items-center justify-center mt-2">
+  <View className="relative flex-row items-center w-full px-1">
+    
+    {/* Plane icon at start */}
+    <FontAwesome5 name="plane" size={16} color="#164F90" className="z-10" />
+
+    {/* Grey line */}
+    <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+    {/* Small grey circle at end */}
+    <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+    
+  </View>
+</View>
+
+                    {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
                   </View>
 
                   {/* Arrival */}
                   <View className="items-end w-24" style={{ fontFamily: 'lato' }}>
                     <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold  text-[13px] ">
-                      {flight.arrival?.airport.toUpperCase() || "N/A"}
+                      ellipsizeMode="tail" className="text-[#003C71] font-bold  text-[18px] ">
+                      {flight.arrival?.iata.toUpperCase() || "N/A"}
                     </Text>
                     <Text className="text-[20px]  ">
                       {
@@ -799,12 +814,24 @@ const formatDate = (isoDateStr) => {
 
                   <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
-                      <View className="flex-1 relative justify-center">
+                      {/* <View className="flex-1 relative justify-center">
                         <DashedLine />
                         <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
                           <FontAwesome5 name="plane" size={16} color="#164F90" />
                         </View>
-                      </View>
+                      </View> */}
+                      <View className="relative flex-row items-center w-full px-1">
+    
+    {/* Plane icon at start */}
+    <FontAwesome5 name="plane" size={16} color="#164F90" className="z-10" />
+
+    {/* Grey line */}
+    <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+    {/* Small grey circle at end */}
+    <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+    
+  </View>
                     </View>
                   </View>
 
@@ -833,7 +860,9 @@ const formatDate = (isoDateStr) => {
   elevation: 10 
                 }}>
              <View><Text className="text-[#164E8D] font-bold mb-2">Add Manually</Text></View>
-     <FlightForm formik={formik}/>
+     <FlightForm 
+     formik={formik}
+     />
      </View>
             
           </View>

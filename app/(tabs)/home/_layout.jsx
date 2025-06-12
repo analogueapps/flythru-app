@@ -22,7 +22,7 @@ const _layout = () => {
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen
+        <Stack.Screen 
           name="slots"
           options={{ gestureEnabled: true, animation: "slide_from_right" }}
         />
@@ -69,6 +69,11 @@ const _layout = () => {
 
         <Stack.Screen
           name="editpro"
+          options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
+        />
+
+        <Stack.Screen
+          name="locaddress"
           options={{ gestureEnabled: true, animation: "slide_from_right", tabBarStyle: { display: "none" }, }}
         />
       </Stack>

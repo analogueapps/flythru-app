@@ -14,15 +14,71 @@ import facebookImg from "../../../assets/images/facebook.png";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import TranslateText from "../../../network/translate";
+import { FOLLOW_LINKS } from "../../../network/apiCallers";
+import * as Linking from "expo-linking";
 
 const FollowUs = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
+  const [links, setLinks] = useState({
+  instagram: "",
+  facebook: "",
+  linkedin: "",
+  youtube: "",
+  twitter: "",
+});
+const [loading, setLoading] = useState(false);
+
+
+const openLink = (url) => {
+  if (url) {
+    Linking.openURL(url);
+  } else {
+    alert("Link not available");
+  }
+};
+
+
+ const fetchlinks = async () => {
+  setLoading(true);
+  try {
+    const res = await FOLLOW_LINKS();
+    console.log("res follow links", res.data);
+
+    if (res?.data) {
+      console.log("res data", res.data);
+      
+      setLinks({
+        instagram: res.data.instgram,
+        facebook: res.data.facebook,
+        linkedin: res.data.linkedin,
+        youtube: res.data.youtube,
+        twitter: res.data.twitter,
+      });
+    } else {
+      console.log("Unexpected response format:", res.data);
+    }
+  } catch (error) {
+    console.log("Error fetching links:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    fetchlinks();
+  }, []);
 
 
 
 
-
+const socialLinks = [
+  { name: "Instagram", icon: instagramImg, url: links.instagram },
+  { name: "Facebook", icon: facebookImg, url: links.facebook },
+  { name: "LinkedIn", icon: linkdinImg, url: links.linkedin },
+  { name: "Twitter", icon: xImg, url: links.twitter },
+  { name: "YouTube", icon: youtubeImg, url: links.youtube },
+];
 
   return (
     <View className="flex-1">
@@ -64,7 +120,7 @@ const FollowUs = () => {
       {/* Privacy Policy Content */}
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
 
-        <TouchableOpacity className="w-[95%] my-2 mx-auto flex flex-row items-center gap-x-4 border border-[#007AFF7D] rounded-[11px] bg-white shadow-lg p-3"
+        {/* <TouchableOpacity className="w-[95%] my-2 mx-auto flex flex-row items-center gap-x-4 border border-[#007AFF7D] rounded-[11px] bg-white shadow-lg p-3"
         >
           <View className="w-9 h-9">
             <Image
@@ -118,7 +174,27 @@ const FollowUs = () => {
             />
           </View>
           <Text className="text-[16px] font-semibold"  style={{ fontFamily: "CenturyGothic" }}>YouTube</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+
+
+        {socialLinks.map((item, index) => (
+  <TouchableOpacity
+    key={index}
+    onPress={() => openLink(item.url)}
+    className="w-[95%] my-2 mx-auto flex flex-row items-center gap-x-4 border border-[#007AFF7D] rounded-[11px] bg-white shadow-lg p-3"
+  >
+    <View className="w-9 h-9">
+      <Image resizeMode="contain" className="w-full h-full" source={item.icon} />
+    </View>
+    <Text
+      className="text-[16px] font-semibold"
+      style={{ fontFamily: "CenturyGothic" }}
+    >
+      {item.name}
+    </Text>
+  </TouchableOpacity>
+))}
+
 
         <View className="flex justify-center ">
           <Image

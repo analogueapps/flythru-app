@@ -735,7 +735,12 @@ const Index = () => {
                   )}
                 <View className=" w-[90%] flex flex-row justify-end">
 
-                <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold">Forgot Password ?</Text></TouchableOpacity>
+                <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold" onPress={()=> router.push("/forgotpassemail")}>
+                      {applanguage === "eng"
+                        ? Translations.eng.forgot_password
+                        : Translations.arb.forgot_password}
+                    
+                  </Text></TouchableOpacity>
                 </View>
 
                 <TouchableOpacity

@@ -95,17 +95,13 @@ const Index = () => {
   }, []);
 
 
-
-
- 
-
   const formik = useFormik({
     initialValues: {
-      departureDate: "",
-      departureTime: "",
-      flightNumber: "",
+      departureDate: "10/06/2025",
+      departureTime: "05:00",
+      flightNumber: "AA456",
       from: 'kwi',
-      to: ''
+      to: 'hyd'
     },
     // validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
@@ -218,7 +214,7 @@ const parsedDepartureDate = `${day}-${month}-${year}`;
      </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
-        <View className="flex-1 items-center justify-center mt-64 mx-6 ">
+        <View className="flex-1 items-center justify-center mt-80 mx-6 ">
           {/* Ad Card */}
           {Array.isArray(banners) && banners.length > 0 && (
             <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start" style={{ fontFamily: "Lato" }}>
@@ -226,7 +222,7 @@ const parsedDepartureDate = `${day}-${month}-${year}`;
                 ? Translations.eng.ad
                 : Translations.arb.ad}
             </Text>
-          )}
+          )} 
 
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">

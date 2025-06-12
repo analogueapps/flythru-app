@@ -8,6 +8,9 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Timelogo from "../assets/timelogo";
 import Homecal from "../assets/homecalender";
 import { langaugeContext } from '../customhooks/languageContext';
+import { useFormik } from 'formik';
+import addFlightSchema from '../yupschema/addFlight';
+import { ADD_FLIGHTS } from '../network/apiCallers';
 const FlightForm = ({formik}) => {
  const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
@@ -17,6 +20,59 @@ const FlightForm = ({formik}) => {
     const [selectedTime, setSelectedTime] = useState("");
     //   const { loadToken } = useAuth()
     const { applanguage } = langaugeContext();
+
+    
+
+
+        //  const formik = useFormik({
+        //      initialValues: {
+        //         flight_from: "kwi",
+        //      flight_to: "",
+        //      dep_date: "", // departure date yyyy-mm-dd
+        //      dep_time: "", // departure time hh:mm
+        //      flight_time: "",
+        //      flight_number: ""
+        //      },
+         
+        //      enableReinitialize: true,
+        //      validationSchema: addFlightSchema(applanguage),
+        //      validateOnChange: true,
+        //      validateOnBlur: true,
+        //      onSubmit: async (values) => {
+        //        console.log("values submitted edit profile:", values);
+        //        await addFlightshandler(values);
+        //      },
+        //    });
+
+             const addFlightshandler = async (values) => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("authToken");
+    if (!token) {
+      Toast.show("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const res = await ADD_FLIGHTS(values, token);
+      console.log(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
+
+      router.back();
+    } catch (error) {
+      console.log("Error updating profile:", error?.response);
+      Toast.show({
+        type: "info",
+        text1: error.response?.data?.message || "Failed to update profile",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
     
     
     //  const handleDateChange = (event, date) => {
@@ -25,7 +81,7 @@ const FlightForm = ({formik}) => {
     //       setShowDatePicker(false);
     //     }
     
-    //     if (date) {
+    //     if (date) { 
     //       const formattedDate = date.toISOString().split("T")[0];
     //       setSelectedDate(formattedDate);
     //       formik.setFieldValue("departureDate", formattedDate);
