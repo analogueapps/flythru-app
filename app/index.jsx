@@ -33,7 +33,7 @@ export default function Index() {
       try {
         const token = await AsyncStorage.getItem("authToken");
         if (token) {
-          router.replace("/home");
+          router.replace("/home/search");
         } else {
           router.replace("/(auth)");
           //  router.replace("/forgotpassemail");

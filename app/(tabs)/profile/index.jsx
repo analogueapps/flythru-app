@@ -701,7 +701,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.6}
+          {/* <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
           onPress={() => router.push("/profile/changepassword")}
           >
@@ -714,7 +714,7 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"

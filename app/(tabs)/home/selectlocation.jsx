@@ -720,7 +720,7 @@ const selectlocation = () => {
         <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
          
 
-           <Modal
+           {/* <Modal
         visible={isDropdownVisible}
         transparent={true}
         animationType="fade"
@@ -775,7 +775,71 @@ const selectlocation = () => {
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
-      </Modal>
+      </Modal> */}
+
+       <Modal
+  visible={isDropdownVisible}
+  transparent={true}
+  animationType="fade"
+  onRequestClose={() => setIsDropdownVisible(false)}
+>
+  <TouchableWithoutFeedback onPress={() => setIsDropdownVisible(false)}>
+    <View style={{ flex: 1 }}>
+      <TouchableWithoutFeedback>
+        <View
+          style={{
+            backgroundColor: "white",
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: "#D1D5DB",
+            width: "80%",
+            alignSelf: "center",
+            marginTop: 180,
+            maxHeight: 240, // 4 items * ~60px/item
+          }}
+        >
+          <ScrollView
+            style={{ flexGrow: 0 }}
+            showsVerticalScrollIndicator={true}
+          >
+            {[
+              { label: "Select from map", action: "map" },
+              { label: "Enter manually", action: "manual" },
+              ...(addresses.length > 0
+                ? addresses.map((item) => ({
+                    label: item.label,
+                    action: "select",
+                  }))
+                : [{ label: "No address found", disabled: true }]),
+            ].map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                disabled={item.disabled}
+                onPress={() => handleSelectOption(item)}
+                className={`px-4 py-3 w-full ${
+                  item.disabled ? "opacity-50" : ""
+                }`}
+              >
+                <Text
+                  className={`text-base ${
+                    item.disabled
+                      ? "text-gray-400 border-b-[1px] border-gray-300 pb-6"
+                      : item.action === "map" || item.action === "manual"
+                      ? "text-[#194F90] border-b-[1px] border-gray-300 pb-6"
+                      : "text-gray-800 border-b-[1px] border-gray-300 pb-6"
+                  }`}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+  </TouchableWithoutFeedback>
+</Modal>
+
          <TextInput
         placeholder={
           applanguage === "eng"

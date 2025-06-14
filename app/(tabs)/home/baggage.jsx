@@ -29,7 +29,7 @@ import Toast from "react-native-toast-message";
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
-  const { flightData, departureDate } = useLocalSearchParams();
+  const { flightData, departureDate , departureTime } = useLocalSearchParams();
   const flight = JSON.parse(flightData);
   const [persons, setPersons] = useState("1");
   const [bags, setBags] = useState("1");
@@ -97,13 +97,20 @@ const baggage = () => {
           personsCount: String(values.personsCount),
           baggageCount: String(values.baggageCount),
           flightData: JSON.stringify(flight),
-          departureDate: departureDate
+          departureDate: departureDate,
+          departureTime: departureTime,
         },
       });
     },
   });
 
   console.log("Formik errors:", formik.errors);
+
+  useEffect(() => {
+      console.log(departureTime, "departureTimeppppppppppppppppppppp");
+      console.log(departureDate, "departureDatepppppppppppppppppppp");
+      
+    }, []);
 
  
 

@@ -16,7 +16,11 @@ import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
-import { ALL_FLIGHTS, ALL_FLIGHTS_CLIENT } from "../../../network/apiCallers";
+import {
+  ADD_FLIGHTS,
+  ALL_FLIGHTS,
+  ALL_FLIGHTS_CLIENT,
+} from "../../../network/apiCallers";
 import ShimmerPlaceHolder, {
   createShimmerPlaceholder,
 } from "react-native-shimmer-placeholder";
@@ -34,11 +38,12 @@ import jazeera from "../../../assets/images/jazeera.png";
 import Toast from "react-native-toast-message";
 import { useFormik } from "formik";
 import FlightForm from "../../../components/FlightForm";
-
+import addFlightSchema from "../../../yupschema/addFlight";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
-  const { flightNumber, departureDate } = useLocalSearchParams();
+  const { flightNumber, departureDate, departureTime, from, to } =
+    useLocalSearchParams();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
@@ -50,8 +55,7 @@ const Search = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [loginChecked, setLoginChecked] = useState(false);
 
-
-  const DashedLine = ({ dashCount = 20, dashColor = '#164F90' }) => (
+  const DashedLine = ({ dashCount = 20, dashColor = "#164F90" }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
         <View
@@ -67,32 +71,89 @@ const Search = () => {
     </View>
   );
 
-   const formik = useFormik({
-      initialValues: {
-        departureDate: "",
-        departureTime: "",
-        flightNumber: "",
-        from: 'kwi',
-        to: ''
-      },
-      // validationSchema: AllflightSchema(applanguage),
-      // validateOnChange: false, // Disable auto-validation on change
-      // validateOnBlur: false, // Disable auto-validation on blur
-      onSubmit: async (values) => {
-        console.log('Done');
-        
-        router.push({
-          pathname: "/home/baggage",
-        //   params: {
-        //     departureDate: values.departureDate,
-        //     flightNumber: values.flightNumber,
-        //     departureTime: values.departureTime,
-        //   },
-        });
-      },
+  useEffect(() => {
+    // Check if the user is logged in when the component mounts
+    console.log(
+      departureDate,
+      flightNumber,
+      "useEffect called with params:",
+      flightNumber,
+      departureTime
+    );
+  }, []);
+
+  const handleTime = (time) => {
+    const formattedTime = time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
     });
 
-  const DashedLine2 = ({ dashCount = 40, dashColor = '#cdcdcd', dashWidth = 4, dashSpacing = 1 }) => (
+    console.log("⏰ Formatted Time:", formattedTime);
+
+    // Set in Formik — CRUCIAL
+    formik.setFieldValue("departureTime", formattedTime);
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      dep_date: "", // Default date, can be changed
+      flight_time: "",
+      flight_number: "",
+      flight_from: "KWI",
+      flight_to: "",
+    },
+    validationSchema: addFlightSchema(applanguage),
+    validateOnChange: false, // Disable auto-validation on change
+    validateOnBlur: false, // Disable auto-validation on blur
+    onSubmit: async (values) => {
+      console.log("Form Values okokkkkkkkkkkkkk:", values.departureTime); // ✅ Correct
+      await addFlightshandler(values);
+      router.push({
+        pathname: "/home/baggage",
+        params: {
+          departureDate: values.dep_date,
+          flightNumber: values.flight_number,
+          departureTime: values.flight_time,
+        },
+      });
+    },
+  });
+
+  const addFlightshandler = async (values) => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("authToken");
+    if (!token) {
+      Toast.show("No token found. Please log in.");
+      return;
+    }
+
+    try {
+      const res = await ADD_FLIGHTS(values, token);
+      console.log(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
+
+      router.back();
+    } catch (error) {
+      console.log("Error updating profile:", error?.response);
+      Toast.show({
+        type: "info",
+        text1: error.response?.data?.message || "Failed to update profile",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const DashedLine2 = ({
+    dashCount = 40,
+    dashColor = "#cdcdcd",
+    dashWidth = 4,
+    dashSpacing = 1,
+  }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
         <View
@@ -108,15 +169,14 @@ const Search = () => {
     </View>
   );
 
-
   // const formatDate = (isoDateStr) => {
-    
+
   //   const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
-    
+
   //   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   //   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
   //     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      
+
   //     const day = date.getDate().toString().padStart(2, '0');       // dd
   //     const month = months[date.getMonth()];                        // MMM
   //     const year = date.getFullYear();                              // yyyy
@@ -126,21 +186,32 @@ const Search = () => {
   //   return `${day} ${month} ${year} ${weekday}`;
   // };
 
-const formatDate = (isoDateStr) => {
-  const date = new Date(isoDateStr);
+  const formatDate = (isoDateStr) => {
+    const date = new Date(isoDateStr);
 
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
-  const day = date.getUTCDate().toString().padStart(2, '0');
-  const month = months[date.getUTCMonth()];
-  const year = date.getUTCFullYear();
-  const weekday = days[date.getUTCDay()];
+    const day = date.getUTCDate().toString().padStart(2, "0");
+    const month = months[date.getUTCMonth()];
+    const year = date.getUTCFullYear();
+    const weekday = days[date.getUTCDay()];
 
-  return `${day} ${month} ${year} ${weekday}`;
-};
-
+    return `${day} ${month} ${year} ${weekday}`;
+  };
 
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("authToken");
@@ -152,14 +223,12 @@ const formatDate = (isoDateStr) => {
   //   console.log("yayayayayayaya",departureDate)
   // },[])
 
-
   // useFocusEffect for re-checking when screen gains focus
   useFocusEffect(
     useCallback(() => {
       checkLoginStatus();
     }, [])
   );
-
 
   useEffect(() => {
     if (flights.length > 0) {
@@ -180,9 +249,19 @@ const formatDate = (isoDateStr) => {
 
   const fetchSingleFlights = async () => {
     try {
-      const res = await ALL_FLIGHTS({ flightNumber, departureDate });
-      console.log("resres res res res res res res", res?.data?.allFlights,departureDate);
-
+      const res = await ALL_FLIGHTS({
+        flightNumber,
+        departureDate,
+        departureTime,
+        from,
+        to,
+      });
+      console.log(
+        "resres res res res res res res",
+        res?.data?.allFlights,
+        departureDate,
+        departureTime
+      );
 
       if (res?.data?.allFlights) {
         let transformedFlights = res.data.allFlights.map((flight) => ({
@@ -204,7 +283,7 @@ const formatDate = (isoDateStr) => {
         return transformedFlights;
       }
     } catch (error) {
-      console.log("Fetch error:", error);
+      console.log("Fetch error:////////////////////////", error.response.data);
       return [];
     }
   };
@@ -224,10 +303,9 @@ const formatDate = (isoDateStr) => {
       const formatTime = (timeString) => {
         if (!timeString) return "N/A";
         return timeString.includes("T")
-          ? `${timeString.split("T")[1].split(":")[0]}:${timeString
-            .split("T")[1]
-            .split(":")[1]
-            .split(".")[0]}`
+          ? `${timeString.split("T")[1].split(":")[0]}:${
+              timeString.split("T")[1].split(":")[1].split(".")[0]
+            }`
           : timeString;
       };
 
@@ -255,9 +333,9 @@ const formatDate = (isoDateStr) => {
             airport: flight?.arrival?.iataCode || "Unknown Airport",
             iata: flight?.arrival?.iataCode || "",
           },
-          timing: `${formatTime(flight?.departure?.scheduledTime)} to ${formatTime(
-            flight?.arrival?.scheduledTime
-          )}`,
+          timing: `${formatTime(
+            flight?.departure?.scheduledTime
+          )} to ${formatTime(flight?.arrival?.scheduledTime)}`,
         }));
       };
 
@@ -265,15 +343,16 @@ const formatDate = (isoDateStr) => {
       const makeRequest = (endpoint, params) => {
         console.log(`Making request to ${endpoint} with params:`, params);
 
-        return axios.get(`${LOCAL_URL}${endpoint}`, {
-          params,
-          // Add these headers if needed
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        })
-          .then(response => {
+        return axios
+          .get(`${LOCAL_URL}${endpoint}`, {
+            params,
+            // Add these headers if needed
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          })
+          .then((response) => {
             console.log("API Response:", response.data);
             if (response.data.error) {
               // Toast.show(response.data.error);
@@ -286,14 +365,14 @@ const formatDate = (isoDateStr) => {
             }
             return mapFlights(response.data);
           })
-          .catch(error => {
-            console.error("API Error Details:", {
-              message: error.message,
-              url: error.config?.url,
-              params: error.config?.params,
-              status: error.response?.status,
-              data: error.response?.data
-            });
+          .catch((error) => {
+            // console.error("API Error Details:", {
+            //   message: error.message,
+            //   url: error.config?.url,
+            //   params: error.config?.params,
+            //   status: error.response?.status,
+            //   data: error.response?.data
+            // });
             // toast.show(`API Error: ${error.message}`);
             // throw error; // Re-throw to be caught by the Promise chain
           });
@@ -307,7 +386,7 @@ const formatDate = (isoDateStr) => {
             : { date: departureDate };
 
           makeRequest("/aviation/schedules", params)
-            .then(data => {
+            .then((data) => {
               setFlightDatas(data);
               resolve(data);
             })
@@ -318,7 +397,7 @@ const formatDate = (isoDateStr) => {
           if (flightNumber) params.flight_num = flightNumber;
 
           makeRequest("/aviation/futreflights", params)
-            .then(data => {
+            .then((data) => {
               setFlightDatas(data);
               resolve(data);
             })
@@ -340,12 +419,10 @@ const formatDate = (isoDateStr) => {
           getAllFlight(), // Now this will properly return the flight data
         ]);
 
-
-
         setSpecialflightDatas(dbFlights || []);
         setFlightDatas(apiFlights || []);
       } catch (error) {
-        console.error('Error fetching flights:', error);
+        console.error("Error fetching flights:", error);
         // toast.show('Failed to fetch flights');
       } finally {
         setLoading(false);
@@ -364,13 +441,12 @@ const formatDate = (isoDateStr) => {
     const hours = Math.floor(diffMins / 60);
     const minutes = diffMins % 60;
 
-    let result = '';
-    if (hours > 0) result += `${hours} hour${hours > 1 ? 's' : ''} `;
-    if (minutes > 0) result += `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    let result = "";
+    if (hours > 0) result += `${hours} hour${hours > 1 ? "s" : ""} `;
+    if (minutes > 0) result += `${minutes} minute${minutes > 1 ? "s" : ""}`;
 
-    return result.trim() || '0 minutes';
+    return result.trim() || "0 minutes";
   };
-
 
   return (
     <View className="flex-1">
@@ -398,7 +474,7 @@ const formatDate = (isoDateStr) => {
           </TouchableOpacity>
           <Text
             className="text-[18px] text-white ml-3 "
-            style={{ fontFamily: "CenturyGothic" }} 
+            style={{ fontFamily: "CenturyGothic" }}
           >
             {applanguage === "eng"
               ? Translations.eng.search_result
@@ -408,7 +484,6 @@ const formatDate = (isoDateStr) => {
       </View>
 
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
-
         <Modal
           visible={showLoginPopup}
           transparent
@@ -417,21 +492,28 @@ const formatDate = (isoDateStr) => {
         >
           <View className="flex-1 bg-black/40 justify-center items-center px-4">
             <View className="w-[90%] bg-white rounded-2xl p-6 shadow-xl">
-              <Text className="text-xl font-bold text-center mb-2" style={{ fontFamily: "Lato" }}>
+              <Text
+                className="text-xl font-bold text-center mb-2"
+                style={{ fontFamily: "Lato" }}
+              >
                 You're not logged in
               </Text>
-              <Text className="text-base text-center text-gray-700 mb-5" style={{ fontFamily: "Lato" }}>
+              <Text
+                className="text-base text-center text-gray-700 mb-5"
+                style={{ fontFamily: "Lato" }}
+              >
                 Would you like to log in now?
               </Text>
 
               <View className="flex-row justify-between gap-x-4">
-
-
                 <TouchableOpacity
                   className="flex-1 bg-gray-200 py-3 rounded-xl"
                   onPress={() => setShowLoginPopup(false)}
                 >
-                  <Text className="text-gray-800 font-bold text-center" style={{ fontFamily: "Lato" }}>
+                  <Text
+                    className="text-gray-800 font-bold text-center"
+                    style={{ fontFamily: "Lato" }}
+                  >
                     Cancel
                   </Text>
                 </TouchableOpacity>
@@ -440,9 +522,9 @@ const formatDate = (isoDateStr) => {
                   className="flex-1 bg-[#FFB648] py-3 rounded-xl"
                   style={{
                     elevation: 5,
-                    shadowColor: '#000',
+                    shadowColor: "#000",
                     shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.50,
+                    shadowOpacity: 0.5,
                     shadowRadius: 3.84,
                   }}
                   onPress={() => {
@@ -450,7 +532,12 @@ const formatDate = (isoDateStr) => {
                     router.replace("/(auth)");
                   }}
                 >
-                  <Text className="text-black font-bold text-center" style={{ fontFamily: "Lato" }}>Login</Text>
+                  <Text
+                    className="text-black font-bold text-center"
+                    style={{ fontFamily: "Lato" }}
+                  >
+                    Login
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -464,8 +551,8 @@ const formatDate = (isoDateStr) => {
             {" "}
             {applanguage === "eng"
               ? Translations.eng.date
-              : Translations.arb.date}{" "}:{" "}
-            {departureDate}
+              : Translations.arb.date}{" "}
+            : {departureDate}
           </Text>
         </View>
 
@@ -589,82 +676,90 @@ const formatDate = (isoDateStr) => {
               </View>
             ))}
           </>
-        ) : (specialflightDatas.length || flightDatas.length) ? (
+        ) : specialflightDatas.length || flightDatas.length ? (
           <>
             {/* Special Flights */}
             {specialflightDatas.map((flight, index) => {
-              console.log("flight flight", flight.departure.scheduled.split("T")[0]);
+              console.log(
+                "flight flight",
+                flight.departure.scheduled.split("T")[0]
+              );
 
-              return <TouchableOpacity
-                key={`special-${index}`}
-                // onPress={() => {
-                //   if (!loginChecked) return;
-                //   if (isLoggedIn) {
-                //   router.push({
-                //     pathname: "/home/baggage",
-                //     params: { flightData: JSON.stringify(flight) },
-                //   })}
-                //   else{
-                //     setShowLoginPopup(true)
+              return (
+                <TouchableOpacity
+                  key={`special-${index}`}
+                  // onPress={() => {
+                  //   if (!loginChecked) return;
+                  //   if (isLoggedIn) {
+                  //   router.push({
+                  //     pathname: "/home/baggage",
+                  //     params: { flightData: JSON.stringify(flight) },
+                  //   })}
+                  //   else{
+                  //     setShowLoginPopup(true)
 
-                //   }
-                // }}
-                onPress={() => {
+                  //   }
+                  // }}
+                  onPress={() => {
+                    if (isLoggedIn) {
+                      console.log("Navigating to baggage...");
+                      router.push({
+                        pathname: "/home/baggage",
+                        params: {
+                          flightData: JSON.stringify(flight),
+                          departureDate: departureDate,
+                          departureTime: departureTime,
+                        },
+                      });
+                    } else {
+                      setShowLoginPopup(true);
+                    }
+                  }}
+                  className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
+                >
+                  {/* Flight Header */}
 
-                  if (isLoggedIn) {
-                    console.log("Navigating to baggage...");
-                    router.push({
-                      pathname: "/home/baggage",
-                      params: {
-                        flightData: JSON.stringify(flight),
-                        departureDate: departureDate
-                      },
-                    });
-                  } else {
+                  {/* Divider */}
+                  {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
 
-                    setShowLoginPopup(true);
-                  }
-                }}
-
-                className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
-              >
-                {/* Flight Header */}
-
-
-                {/* Divider */}
-                {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
-
-                <View className="w-full px-2">
-                  <Image
-                      source={jazeera} className="h-11 self-center mt-3" resizeMode="contain"
+                  <View className="w-full px-2">
+                    <Image
+                      source={jazeera}
+                      className="h-11 self-center mt-3"
+                      resizeMode="contain"
                     />
-                </View>
-
-
-                {/* Flight Details */}
-                <View className="flex-row justify-between items-center pt-1 pb-6 px-5 " style={{ fontFamily: 'lato' }}>
-                  {/* Departure */}
-                  <View className="items-start w-24 ">
-                    <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold text-center text-[18px] ">
-                      {flight.departure?.iata.toUpperCase() || "N/A"}
-                    </Text>
-                    <Text className="text-[20px]  ">
-                      {
-                        flight.departure?.scheduled?.includes("T")
-                          ? flight.departure?.scheduled.split("T")[1].slice(0, 5)
-                          : flight.departure?.scheduled || "N/A"
-                      }
-                    </Text>
-                    <Text className="text-gray-400 text-start text-[13px] ">
-                      {flight.departure?.scheduled?.includes("T")
-                        ? formatDate(flight.departure?.scheduled)
-                        : formatDate(flight.departure?.scheduled) || "N/A"}
-                    </Text>
                   </View>
 
-                  {/* Flight Duration */}
-                  {/* <View className="flex-1 items-center">
+                  {/* Flight Details */}
+                  <View
+                    className="flex-row justify-between items-center pt-1 pb-6 px-5 "
+                    style={{ fontFamily: "lato" }}
+                  >
+                    {/* Departure */}
+                    <View className="items-start w-24 ">
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        className="text-[#003C71] font-bold text-center text-[18px] "
+                      >
+                        {flight.departure?.iata.toUpperCase() || "N/A"}
+                      </Text>
+                      <Text className="text-[20px]  ">
+                        {flight.departure?.scheduled?.includes("T")
+                          ? flight.departure?.scheduled
+                              .split("T")[1]
+                              .slice(0, 5)
+                          : flight.departure?.scheduled || "N/A"}
+                      </Text>
+                      <Text className="text-gray-400 text-start text-[13px] ">
+                        {flight.departure?.scheduled?.includes("T")
+                          ? formatDate(flight.departure?.scheduled)
+                          : formatDate(flight.departure?.scheduled) || "N/A"}
+                      </Text>
+                    </View>
+
+                    {/* Flight Duration */}
+                    {/* <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
                       <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
                         <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
@@ -673,52 +768,63 @@ const formatDate = (isoDateStr) => {
                       </View>
                     </View>
                   </View> */}
- 
-                  <View className="flex-1 items-center h-full mt-8" style={{ fontFamily: 'lato' }}>
-                    <Text className="text-[#000000] text-[14px] font-bold">{flight.flight?.number || "N/A"}</Text>
-                   <View className="w-full flex-row items-center justify-center mt-2">
-  <View className="relative flex-row items-center w-full px-1">
-    
-    {/* Plane icon at start */}
-    <FontAwesome5 name="plane" size={16} color="#164F90" className="z-10" />
 
-    {/* Grey line */}
-    <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
-
-    {/* Small grey circle at end */}
-    <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
-    
-  </View>
-</View>
-
-                    {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
-                  </View>
-
-                  {/* Arrival */}
-                  <View className="items-end w-24" style={{ fontFamily: 'lato' }}>
-                    <Text numberOfLines={1}
-                      ellipsizeMode="tail" className="text-[#003C71] font-bold  text-[18px] ">
-                      {flight.arrival?.iata.toUpperCase() || "N/A"}
-                    </Text>
-                    <Text className="text-[20px]  ">
-                      {
-                        flight.arrival?.scheduled?.includes("T")
-                          ? flight.arrival.scheduled.split("T")[1].slice(0, 5)
-                          : flight.arrival?.scheduled || "N/A"
-                      }
-                    </Text>
-                    <View className="">
-                      <Text className="text-gray-400 text-right text-[13px] ">
-                        {
-                          flight.arrival?.scheduled?.includes("T")
-                            ? formatDate(flight.arrival?.scheduled)
-                            : formatDate(flight.arrival?.scheduled) || "N/A"
-                        }
+                    <View
+                      className="flex-1 items-center h-full mt-8"
+                      style={{ fontFamily: "lato" }}
+                    >
+                      <Text className="text-[#000000] text-[14px] font-bold">
+                        {flight.flight?.number || "N/A"}
                       </Text>
+                      <View className="w-full flex-row items-center justify-center mt-2">
+                        <View className="relative flex-row items-center w-full px-1">
+                          {/* Plane icon at start */}
+                          <FontAwesome5
+                            name="plane"
+                            size={16}
+                            color="#164F90"
+                            className="z-10"
+                          />
+
+                          {/* Grey line */}
+                          <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+                          {/* Small grey circle at end */}
+                          <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                        </View>
+                      </View>
+
+                      {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
+                    </View>
+
+                    {/* Arrival */}
+                    <View
+                      className="items-end w-24"
+                      style={{ fontFamily: "lato" }}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        className="text-[#003C71] font-bold  text-[18px] "
+                      >
+                        {flight.arrival?.iata.toUpperCase() || "N/A"}
+                      </Text>
+                      <Text className="text-[20px]  ">
+                        {flight.arrival?.scheduled?.includes("T")
+                          ? flight.arrival.scheduled.split("T")[1].slice(0, 5)
+                          : flight.arrival?.scheduled || "N/A"}
+                      </Text>
+                      <View className="">
+                        <Text className="text-gray-400 text-right text-[13px] ">
+                          {flight.arrival?.scheduled?.includes("T")
+                            ? formatDate(flight.arrival?.scheduled)
+                            : formatDate(flight.arrival?.scheduled) || "N/A"}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
+              );
             })}
 
             {/* Normal Flights */}
@@ -740,7 +846,10 @@ const formatDate = (isoDateStr) => {
                 onPress={() => {
                   console.log("Login checked:", loginChecked);
                   console.log("Is Logged In:", isLoggedIn);
-
+                  console.log(
+                    "🧪 Just before submit:",
+                    formik.values.departureTime
+                  ); // Must show a value
 
                   if (isLoggedIn) {
                     console.log("Navigating to baggage...");
@@ -749,15 +858,14 @@ const formatDate = (isoDateStr) => {
                       params: {
                         flightData: JSON.stringify(flight),
                         departureDate: departureDate, // ✅ needs to be INSIDE params
+                        departureTime: departureTime,
                       },
                     });
-
                   } else {
                     console.log("User not logged in, showing popup");
                     setShowLoginPopup(true);
                   }
                 }}
-
                 className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
               >
                 {/* Flight Header */}
@@ -766,13 +874,14 @@ const formatDate = (isoDateStr) => {
 
                   <View className="w-10 h-10 rounded-full border-[1px] border-[#164F90] justify-center items-center">
                     <Image
-                      source={flightlogo} className="h-10" resizeMode="contain"
+                      source={flightlogo}
+                      className="h-10"
+                      resizeMode="contain"
                     />
                   </View>
                   <View className="ml-2 flex flex-col items-start">
                     <Text className="text-gray-600">
-                      {flight.airline?.name || "Unknown Airline"}
-                      {" "}
+                      {flight.airline?.name || "Unknown Airline"}{" "}
                       {/* ({flight.airline?.iata || "N/A"}) */}
                     </Text>
                     <Text className="text-[#164F90] text-lg font-bold">
@@ -787,7 +896,6 @@ const formatDate = (isoDateStr) => {
                 <View className="w-full px-2">
                   <DashedLine2 />
                 </View>
-
 
                 {/* Flight Details */}
                 <View className="flex-row justify-between items-center py-6 px-5">
@@ -821,17 +929,20 @@ const formatDate = (isoDateStr) => {
                         </View>
                       </View> */}
                       <View className="relative flex-row items-center w-full px-1">
-    
-    {/* Plane icon at start */}
-    <FontAwesome5 name="plane" size={16} color="#164F90" className="z-10" />
+                        {/* Plane icon at start */}
+                        <FontAwesome5
+                          name="plane"
+                          size={16}
+                          color="#164F90"
+                          className="z-10"
+                        />
 
-    {/* Grey line */}
-    <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+                        {/* Grey line */}
+                        <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
 
-    {/* Small grey circle at end */}
-    <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
-    
-  </View>
+                        {/* Small grey circle at end */}
+                        <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                      </View>
                     </View>
                   </View>
 
@@ -850,21 +961,26 @@ const formatDate = (isoDateStr) => {
           </>
         ) : (
           <View className="h-full  justify-center items-center">
-            <Text className=" text-lg text-[#164E8D] font-semibold">“No matching flights found.”</Text>
-                <View className={`bg-white self-center mt-3 z-10  p-6 rounded-2xl w-[95%] shadow-xl`}
-                style={{
-                   shadowColor: '#000',
-  shadowOffset: { width: 3, height: 6 },
-  shadowOpacity: 0.3,
-  shadowRadius: 8,
-  elevation: 10 
-                }}>
-             <View><Text className="text-[#164E8D] font-bold mb-2">Add Manually</Text></View>
-     <FlightForm 
-     formik={formik}
-     />
-     </View>
-            
+            <Text className=" text-lg text-[#164E8D] font-semibold">
+              “No matching flights found.”
+            </Text>
+            <View
+              className={`bg-white self-center mt-3 z-10  p-6 rounded-2xl w-[95%] shadow-xl`}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 3, height: 6 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 10,
+              }}
+            >
+              <View>
+                <Text className="text-[#164E8D] font-bold mb-2">
+                  Add Manually
+                </Text>
+              </View>
+              <FlightForm formik={formik} />
+            </View>
           </View>
         )}
       </ScrollView>

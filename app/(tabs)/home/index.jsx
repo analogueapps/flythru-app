@@ -41,27 +41,24 @@ import { useAuth } from "../../../UseContext/AuthContext";
 import FlightForm from "../../../components/FlightForm";
 import { AllflightSchema } from "../../../yupschema/allFlightSchema";
 
-
 const Index = () => {
   const insets = useSafeAreaInsets();
-  
+
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
- 
-  const { loadToken } = useAuth()
+
+  const { loadToken } = useAuth();
   // const [showDatePicker,setshowDatePicker]
   // Swap function
- 
 
   const { applanguage } = langaugeContext();
 
   useFocusEffect(
     useCallback(() => {
-
       const checkNotificationStatus = async () => {
         try {
-          await loadToken()
+          await loadToken();
           const userId = await AsyncStorage.getItem("authUserId");
           const hasVisited = await AsyncStorage.getItem(
             "hasVisitedNotifications"
@@ -94,52 +91,46 @@ const Index = () => {
     markNotificationsVisited();
   }, []);
 
-
   const formik = useFormik({
     initialValues: {
-      departureDate: "10/06/2025",
-      departureTime: "05:00",
-      flightNumber: "AA456",
-      from: 'kwi',
-      to: 'hyd'
+      departureDate: "",
+      departureTime: "",
+      flightNumber: "AA567",
+      from: "kwi",
+      to: "hyd",
     },
     // validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
     validateOnBlur: false, // Disable auto-validation on blur
     onSubmit: async (values) => {
+      console.log("Form Values:", values);
 
+      const { departureDate, flightNumber, to, from, departureTime } = values;
 
+      if (!departureDate || !flightNumber || !from || !to || !departureTime) {
+        Toast.show({
+          type: "error",
+          text1: "Please fill all fields",
+        });
+        return;
+      }
+      const [day, month, year] = departureDate.split("-");
+      // const parsedDepartureDate = `${year}-${month}-${day}`;
+      const parsedDepartureDate = `${day}-${month}-${year}`;
 
-       const { departureDate, flightNumber,to,from,departureTime } = values;
-
-            if (!departureDate || !flightNumber || !from || !to || !departureTime) {
-            
-              Toast.show({
-                type: "error",
-                text1:
-                  "Please fill all fields"
-                ,
-              });
-              return
-            }
-            const [day, month, year] = departureDate.split('/');
-// const parsedDepartureDate = `${year}-${month}-${day}`;
-const parsedDepartureDate = `${day}-${month}-${year}`;
-
-              router.push({
-                // pathname: "/home/search",
-                pathname: "/home/search",
-                params: {
-                  departureDate: parsedDepartureDate,
-                  flightNumber: flightNumber,
-                  departureTime: departureTime,
-                },
-              });
-            
+      router.push({
+        // pathname: "/home/search",
+        pathname: "/home/search",
+        params: {
+          departureDate: parsedDepartureDate,
+          flightNumber: flightNumber,
+          departureTime: departureTime,
+          from: from,
+          to: to,
+        },
+      });
     },
   });
-
-
 
   const allbanners = async () => {
     try {
@@ -165,9 +156,6 @@ const parsedDepartureDate = `${day}-${month}-${year}`;
   useEffect(() => {
     allbanners();
   }, []);
-
-
-
 
   return (
     <View className="flex-1">
@@ -208,21 +196,30 @@ const parsedDepartureDate = `${day}-${month}-${year}`;
           <Bell color="black" size={18} />
         </TouchableOpacity>
       </View>
-      <View className={`bg-white self-center absolute ${Platform.OS === "android" ? "top-36" : "top-44"} z-10  p-6 rounded-2xl w-[90%] shadow-lg`}>
-             <View><Text className="text-[#164E8D] font-semibold mb-2">Search By</Text></View>
-     <FlightForm formik={formik}/>
-     </View>
+      <View
+        className={`bg-white self-center absolute ${
+          Platform.OS === "android" ? "top-36" : "top-44"
+        } z-10  p-6 rounded-2xl w-[90%] shadow-lg`}
+      >
+        <View>
+          <Text className="text-[#164E8D] font-semibold mb-2">Search By</Text>
+        </View>
+        <FlightForm formik={formik} />
+      </View>
       {/* Safe Area Content */}
       <ScrollView className="flex-1" contentContainerStyle={{}}>
         <View className="flex-1 items-center justify-center mt-80 mx-6 ">
           {/* Ad Card */}
           {Array.isArray(banners) && banners.length > 0 && (
-            <Text className="text-[#003C71] my-4 font-bold text-[16px] self-start" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-[#003C71] my-4 font-bold text-[16px] self-start"
+              style={{ fontFamily: "Lato" }}
+            >
               {applanguage === "eng"
                 ? Translations.eng.ad
                 : Translations.arb.ad}
             </Text>
-          )} 
+          )}
 
           {/* Your existing colored boxes */}
           <View className="w-full mx-4 mb-3 rounded-xl">
@@ -249,8 +246,6 @@ const parsedDepartureDate = `${day}-${month}-${year}`;
               />
             )}
           </View>
-
-
         </View>
       </ScrollView>
     </View>

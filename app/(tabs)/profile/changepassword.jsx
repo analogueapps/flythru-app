@@ -162,7 +162,7 @@ const [showConfirmNewPassword,setShowConfirmNewPassword] = useState(false)
                     if (cleanedText.length < 15)
                       formik.setFieldValue("oldpassword", cleanedText);
                   }}
-                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  className="flex-1 rounded-lg p-3 "
                   // onChangeText={formik.handleChange("oldpassword")}
                   onBlur={formik.handleBlur("oldpassword")}
                   value={formik.values.oldpassword}
@@ -199,7 +199,7 @@ const [showConfirmNewPassword,setShowConfirmNewPassword] = useState(false)
                     if (cleanedText.length < 15)
                       formik.setFieldValue("newpassword", cleanedText);
                   }}
-                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  className=" rounded-lg p-3 flex-1"
                   // onChangeText={formik.handleChange("newpassword")}
                   onBlur={formik.handleBlur("newpassword")}
                   value={formik.values.newpassword}
@@ -236,7 +236,7 @@ const [showConfirmNewPassword,setShowConfirmNewPassword] = useState(false)
                     if (cleanedText.length < 15)
                       formik.setFieldValue("confirmnewpassword", cleanedText);
                   }}
-                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  className=" rounded-lg p-3 flex-1"
                   // onChangeText={formik.handleChange("confirmnewpassword")}
                   onBlur={formik.handleBlur("confirmnewpassword")}
                   value={formik.values.confirmnewpassword}

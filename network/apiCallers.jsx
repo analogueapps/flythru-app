@@ -278,7 +278,7 @@ export const PAYMENT_VERIFICATION_API = async (data) => {
 };
 
 export const ALL_FLIGHTS = async (data) => {
-  console.log("Fetched All flights");
+  console.log("Fetched All flights",data);
   return await axios.post(`${LOCAL_URL}/allflights`, data); 
 };
 
@@ -365,6 +365,36 @@ export const STATUS = async (token) => {
 export const ALL_TIME_SLOTS = async () => {
   console.log("Fetched All time slots");
   return await axios.get(`${LOCAL_URL}/user/timeslots`);
+};
+
+// all slots
+export const ALL_SLOTS = async (data, token) => {
+  try {
+    console.log("all slots fetched",data);
+    return await axios.post(`${LOCAL_URL}/user/slots`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error in ALL_SLOTS:", error);
+    throw error; // rethrow so it’s still caught outside
+  }
+};
+
+// select slots
+export const SELECT_SLOTS = async (data, token) => {
+  try {
+    console.log("all slots fetched",data);
+    return await axios.post(`${LOCAL_URL}/user/select-slots`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error in ALL_SLOTS:", error);
+    throw error; // rethrow so it’s still caught outside
+  }
 };
 
 export const FEEDBACK = async (data, token) => {

@@ -22,11 +22,12 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { TextInput } from "react-native";
 import { useFormik } from "formik";
 import { SelectList } from "react-native-dropdown-select-list";
-import { ALL_TIME_SLOTS } from "../../../network/apiCallers";
+import {  ALL_SLOTS, ALL_TIME_SLOTS } from "../../../network/apiCallers";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import slotsSchema from "../../../yupschema/slotsSchema";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // import { useFlightContext } from "../../../UseContext/useFlightContext";
 
 const slots = () => {
@@ -38,7 +39,7 @@ const slots = () => {
   const [timeslot, setTimeslots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState([]);
-  const { flightData, departureDate } = useLocalSearchParams();
+  const { flightData, departureDate, departureTime } = useLocalSearchParams();
 
   const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
@@ -67,68 +68,152 @@ const slots = () => {
     }
   }, [departureDate]);
 
-  useEffect(() => {
-    alltimeslots();
-  }, []);
+  const formik = useFormik({
+    initialValues: {
+      departureDate: "",
+      departureTime: "",
+    },
+    // validationSchema: slotsSchema(applanguage),
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log("✔ Submitting", values);
 
-  const alltimeslots = async () => {
+      router.push({
+        pathname: "/home/selectlocation",
+        params: {
+          date: values.departureDate,
+          time: values.departureTime,
+          personsCount,
+          baggageCount,
+        },
+      });
+    },
+  });
+
+  const alltimeslots = async (departureDate, departureTime) => {
     setLoading(true);
+
     try {
-      const res = await ALL_TIME_SLOTS();
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) {
+        console.warn("No auth token found.");
+        return;
+      }
+      console.log("/////////////", departureDate, departureTime);
 
-      if (res?.data?.allTimeSlots) {
-        const slotData = res.data.allTimeSlots;
+      // ✅ Pass correct data to API
+      const data={ departureDate, departureTime }
+      const res = await ALL_SLOTS(data, token);
 
-        // Group by createdAt date
-        const grouped = slotData.reduce((acc, curr) => {
-          const date = new Date(curr.createdAt).toLocaleDateString("en-CA"); // e.g., "2025-05-29"
+      const rawSlots = res?.data?.slots;
 
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date].push(curr.timeSlot);
-          return acc;
-        }, {}); // removed TypeScript type assertion here ✅
+      if (rawSlots && typeof rawSlots === "object") {
 
-        const formattedSlots = Object.keys(grouped).map((date) => ({
-          date,
-          times: grouped[date],
-        }));
+       const formattedSlots = Object.entries(rawSlots).map(([date, times]) => ({
+  date,
+  times: times.map((slot) => ({
+    time: slot.Time,
+    available: slot.available,
+  })),
+}));
+
 
         setFilterTimeSlot(formattedSlots);
       } else {
         setFilterTimeSlot([]);
       }
     } catch (error) {
-      console.log("Error fetching timeslots:", error);
+      console.log(
+        "Error fetching timeslots:",
+        error?.response || error.message
+      );
       setFilterTimeSlot([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const formik = useFormik({
-    initialValues: {
-      date: "",
-      time: "",
-    },
-    validationSchema: slotsSchema(applanguage),
-    validateOnChange: true,
-    validateOnBlur: true,
-    onSubmit: async (values) => {
-      // console.log("values", values);
-      // console.log("baggssaaaaa", baggaevalues);
-      router.push({
-        pathname: "/home/selectlocation",
-        params: {
-          date: values.date,
-          time: values.time,
-          personsCount: personsCount,
-          baggageCount: baggageCount,
-        },
-      });
-    },
-  });
+useEffect(() => {
+  if (departureDate && departureTime) {
+    alltimeslots(departureDate, departureTime);
+    console.log(departureTime, "departureTime//////////////slots/////");
+    console.log(departureDate, "departureDate////////////");
+  }
+}, [departureDate, departureTime]); // <== Add them as dependencies
+
+
+  // const alltimeslots = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await ALL_TIME_SLOTS();
+
+  //     if (res?.data?.allTimeSlots) {
+  //       const slotData = res.data.allTimeSlots;
+
+  //       // Group by createdAt date
+  //       const grouped = slotData.reduce((acc, curr) => {
+  //         const date = new Date(curr.createdAt).toLocaleDateString("en-CA"); // e.g., "2025-05-29"
+
+  //         if (!acc[date]) {
+  //           acc[date] = [];
+  //         }
+  //         acc[date].push(curr.timeSlot);
+  //         return acc;
+  //       }, {}); // removed TypeScript type assertion here ✅
+
+  //       const formattedSlots = Object.keys(grouped).map((date) => ({
+  //         date,
+  //         times: grouped[date],
+  //       }));
+
+  //       setFilterTimeSlot(formattedSlots);
+  //     } else {
+  //       setFilterTimeSlot([]);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching timeslots:", error);
+  //     setFilterTimeSlot([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  //  const alltimeslots = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const res = await ALL_SLOTS();
+
+  //       if (res?.data?.allTimeSlots) {
+  //         const slotData = res.data.allTimeSlots;
+
+  //         // Group by createdAt date
+  //         const grouped = slotData.reduce((acc, curr) => {
+  //           const date = new Date(curr.createdAt).toLocaleDateString("en-CA"); // e.g., "2025-05-29"
+
+  //           if (!acc[date]) {
+  //             acc[date] = [];
+  //           }
+  //           acc[date].push(curr.timeSlot);
+  //           return acc;
+  //         }, {}); // removed TypeScript type assertion here ✅
+
+  //         const formattedSlots = Object.keys(grouped).map((date) => ({
+  //           date,
+  //           times: grouped[date],
+  //         }));
+
+  //         setFilterTimeSlot(formattedSlots);
+  //       } else {
+  //         setFilterTimeSlot([]);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching timeslots:", error);
+  //       setFilterTimeSlot([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
   useEffect(() => {
     (async () => {
@@ -251,7 +336,7 @@ const slots = () => {
       </View>
 
       <ScrollView className="px-4" showsVerticalScrollIndicator={false}>
-        {loading ? (
+        {/* {loading ? (
           <View className="flex-1 items-center justify-center mt-20">
             <Text className="text-[#164F90] text-lg font-bold">
               <ActivityIndicator size="large" color="#164F90" />
@@ -293,6 +378,55 @@ const slots = () => {
               </View>
             ))}
           </>
+        )} */}
+
+        {loading ? (
+          <View className="flex-1 items-center justify-center mt-20">
+            <ActivityIndicator size="large" color="#164F90" />
+          </View>
+        ) : (
+        
+       <>
+  {filterTimeSlot.map((item, index) => (
+    <View key={index} className="mt-4">
+      <Text className="text-[#164F90] text-lg mb-2 font-bold">{item.date}</Text>
+
+      <View className="flex flex-row flex-wrap gap-4 justify-start my-4">
+        {item.times.map((slot, i) => {
+          const slotKey = `${item.date}-${slot.time}`;
+          const isSelected = selected === slotKey;
+          const isDisabled = !slot.available;
+
+          return (
+            <TouchableOpacity
+              key={i}
+              onPress={() => {
+                if (isDisabled) return; // prevent clicking
+                setSelected(slotKey);
+                formik.setFieldValue("departureDate", item.date);
+                formik.setFieldValue("departureTime", slot.time);
+              }}
+              disabled={isDisabled}
+              className={`rounded-xl p-2 px-5 border border-[#696969]
+                ${isSelected ? "bg-[#164F90] border-[#FFB648]" : ""}
+                ${isDisabled ? "opacity-40" : ""}`}
+            >
+              <Text
+                className={`  ${ 
+                  isSelected ? "text-white" : "text-[#696969]"
+                } ${isDisabled ? "text-gray-500" : ""}`}
+              >
+                {slot.time}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  ))}
+</>
+
+
         )}
 
         {formik.touched.time && formik.errors.time && (
@@ -306,7 +440,7 @@ const slots = () => {
 
         {/* Continue Button */}
         <TouchableOpacity
-          className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
+          className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
           onPress={() => {
             // createNewCalendar();
             formik.handleSubmit();
