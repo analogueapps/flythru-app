@@ -283,8 +283,8 @@ export const ALL_FLIGHTS = async (data) => {
 };
 
 export const ADD_FLIGHTS = async (data) => {
-  console.log("Adding flight data:", data);
-  return await axios.post(`${LOCAL_URL}/add-flight`, data); 
+  console.log("Adding flight data fetched:", data);
+  return await axios.post(`${LOCAL_URL}/user/add-flight`, data); 
 };
 
 export const ALL_FLIGHTS_CLIENT = async (data) => {

@@ -17,7 +17,9 @@ import { langaugeContext } from "../customhooks/languageContext";
 import { useFormik } from "formik";
 import addFlightSchema from "../yupschema/addFlight";
 import { ADD_FLIGHTS } from "../network/apiCallers";
-const FlightForm = ({ formik }) => {
+
+
+const AddFlightForm = ({ formik }) => {
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
@@ -27,66 +29,7 @@ const FlightForm = ({ formik }) => {
   //   const { loadToken } = useAuth()
   const { applanguage } = langaugeContext();
 
-  //  const formik = useFormik({
-  //      initialValues: {
-  //         flight_from: "kwi",
-  //      flight_to: "",
-  //      dep_date: "", // departure date yyyy-mm-dd
-  //      dep_time: "", // departure time hh:mm
-  //      flight_time: "",
-  //      flight_number: ""
-  //      },
-
-  //      enableReinitialize: true,
-  //      validationSchema: addFlightSchema(applanguage),
-  //      validateOnChange: true,
-  //      validateOnBlur: true,
-  //      onSubmit: async (values) => {
-  //        console.log("values submitted edit profile:", values);
-  //        await addFlightshandler(values);
-  //      },
-  //    });
-
-  // const addFlightshandler = async (values) => {
-  //   setLoading(true);
-  //   const token = await AsyncStorage.getItem("authToken");
-  //   if (!token) {
-  //     Toast.show("No token found. Please log in.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await ADD_FLIGHTS(values, token);
-  //     console.log(res.data.message);
-  //     Toast.show({
-  //       type: "success",
-  //       text1: res.data.message,
-  //     });
-
-  //     router.back();
-  //   } catch (error) {
-  //     console.log("Error updating profile:", error?.response);
-  //     Toast.show({
-  //       type: "info",
-  //       text1: error.response?.data?.message || "Failed to update profile",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  //  const handleDateChange = (event, date) => {
-  //     if (Platform.OS === "android") {
-  //       // Dismiss the picker whether selected or cancelled
-  //       setShowDatePicker(false);
-  //     }
-
-  //     if (date) {
-  //       const formattedDate = date.toISOString().split("T")[0];
-  //       setSelectedDate(formattedDate);
-  //       formik.setFieldValue("departureDate", formattedDate);
-  //     }
-  //   };
+ 
 
   const createNewCalendar = async () => {
     try {
@@ -152,7 +95,7 @@ const FlightForm = ({ formik }) => {
 
     const formattedDate = `${day}-${month}-${year}`;
     setSelectedDate(formattedDate);
-    formik.setFieldValue("departureDate", formattedDate);
+    formik.setFieldValue("dep_date", formattedDate);
     hideDatePicker();
   };
 
@@ -163,7 +106,7 @@ const FlightForm = ({ formik }) => {
 
     console.log("formattedTime", formattedTime);
     setSelectedTime(formattedTime);
-    formik.setFieldValue("departureTime", formattedTime);
+    formik.setFieldValue("flight_time", formattedTime);
     hideTimePicker();
   };
 
@@ -182,7 +125,7 @@ const FlightForm = ({ formik }) => {
               ? Translations.eng.from
               : Translations.arb.from
           }
-          value={formik.values.from}
+          value={formik.values.flight_from}
           editable={false}
           // value={fromValue}
           // onChangeText={(text) => setFromValue(text)}
@@ -205,9 +148,9 @@ const FlightForm = ({ formik }) => {
           {applanguage === "eng" ? Translations.eng.to : Translations.arb.to}:
         </Text>
         <TextInput
-          value={formik.values.to}
-          onChangeText={formik.handleChange("to")}
-          onBlur={formik.handleBlur("to")}
+          value={formik.values.flight_to}
+          onChangeText={formik.handleChange("flight_to")}
+          onBlur={formik.handleBlur("flight_to")}
           // placeholder={
           //   applanguage === "eng" ? Translations.eng.to : Translations.arb.to
           // }
@@ -309,9 +252,9 @@ const FlightForm = ({ formik }) => {
             ? Translations.eng.flight_number
             : Translations.arb.flight_number
         }
-        onChangeText={formik.handleChange("flightNumber")}
-        onBlur={formik.handleBlur("flightNumber")}
-        value={formik.values.flightNumber}
+        onChangeText={formik.handleChange("flight_number")}
+        onBlur={formik.handleBlur("flight_number")}
+        value={formik.values.flight_number}
         name="flightNumber"
         className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
         placeholderTextColor="#2D2A29"
@@ -322,37 +265,28 @@ const FlightForm = ({ formik }) => {
             {formik.errors.flightNumber}
           </Text>
         )} */}
+<TouchableOpacity
+  activeOpacity={0.5}
+  onPress={()=>formik.handleSubmit()}
+  className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg"
+  style={{
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
+  }}
+>
+  <Text className="text-center text-[#164E8D] font-bold text-base">
+    {applanguage === "eng"
+      ? Translations.eng.search
+      : Translations.arb.search}
+  </Text>
+</TouchableOpacity>
 
-      <TouchableOpacity
-        activeOpacity={0.5}
-        onPress={async () => {
-          console.log("1");
-
-          formik.handleSubmit();
-          console.log(2);
-
-          createNewCalendar();
-        }}
-        className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg "
-        style={{
-          elevation: 5,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.5,
-          shadowRadius: 3.84,
-        }}
-      >
-        <Text
-          className="text-center text-[#164E8D] font-bold text-base"
-          style={{ fontFamily: "Lato" }}
-        >
-          {applanguage === "eng"
-            ? Translations.eng.search
-            : Translations.arb.search}
-        </Text>
-      </TouchableOpacity>
     </>
   );
 };
 
-export default FlightForm;
+export default AddFlightForm;
+

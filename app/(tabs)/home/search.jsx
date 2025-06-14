@@ -38,7 +38,9 @@ import jazeera from "../../../assets/images/jazeera.png";
 import Toast from "react-native-toast-message";
 import { useFormik } from "formik";
 import FlightForm from "../../../components/FlightForm";
+
 import addFlightSchema from "../../../yupschema/addFlight";
+import AddFlightForm from "../../../components/addflightform";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
@@ -95,30 +97,46 @@ const Search = () => {
     formik.setFieldValue("departureTime", formattedTime);
   };
 
-  const formik = useFormik({
-    initialValues: {
-      dep_date: "", // Default date, can be changed
+   const formik = useFormik({
+      initialValues: {
+         dep_date: "", // Default date, can be changed
       flight_time: "",
       flight_number: "",
       flight_from: "KWI",
       flight_to: "",
+      },
+      // validationSchema: AllflightSchema(applanguage),
+      validateOnChange: false, // Disable auto-validation on change
+      validateOnBlur: false, // Disable auto-validation on blur
+      onSubmit: async (values) => {
+        console.log("Form Values:", values);
+  
+        const { dep_date, flight_number, flight_to, flight_from, flight_time } = values;
+  
+        if (!dep_date || !flight_number || !flight_from || !flight_to || !flight_time) {
+          Toast.show({
+            type: "error",
+            text1: "Please fill all fields",
+          });
+          return;
+        }
+        
+const [day, month, year] = values.dep_date.split("-");
+        // const parsedDepartureDate = `${year}-${month}-${day}`;
+        const parsedDepartureDate = `${day}-${month}-${year}`;
+        await addFlightshandler(values);
+        router.push({
+          pathname: "/home/baggage",
+             params: {
+      departureDate: values.dep_date,
+      flightNumber: values.flight_number,
+      departureTime: values.flight_time,
     },
-    validationSchema: addFlightSchema(applanguage),
-    validateOnChange: false, // Disable auto-validation on change
-    validateOnBlur: false, // Disable auto-validation on blur
-    onSubmit: async (values) => {
-      console.log("Form Values okokkkkkkkkkkkkk:", values.departureTime); // ✅ Correct
-      await addFlightshandler(values);
-      router.push({
-        pathname: "/home/baggage",
-        params: {
-          departureDate: values.dep_date,
-          flightNumber: values.flight_number,
-          departureTime: values.flight_time,
-        },
-      });
-    },
-  });
+        });
+      },
+    });
+
+
 
   const addFlightshandler = async (values) => {
     setLoading(true);
@@ -979,7 +997,7 @@ const Search = () => {
                   Add Manually
                 </Text>
               </View>
-              <FlightForm formik={formik} />
+                <AddFlightForm formik={formik}/>
             </View>
           </View>
         )}
