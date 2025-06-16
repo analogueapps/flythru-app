@@ -22,12 +22,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { TextInput } from "react-native";
 import { useFormik } from "formik";
 import { SelectList } from "react-native-dropdown-select-list";
-import {  ALL_SLOTS, ALL_TIME_SLOTS } from "../../../network/apiCallers";
+import { ALL_SLOTS, ALL_TIME_SLOTS } from "../../../network/apiCallers";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import slotsSchema from "../../../yupschema/slotsSchema";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import AlertModal from "../../alertmodal";
 // import { useFlightContext } from "../../../UseContext/useFlightContext";
 
 const slots = () => {
@@ -40,12 +41,13 @@ const slots = () => {
   const [loading, setLoading] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState([]);
   const { flightData, departureDate, departureTime } = useLocalSearchParams();
-
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
   const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
 
-  
+
   // const time =
   //   flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
   //     ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${
@@ -59,10 +61,10 @@ const slots = () => {
   const { applanguage } = langaugeContext();
   const { personsCount, baggageCount } = useLocalSearchParams();
 
-  useEffect(() =>{
+  useEffect(() => {
     console.log(flight, "flight data in slots page");
-    
-  },[])
+
+  }, [])
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
@@ -88,17 +90,25 @@ const slots = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log("✔ Submitting", values);
+      console.log('values.departureTime',values.departureTime);
+      
+      if (values.departureTime == '') {
+        setErrorMessage('Please select slot time')
+        setIsModalShow(true)
+      }else{
+setErrorMessage('')
+setIsModalShow(false)
+        router.push({
+          pathname: "/home/selectlocation",
+          params: {
+            date: values.departureDate,
+            time: values.departureTime,
+            personsCount,
+            baggageCount,
+          },
+        });
+      }
 
-      router.push({
-        pathname: "/home/selectlocation",
-        params: {
-          date: values.departureDate,
-          time: values.departureTime,
-          personsCount,
-          baggageCount,
-        },
-      });
     },
   });
 
@@ -114,20 +124,20 @@ const slots = () => {
       console.log("/////////////", departureDate, departureTime);
 
       // ✅ Pass correct data to API
-      const data={ departureDate, departureTime }
+      const data = { departureDate, departureTime }
       const res = await ALL_SLOTS(data, token);
 
       const rawSlots = res?.data?.slots;
 
       if (rawSlots && typeof rawSlots === "object") {
 
-       const formattedSlots = Object.entries(rawSlots).map(([date, times]) => ({
-  date,
-  times: times.map((slot) => ({
-    time: slot.Time,
-    available: slot.available,
-  })),
-}));
+        const formattedSlots = Object.entries(rawSlots).map(([date, times]) => ({
+          date,
+          times: times.map((slot) => ({
+            time: slot.Time,
+            available: slot.available,
+          })),
+        }));
 
 
         setFilterTimeSlot(formattedSlots);
@@ -145,13 +155,13 @@ const slots = () => {
     }
   };
 
-useEffect(() => {
-  if (departureDate && departureTime) {
-    alltimeslots(departureDate, departureTime);
-    console.log(departureTime, "departureTime//////////////slots/////");
-    console.log(departureDate, "departureDate////////////");
-  }
-}, [departureDate, departureTime]); // <== Add them as dependencies
+  useEffect(() => {
+    if (departureDate && departureTime) {
+      alltimeslots(departureDate, departureTime);
+      console.log(departureTime, "departureTime//////////////slots/////");
+      console.log(departureDate, "departureDate////////////");
+    }
+  }, [departureDate, departureTime]); // <== Add them as dependencies
 
 
   // const alltimeslots = async () => {
@@ -277,12 +287,13 @@ useEffect(() => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+
+      {isModalShow && <AlertModal message={errorMessage} onClose={()=>setIsModalShow(false)}/>}
       <View>
         <Image
           source={images.HeaderImg2}
-          className={`w-full ${
-            Platform.OS === "android" ? "h-auto" : "h-[250px]"
-          } relative`}
+          className={`w-full ${Platform.OS === "android" ? "h-auto" : "h-[250px]"
+            } relative`}
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -315,7 +326,7 @@ useEffect(() => {
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {flight?.departure?.iata || flight?.flight_from }
+              {flight?.departure?.iata || flight?.flight_from}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Departure
@@ -337,7 +348,7 @@ useEffect(() => {
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {flight?.arrival?.iata || flight?.flight_to }
+              {flight?.arrival?.iata || flight?.flight_to}
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Arrival
@@ -396,46 +407,45 @@ useEffect(() => {
             <ActivityIndicator size="large" color="#164F90" />
           </View>
         ) : (
-        
-       <>
-  {filterTimeSlot.map((item, index) => (
-    <View key={index} className="mt-4">
-      <Text className="text-[#164F90] text-lg mb-2 font-bold">{item.date}</Text>
 
-      <View className="flex flex-row flex-wrap gap-4 justify-start my-4">
-        {item.times.map((slot, i) => {
-          const slotKey = `${item.date}-${slot.time}`;
-          const isSelected = selected === slotKey;
-          const isDisabled = !slot.available;
+          <>
+            {filterTimeSlot.map((item, index) => (
+              <View key={index} className="mt-4">
+                <Text className="text-[#164F90] text-lg mb-2 font-bold">{item.date}</Text>
 
-          return (
-            <TouchableOpacity
-              key={i}
-              onPress={() => {
-                if (isDisabled) return; // prevent clicking
-                setSelected(slotKey);
-                formik.setFieldValue("departureDate", item.date);
-                formik.setFieldValue("departureTime", slot.time);
-              }}
-              disabled={isDisabled}
-              className={`rounded-xl p-2 px-5 border border-[#696969]
+                <View className="flex flex-row flex-wrap gap-4 justify-start my-4">
+                  {item.times.map((slot, i) => {
+                    const slotKey = `${item.date}-${slot.time}`;
+                    const isSelected = selected === slotKey;
+                    const isDisabled = !slot.available;
+
+                    return (
+                      <TouchableOpacity
+                        key={i}
+                        onPress={() => {
+                          if (isDisabled) return; // prevent clicking
+                          setSelected(slotKey);
+                          formik.setFieldValue("departureDate", item.date);
+                          formik.setFieldValue("departureTime", slot.time);
+                        }}
+                        disabled={isDisabled}
+                        className={`rounded-xl p-2 px-5 border border-[#696969]
                 ${isSelected ? "bg-[#164F90] border-[#FFB648]" : ""}
                 ${isDisabled ? "opacity-40" : ""}`}
-            >
-              <Text
-                className={`  ${ 
-                  isSelected ? "text-white" : "text-[#696969]"
-                } ${isDisabled ? "text-gray-500" : ""}`}
-              >
-                {slot.time}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  ))}
-</>
+                      >
+                        <Text
+                          className={`  ${isSelected ? "text-white" : "text-[#696969]"
+                            } ${isDisabled ? "text-gray-500" : ""}`}
+                        >
+                          {slot.time}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+          </>
 
 
         )}

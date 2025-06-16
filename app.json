@@ -11,8 +11,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "imageUrl":"./assets/splash.png"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
@@ -21,16 +20,17 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        
         "NSCameraUsageDescription": "This app requires camera access so you can take photos of your baggage for check-in and update your profile picture.",
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library so you can upload images of your baggage or update your profile photo.",
-"NSMicrophoneUsageDescription": "This app requires microphone access for voice communication with your driver or support team.",
+        "NSMicrophoneUsageDescription": "This app requires microphone access for voice communication with your driver or support team.",
         "NSUserNotificationAlertUsageDescription": "This app sends notifications to alert you about driver updates, service confirmations, and baggage check-in progress.",
         "NSUserNotificationSoundUsageDescription": "This app uses sound alerts to notify you of important updates from your assigned driver or service changes.",
         "NSUserNotificationBadgeUsageDescription": "This app displays badges to indicate pending notifications about your bookings or driver status.",
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help assign a nearby driver and manage pickup for your booked service.",
-       "CFBundleURLTypes": [
+        "CFBundleURLTypes": [
           {
             "CFBundleURLSchemes": [
               "com.googleusercontent.apps.1027382214254-128dgqp4tv02end2s6t600v02egliede"
@@ -38,7 +38,7 @@
           }
         ]
       },
-       "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "config": {
@@ -85,7 +85,6 @@
       ],
       [
         "expo-font",
-        
         {
           "fonts": [
             "./assets/fonts/centurygothic.ttf",
@@ -106,9 +105,8 @@
           "image": "./assets/splash.png",
           "dark": {
             "image": "./assets/splash.png",
-            "backgroundColor": "#000000"
-          },
-          "imageWidth": 400
+            "backgroundColor": "#FFFFFF"
+          }
         }
       ],
       [
@@ -122,7 +120,7 @@
         {
           "ios": {
             "useModularHeaders": true,
-            "useFrameworks": "static" 
+            "useFrameworks": "static"
           },
           "android": {
             "minSdkVersion": 26
