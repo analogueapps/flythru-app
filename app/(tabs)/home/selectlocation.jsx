@@ -14,6 +14,9 @@ import {
   FlatList,
   TouchableWithoutFeedback,
   Modal,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -54,6 +57,8 @@ import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import flightloader from "../../../assets/images/flightload.gif";
 import Locationicon from "../../../assets/svgs/location";
+import BookingSkeleton from "./BookingSkeleton";
+import SuccessModal from "../../successmodal";
 
 const selectlocation = () => {
   const insets = useSafeAreaInsets();
@@ -70,7 +75,9 @@ const selectlocation = () => {
   const [pickupdate, setPickupdate] = useState([]);
   const [pickuploaction, setPickuploaction] = useState([]);
   const [paymentUrl, setPaymentUrl] = useState(null);
-    const addressRefRBSheet = useRef();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const addressRefRBSheet = useRef();
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
@@ -96,11 +103,11 @@ const selectlocation = () => {
   const [inputValue, setInputValue] = useState("");
   const textInputRef = useRef(null);
 
-   const dropdownRef = useRef();
+  const dropdownRef = useRef();
   const [inputFocused, setInputFocused] = useState(false);
   const handleSelectOption = (selectedItem) => {
     if (selectedItem.disabled) return;
-    
+
     switch (selectedItem.action) {
       case "map":
         router.push("/home/selectlocationnext");
@@ -109,6 +116,8 @@ const selectlocation = () => {
         router.push("/home/locaddress");
         break;
       case "select":
+        console.log(selectedItem);
+
         setInputValue(selectedItem.label);
         formik.setFieldValue("pickUpLocation", selectedItem.label);
         break;
@@ -180,9 +189,8 @@ const selectlocation = () => {
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
       });
-      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${
-        geo.city || ""
-      }`;
+      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${geo.city || ""
+        }`;
       setAddress(formattedAddress);
       formik.setFieldValue("pickUpLocation", formattedAddress);
     } catch (error) {
@@ -235,9 +243,11 @@ const selectlocation = () => {
           }));
 
           setAddresses(mapped);
+          setFilteredAddresses(mapped);
         } catch (error) {
           console.log("Error fetching addresses:", error);
           setAddresses([]);
+          setFilteredAddresses([])
         }
       };
 
@@ -323,14 +333,14 @@ const selectlocation = () => {
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
-
+      setShowSuccess(true)
       console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: res.data.message,
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: "Success",
+      //   text2: res.data.message,
+      // });
 
       return true;
     } catch (error) {
@@ -383,6 +393,23 @@ const selectlocation = () => {
     }
   };
 
+
+  useEffect(() => {
+    const showListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsDropdownVisible(true);
+    });
+
+    // const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+    //   setIsDropdownVisible(false);
+    // });
+
+    return () => {
+      showListener.remove();
+      // hideListener.remove();
+    };
+  }, []);
+
+
   useEffect(() => {
     const fetchUserName = async () => {
       const name = await getUserName();
@@ -400,16 +427,22 @@ const selectlocation = () => {
     <View className="flex-1">
       {/* Header Background Image */}
       {/* {handlelocation()} */}
-
-    <RBSheet
+      {showSuccess && (
+        <SuccessModal
+          visible={showSuccess}
+          onClose={() => setShowSuccess(false)}
+        />
+      )}
+      <RBSheet
         ref={addressRefRBSheet}
         closeOnDragDown={true}
         closeOnPressMask={true}
         //   draggable={true}
-        height={Dimensions.get("window").height / 4.5}
+        // height={Dimensions.get("window").height / 4.5}
+        height={200}
         customStyles={{
           wrapper: {
-            backgroundColor: "transparent",
+            backgroundColor: "rgba(0,0,0,0.2)",
           },
           draggableIcon: {
             backgroundColor: "#000",
@@ -458,17 +491,18 @@ const selectlocation = () => {
         closeOnDragDown={true}
         closeOnPressMask={true}
         draggable={true}
+        // height={200}
         height={Dimensions.get("window").height / 2}
         customStyles={{
           wrapper: {
-            backgroundColor: "transparent",
+            backgroundColor: "rgba(0,0,0,0.2)",
           },
           draggableIcon: {
             backgroundColor: "#000",
           },
         }}
       >
-        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+        {paymentUrl ? <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
           <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
             <View className="flex flex-row ">
               {/* <Image
@@ -581,7 +615,9 @@ const selectlocation = () => {
               }}
             />
           </View>
-        </View>
+        </View> :
+          <BookingSkeleton />
+        }
       </RBSheet>
       <View>
         <Image
@@ -621,277 +657,160 @@ const selectlocation = () => {
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
-
+          overflow: 'visible',
           shadowRadius: 3.84,
         }}
       >
-        {/* dropdownaaaaa */}
-        {/* <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
 
-          <SelectDropdown
-            data={
-              addresses.length > 0
-                ? addresses
-                : [{ label: "No address found", disabled: true }]
-            }
-            onSelect={(selectedItem, index) => {
-              if (!selectedItem.disabled) {
-                formik.setFieldValue("pickUpLocation", selectedItem.label);
-              }
-            }}
-            buttonStyle={{
-              width: 40,    // 👈 Keep button small so that icon fits
-              height: 30,
-              backgroundColor: "transparent",
-              padding: 0,
-              margin: 0,
-            }}
-            renderButton={(selectedItem, isOpened) => (
-              <TouchableOpacity className="flex-row items-center justify-center">
-                <Icon
-                  name={isOpened ? "chevron-up" : "chevron-down"}
+
+        <View className="relative">
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          // onClose={()=>setIsDropdownVisible(false)}
+          >
+            <View className="relative flex-row my-2 items-center border-2 border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
+
+
+
+
+              {/* <TouchableWithoutFeedback onPress={() => setIsDropdownVisible(false)}> */}
+
+              {/* </TouchableWithoutFeedback> */}
+              {/* </Modal> */}
+              <TextInput
+                placeholder={
+                  applanguage === "eng"
+                    ? Translations.eng.select_location
+                    : Translations.arb.select_location
+                }
+                className="flex-1 h-[30px]"
+                placeholderTextColor="#2D2A29"
+                value={inputValue || formik.values.pickUpLocation}
+                onChangeText={(text) => {
+                  setInputValue(text);
+                  handleLocationInput(text); // Your existing handler
+                  setIsDropdownVisible(true);
+                  // Filter addresses by label
+                  const filtered = addresses.filter((addr) =>
+                    addr.label.toLowerCase().includes(text.toLowerCase())
+                  );
+                  if (text) {
+                    setFilteredAddresses(filtered);
+                  } else {
+                    setFilteredAddresses(addresses);
+
+                  }
+
+                }}
+                onFocus={() => setIsDropdownVisible(true)} // Open modal on focus
+                onBlur={() => {
+                  setTimeout(() => setIsDropdownVisible(false), 100);
+                }}
+                pointerEvents="none"
+              />
+
+              <TouchableOpacity onPress={searchLocation}>
+                <Ionicons
+                  name="search-outline"
                   size={20}
-                  color="#6B7280"
-                  backgroundColor="#194F901A"
-                  className="mr-2 rounded-lg"
+                  color="#194F90"
+                  style={{
+                    backgroundColor: "#194F901A",
+                    padding: 8,
+                    borderRadius: 12,
+                    marginLeft: 8,
+                  }}
                 />
               </TouchableOpacity>
+
+            </View>
+            {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
+              <Text
+                className="text-red-500 w-[90%] mx-auto"
+                style={{ fontFamily: "Lato" }}
+              >
+                {formik.errors.pickUpLocation}
+              </Text>
             )}
-            renderItem={(item, index, isSelected) => (
-              <View
-                className={`px-4 py-3 w-full ${isSelected ? "bg-gray-200" : "bg-white"
-                  }`}
-              >
-                <Text
-                  className={`text-base ${item.disabled ? "text-gray-400" : "text-gray-900"
-                    }`}
-                  style={{ fontFamily: "Lato" }}>
-                  {item.label}
-                </Text>
-              </View>
-            )}
-            dropdownOverlayStyle={{
-              // backgroundColor: "transparent",
-              backgroundColor: "#194F901A",
-              justifyContent: "center",
-              alignItems: "center",
-              flex: 1,
-            }}
-            dropdownStyle={{
-              borderRadius: 12,
-              backgroundColor: "#194F901A",
-              borderColor: "#D1D5DB",
-              borderWidth: 1,
-              width: "70%",     // ✅ dropdown is centered with 90% width
-              maxWidth: "70%",
-              alignSelf: "center",
-            }}
-            showsVerticalScrollIndicator={false}
-          />
-          <TextInput
-            placeholder={
-              applanguage === "eng"
-                ? Translations.eng.select_location
-                : Translations.arb.select_location
-            }
-            className="flex-1 h-[30px]"
-            placeholderTextColor="#2D2A29"
-            value={formik.values.pickUpLocation}
-            onChangeText={handleLocationInput}
-          />
-
-
-
-          <TouchableOpacity onPress={searchLocation}>
-            <Ionicons
-              name="search-outline"
-              size={26}
-              color="#194F90"
-              style={{
-                backgroundColor: "#194F901A",
-                padding: 8,
-                borderRadius: 12,
-                marginLeft: 8,
-              }}
-            />
-          </TouchableOpacity>
-        </View> */}
-
-        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
-         
-
-           {/* <Modal
-        visible={isDropdownVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsDropdownVisible(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setIsDropdownVisible(false)}>
-          <View style={{ flex: 1,  }}>
-            <TouchableWithoutFeedback>
-              <View
-                style={{
-                  backgroundColor: "white",
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: "#D1D5DB",
-                  width: "80%",
-                  alignSelf: "center",
-                  marginTop: 180, // Position below input
-                }}
-              >
-                {[
-                  { label: "Select from map", action: "map" },
-                  { label: "Enter manually", action: "manual" },
-                  ...(addresses.length > 0
-                    ? addresses.map((item) => ({
-                        label: item.label,
-                        action: "select",
-                      }))
-                    : [{ label: "No address found", disabled: true }]),
-                ].map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    disabled={item.disabled}
-                    onPress={() => handleSelectOption(item)}
-                    className={`px-4 py-3 w-full ${
-                      item.disabled ? "opacity-50" : ""
-                    }`}
-                  >
-                    <Text
-                      className={`text-base ${
-                        item.disabled
-                          ? "text-gray-400 border-b-[1px] border-gray-300 pb-6"
-                          : item.action === "map" || item.action === "manual"
-                          ? "text-[#194F90] border-b-[1px] border-gray-300 pb-6"
-                          : "text-gray-800 border-b-[1px] border-gray-300 pb-6"
-                      }`}
-                    >
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal> */}
-
-       <Modal
-  visible={isDropdownVisible}
-  transparent={true}
-  animationType="fade"
-  onRequestClose={() => setIsDropdownVisible(false)}
->
-  <TouchableWithoutFeedback onPress={() => setIsDropdownVisible(false)}>
-    <View style={{ flex: 1 }}>
-      <TouchableWithoutFeedback>
-        <View
-          style={{
-            backgroundColor: "white",
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: "#D1D5DB",
-            width: "80%",
-            alignSelf: "center",
-            marginTop: 180,
-            maxHeight: 240, // 4 items * ~60px/item
-          }}
-        >
-          <ScrollView
-            style={{ flexGrow: 0 }}
-            showsVerticalScrollIndicator={true}
-          >
-            {[
-              { label: "Select from map", action: "map" },
-              { label: "Enter manually", action: "manual" },
-              ...(addresses.length > 0
-                ? addresses.map((item) => ({
-                    label: item.label,
-                    action: "select",
-                  }))
-                : [{ label: "No address found", disabled: true }]),
-            ].map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                disabled={item.disabled}
-                onPress={() => handleSelectOption(item)}
-                className={`px-4 py-3 w-full ${
-                  item.disabled ? "opacity-50" : ""
-                }`}
-              >
-                <Text
-                  className={`text-base ${
-                    item.disabled
-                      ? "text-gray-400 border-b-[1px] border-gray-300 pb-6"
-                      : item.action === "map" || item.action === "manual"
-                      ? "text-[#194F90] border-b-[1px] border-gray-300 pb-6"
-                      : "text-gray-800 border-b-[1px] border-gray-300 pb-6"
-                  }`}
+            {isDropdownVisible &&
+              // <View style={{ flex: 1 }} className="absolute w-full top-20 left-0">
+              <TouchableWithoutFeedback style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 9999, // very high
+                backgroundColor: 'white', // or any opaque color
+              }}>
+                <View
+                  style={{
+                    backgroundColor: "white",
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    borderColor: "#D1D5DB",
+                    width: "100%",
+                    alignSelf: "center",
+                    // marginTop: 180,
+                    maxHeight: 240,
+                  }}
                 >
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                  <ScrollView
+                    style={{ flexGrow: 0 }}
+                    showsVerticalScrollIndicator={true}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    {[
+                      { label: "Select from map", action: "map" },
+                      { label: "Enter manually", action: "manual" },
+                      ...(filteredAddresses.length > 0
+                        ? filteredAddresses.map((item) => ({
+                          label: item.label,
+                          action: "select",
+                        }))
+                        : [{ label: "No address found", disabled: true }]),
+                    ].map((item, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        // disabled={item.disabled}
+                        onPress={() => {
+                          Keyboard.dismiss();
+                          handleSelectOption(item);
+                        }}
+                        className={`px-4 py-3 w-full  ${item.disabled ? "opacity-50" : ""}`}
+                      >
+                        <Text
+                          className={`text-base ${item.disabled
+                            ? "text-gray-400 border-b-[1px] border-gray-300 pb-6"
+                            : item.action === "map" || item.action === "manual"
+                              ? "text-[#194F90] border-b-[1px] border-gray-300 pb-6"
+                              : "text-gray-800 border-b-[1px] border-gray-300 pb-6"
+                            }`}
+                        >
+                          {item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </TouchableWithoutFeedback>
+            }
+
+            <TouchableOpacity
+              onPress={() => addressRefRBSheet.current?.open()}
+              disabled={loading}
+              className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
+            >
+              <Text className="text-center  text-[#164F90] font-bold text-lg">
+                {applanguage === "eng"
+                  ? Translations.eng.search
+                  : Translations.arb.search}
+              </Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+
         </View>
-      </TouchableWithoutFeedback>
-    </View>
-  </TouchableWithoutFeedback>
-</Modal>
 
-         <TextInput
-        placeholder={
-          applanguage === "eng"
-            ? Translations.eng.select_location
-            : Translations.arb.select_location
-        }
-        className="flex-1 h-[30px]"
-        placeholderTextColor="#2D2A29"
-        value={inputValue || formik.values.pickUpLocation}
-        onChangeText={(text) => {
-          setInputValue(text);
-          handleLocationInput(text); // Your existing handler
-        }}
-        onFocus={() => setIsDropdownVisible(true)} // Open modal on focus
-        pointerEvents="none"
-      />
-
-          <TouchableOpacity onPress={searchLocation}>
-            <Ionicons
-              name="search-outline"
-              size={26}
-              color="#194F90"
-              style={{
-                backgroundColor: "#194F901A",
-                padding: 8,
-                borderRadius: 12,
-                marginLeft: 8,
-              }}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
-          <Text
-            className="text-red-500 w-[90%] mx-auto"
-            style={{ fontFamily: "Lato" }}
-          >
-            {formik.errors.pickUpLocation}
-          </Text>
-        )}
-
-          <TouchableOpacity
-          onPress={() => addressRefRBSheet.current?.open()}
-          disabled={loading}
-          className="bg-[#FFB648] rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
-        >
-          <Text className="text-center  text-[#164F90] font-bold text-lg">
-            {applanguage === "eng"
-              ? Translations.eng.search
-              : Translations.arb.search}
-          </Text>
-        </TouchableOpacity>
       </View>
       {/* Safe Area Content */}
       {/* <ScrollView className="flex-1" contentContainerStyle={{}}>
@@ -905,6 +824,10 @@ const selectlocation = () => {
           <MapView
             style={styles.map}
             showsUserLocation={true}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            rotateEnabled={false}
+            pitchEnabled={false}
             region={{
               latitude: markerCoords?.latitude || latitude,
               longitude: markerCoords?.longitude || longitude,
@@ -920,7 +843,9 @@ const selectlocation = () => {
             /> */}
           </MapView>
         ) : (
-          <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text> // Show a placeholder while location is being fetched
+          <View className="flex-1 justify-center items-center">
+            <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text>
+          </View>// Show a placeholder while location is being fetched
         )}
       </View>
 

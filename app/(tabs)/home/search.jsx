@@ -306,127 +306,123 @@ const [day, month, year] = values.dep_date.split("-");
     }
   };
 
-  const getAllFlight = () => {
-    return new Promise((resolve, reject) => {
-      const today = new Date();
-      const selectedDate = new Date(departureDate);
-      const isToday = selectedDate.toDateString() === today.toDateString();
+  // const getAllFlight = () => {
+  //   return new Promise((resolve, reject) => {
+  //     const today = new Date();
+  //     const selectedDate = new Date(departureDate);
+  //     const isToday = selectedDate.toDateString() === today.toDateString();
 
-      // Debug logs to verify inputs
-      // console.log(`LOCAL_URL: ${LOCAL_URL}`);
-      // console.log(`Departure Date: ${departureDate}`);
-      // console.log(`Flight Number: ${flightNumber}`);
-      // console.log(`Is Today: ${isToday}`);
+    
 
-      const formatTime = (timeString) => {
-        if (!timeString) return "N/A";
-        return timeString.includes("T")
-          ? `${timeString.split("T")[1].split(":")[0]}:${
-              timeString.split("T")[1].split(":")[1].split(".")[0]
-            }`
-          : timeString;
-      };
+  //     const formatTime = (timeString) => {
+  //       if (!timeString) return "N/A";
+  //       return timeString.includes("T")
+  //         ? `${timeString.split("T")[1].split(":")[0]}:${
+  //             timeString.split("T")[1].split(":")[1].split(".")[0]
+  //           }`
+  //         : timeString;
+  //     };
 
-      const mapFlights = (data) => {
-        if (!data || !Array.isArray(data)) {
-          console.log("Invalid data format received from API:", data);
-          return [];
-        }
+  //     const mapFlights = (data) => {
+  //       if (!data || !Array.isArray(data)) {
+  //         console.log("Invalid data format received from API:", data);
+  //         return [];
+  //       }
 
-        return data.map((flight, index) => ({
-          _id: `api_${index}`,
-          airline: {
-            name: flight?.codeshared
-              ? `${flight?.codeshared?.airline?.name} (${flight?.codeshared?.airline?.iataCode})`
-              : `${flight?.airline?.name} (${flight?.airline?.iataCode})`,
-          },
-          flight: { number: flight?.flight?.iataNumber || "N/A" },
-          departure: {
-            scheduled: formatTime(flight?.departure?.scheduledTime),
-            airport: flight?.departure?.iataCode || "Unknown Airport",
-            iata: flight?.departure?.iataCode || "",
-          },
-          arrival: {
-            scheduled: formatTime(flight?.arrival?.scheduledTime),
-            airport: flight?.arrival?.iataCode || "Unknown Airport",
-            iata: flight?.arrival?.iataCode || "",
-          },
-          timing: `${formatTime(
-            flight?.departure?.scheduledTime
-          )} to ${formatTime(flight?.arrival?.scheduledTime)}`,
-        }));
-      };
+  //       return data.map((flight, index) => ({
+  //         _id: `api_${index}`,
+  //         airline: {
+  //           name: flight?.codeshared
+  //             ? `${flight?.codeshared?.airline?.name} (${flight?.codeshared?.airline?.iataCode})`
+  //             : `${flight?.airline?.name} (${flight?.airline?.iataCode})`,
+  //         },
+  //         flight: { number: flight?.flight?.iataNumber || "N/A" },
+  //         departure: {
+  //           scheduled: formatTime(flight?.departure?.scheduledTime),
+  //           airport: flight?.departure?.iataCode || "Unknown Airport",
+  //           iata: flight?.departure?.iataCode || "",
+  //         },
+  //         arrival: {
+  //           scheduled: formatTime(flight?.arrival?.scheduledTime),
+  //           airport: flight?.arrival?.iataCode || "Unknown Airport",
+  //           iata: flight?.arrival?.iataCode || "",
+  //         },
+  //         timing: `${formatTime(
+  //           flight?.departure?.scheduledTime
+  //         )} to ${formatTime(flight?.arrival?.scheduledTime)}`,
+  //       }));
+  //     };
 
-      // Common request handler
-      const makeRequest = (endpoint, params) => {
-        console.log(`Making request to ${endpoint} with params:`, params);
+  //     // Common request handler
+  //     const makeRequest = (endpoint, params) => {
+  //       console.log(`Making request to ${endpoint} with params:`, params);
 
-        return axios
-          .get(`${LOCAL_URL}${endpoint}`, {
-            params,
-            // Add these headers if needed
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("API Response:", response.data);
-            if (response.data.error) {
-              // Toast.show(response.data.error);
-              // Toast.show({
-              //   type: "error",
-              //   text1: "Error",
-              //   text2: response.data.error,
-              // });
-              return [];
-            }
-            return mapFlights(response.data);
-          })
-          .catch((error) => {
-            // console.error("API Error Details:", {
-            //   message: error.message,
-            //   url: error.config?.url,
-            //   params: error.config?.params,
-            //   status: error.response?.status,
-            //   data: error.response?.data
-            // });
-            // toast.show(`API Error: ${error.message}`);
-            // throw error; // Re-throw to be caught by the Promise chain
-          });
-      };
+  //       return axios
+  //         .get(`${LOCAL_URL}${endpoint}`, {
+  //           params,
+  //           // Add these headers if needed
+  //           headers: {
+  //             Accept: "application/json",
+  //             "Content-Type": "application/json",
+  //           },
+  //         })
+  //         .then((response) => {
+  //           console.log("API Response:", response.data);
+  //           if (response.data.error) {
+  //             // Toast.show(response.data.error);
+  //             // Toast.show({
+  //             //   type: "error",
+  //             //   text1: "Error",
+  //             //   text2: response.data.error,
+  //             // });
+  //             return [];
+  //           }
+  //           return mapFlights(response.data);
+  //         })
+  //         .catch((error) => {
+  //           // console.error("API Error Details:", {
+  //           //   message: error.message,
+  //           //   url: error.config?.url,
+  //           //   params: error.config?.params,
+  //           //   status: error.response?.status,
+  //           //   data: error.response?.data
+  //           // });
+  //           // toast.show(`API Error: ${error.message}`);
+  //           // throw error; // Re-throw to be caught by the Promise chain
+  //         });
+  //     };
 
-      try {
-        if (isToday) {
-          // Today's flights - schedules endpoint
-          const params = flightNumber
-            ? { flight_iata: flightNumber }
-            : { date: departureDate };
+  //     try {
+  //       if (isToday) {
+  //         // Today's flights - schedules endpoint
+  //         const params = flightNumber
+  //           ? { flight_iata: flightNumber }
+  //           : { date: departureDate };
 
-          makeRequest("/aviation/schedules", params)
-            .then((data) => {
-              setFlightDatas(data);
-              resolve(data);
-            })
-            .catch(reject);
-        } else {
-          // Future flights - futreflights endpoint (with your confirmed spelling)
-          const params = { date: departureDate };
-          if (flightNumber) params.flight_num = flightNumber;
+  //         makeRequest("/aviation/schedules", params)
+  //           .then((data) => {
+  //             setFlightDatas(data);
+  //             resolve(data);
+  //           })
+  //           .catch(reject);
+  //       } else {
+  //         // Future flights - futreflights endpoint (with your confirmed spelling)
+  //         const params = { date: departureDate };
+  //         if (flightNumber) params.flight_num = flightNumber;
 
-          makeRequest("/aviation/futreflights", params)
-            .then((data) => {
-              setFlightDatas(data);
-              resolve(data);
-            })
-            .catch(reject);
-        }
-      } catch (error) {
-        console.error("Request setup error:", error);
-        reject(error);
-      }
-    });
-  };
+  //         makeRequest("/aviation/futreflights", params)
+  //           .then((data) => {
+  //             setFlightDatas(data);
+  //             resolve(data);
+  //           })
+  //           .catch(reject);
+  //       }
+  //     } catch (error) {
+  //       console.error("Request setup error:", error);
+  //       reject(error);
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     const fetchAllFlights = async () => {
@@ -434,7 +430,7 @@ const [day, month, year] = values.dep_date.split("-");
       try {
         const [dbFlights, apiFlights] = await Promise.all([
           fetchSingleFlights(),
-          getAllFlight(), // Now this will properly return the flight data
+          // getAllFlight(), // Now this will properly return the flight data
         ]);
 
         setSpecialflightDatas(dbFlights || []);

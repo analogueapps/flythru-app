@@ -12,6 +12,8 @@ import {
   Linking,
   AppState,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -49,6 +51,7 @@ import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import flightloader from "../../../assets/images/flightload.gif";
 import SuccessModal from "../../successmodal";
+import BookingSkeleton from "./BookingSkeleton";
 
 const selectlocation = () => {
   const insets = useSafeAreaInsets();
@@ -146,9 +149,8 @@ const selectlocation = () => {
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
       });
-      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${
-        geo.city || ""
-      }`;
+      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${geo.city || ""
+        }`;
       setAddress(formattedAddress);
       formik.setFieldValue("pickUpLocation", formattedAddress);
     } catch (error) {
@@ -228,7 +230,7 @@ const selectlocation = () => {
         // personsCount: parsedPersonsCount,
         // baggageCount: parsedBaggageCount
         // baggagePictures: parsedBaggagePictures,
-       
+
         pickUpLocation: "hyd",
         date: "09-06-2025",
         pickUpTimings: "07:00 AM",
@@ -368,10 +370,11 @@ const selectlocation = () => {
         closeOnDragDown={true}
         closeOnPressMask={true}
         //   draggable={true}
-        height={Dimensions.get("window").height / 4.5}
+        // height={Dimensions.get("window").height / 4.5}
+        height={200}
         customStyles={{
           wrapper: {
-            backgroundColor: "transparent",
+            backgroundColor: "rgba(0,0,0,0.2)",
           },
           draggableIcon: {
             backgroundColor: "#000",
@@ -421,16 +424,17 @@ const selectlocation = () => {
         closeOnPressMask={true}
         draggable={true}
         height={Dimensions.get("window").height / 2}
+        // height={200}
         customStyles={{
           wrapper: {
-            backgroundColor: "transparent",
+            backgroundColor: "rgba(0,0,0,0.2)",
           },
           draggableIcon: {
             backgroundColor: "#000",
           },
         }}
       >
-        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+        {paymentUrl ? <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
           <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
             <View className="flex flex-row ">
               {/* <Image
@@ -543,8 +547,9 @@ const selectlocation = () => {
               }}
             />
           </View>
-        </View>
+        </View> : <BookingSkeleton />}
       </RBSheet>
+
       <View>
         <Image
           source={images.HeaderImg2}
@@ -586,33 +591,38 @@ const selectlocation = () => {
           shadowRadius: 3.84,
         }}
       >
-        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-3 bg-gray-50">
-          <TextInput
-            placeholder={
-              applanguage === "eng"
-                ? Translations.eng.select_location
-                : Translations.arb.select_location
-            }
-            className="flex-1 h-[30px]"
-            placeholderTextColor="#2D2A29"
-            value={formik.values.pickUpLocation}
-            onChangeText={handleLocationInput}
-          />
-
-          <TouchableOpacity onPress={searchLocation}>
-            <Ionicons
-              name="search-outline"
-              size={26}
-              color="#194F90"
-              style={{
-                backgroundColor: "#194F901A",
-                padding: 8,
-                borderRadius: 12,
-                marginLeft: 8,
-              }}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          >
+        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
+            <TextInput
+              placeholder={
+                applanguage === "eng"
+                  ? Translations.eng.select_location
+                  : Translations.arb.select_location
+              }
+              className="flex-1 h-[30px]"
+              placeholderTextColor="#2D2A29"
+              value={formik.values.pickUpLocation}
+              onChangeText={handleLocationInput}
             />
-          </TouchableOpacity>
+
+            <TouchableOpacity onPress={searchLocation}>
+              <Ionicons
+                name="search-outline"
+                size={20}
+                color="#194F90"
+                style={{
+                  backgroundColor: "#194F901A",
+                  padding: 8,
+                  borderRadius: 12,
+                  marginLeft: 8,
+                }}
+                />
+            </TouchableOpacity>
         </View>
+                </KeyboardAvoidingView>
 
         {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
           <Text

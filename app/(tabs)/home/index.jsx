@@ -93,8 +93,8 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      departureDate: "",
-      departureTime: "",
+      departureDate: "20/06/2025",
+      departureTime: "01:10",
       flightNumber: "AA567",
       from: "kwi",
       to: "hyd",
