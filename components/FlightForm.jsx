@@ -205,6 +205,7 @@ const FlightForm = ({ formik }) => {
           {applanguage === "eng" ? Translations.eng.to : Translations.arb.to}:
         </Text>
         <TextInput
+        maxLength={3}
           value={formik.values.to}
           onChangeText={formik.handleChange("to")}
           onBlur={formik.handleBlur("to")}

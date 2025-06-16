@@ -148,6 +148,7 @@ const AddFlightForm = ({ formik }) => {
           {applanguage === "eng" ? Translations.eng.to : Translations.arb.to}:
         </Text>
         <TextInput
+                maxLength={3}
           value={formik.values.flight_to}
           onChangeText={formik.handleChange("flight_to")}
           onBlur={formik.handleBlur("flight_to")}
@@ -266,21 +267,27 @@ const AddFlightForm = ({ formik }) => {
           </Text>
         )} */}
 <TouchableOpacity
-  activeOpacity={0.5}
-  onPress={()=>formik.handleSubmit()}
-  className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg"
-  style={{
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.84,
+  onPress={() => {
+    // Validate before submitting
+    if (
+      !formik.values.dep_date ||
+      !formik.values.flight_time ||
+      !formik.values.flight_number ||
+      !formik.values.flight_to ||
+      !formik.values.flight_from
+    ) {
+      Toast.show({
+        type: "error",
+        text1: "Please fill all required fields",
+      });
+      return;
+    }
+    formik.handleSubmit();
   }}
+  className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg"
 >
   <Text className="text-center text-[#164E8D] font-bold text-base">
-    {applanguage === "eng"
-      ? Translations.eng.search
-      : Translations.arb.search}
+    {applanguage === "eng" ? Translations.eng.search : Translations.arb.search}
   </Text>
 </TouchableOpacity>
 

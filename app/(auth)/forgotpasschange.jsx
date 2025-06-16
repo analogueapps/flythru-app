@@ -91,7 +91,7 @@ const forgotpasschange = () => {
     
       await forgotPasschangeHandler(values);
     },
-  });
+  }); 
 
   const { values, handleSubmit, setFieldValue, errors, touched } = formik;
 

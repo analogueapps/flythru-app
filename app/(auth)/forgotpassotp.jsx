@@ -125,7 +125,7 @@ const [email, setEmail] = useState("");
         } catch (error) {
           console.log("Error otpppp:", error?.response);
           Toast.show({
-            type: "info",
+            type: "error",
             text1: error.response?.data?.message
           });
         } finally {
@@ -133,6 +133,34 @@ const [email, setEmail] = useState("");
         }
       };
   
+
+         const forgotPassResendotpHandler = async (values) => {
+        setLoading(true);
+        console.log("Forgot Password Email Handler called with values:", values);
+    
+        try {
+          const res = await FORGOT_PASSWORD_OTP(values);
+          console.log(res.data.message);
+          Toast.show({
+            type: "success",
+            text1: res.data.message,
+          });
+           router.push({
+      pathname: "/forgotpasschange",
+      params: updatedParams,
+    });
+          
+        
+        } catch (error) {
+          console.log("Error otpppp:", error?.response);
+          Toast.show({
+            type: "error",
+            text1: error.response?.data?.message
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
 
   return (
     <SafeAreaView className="flex-1 bg-white p-6">
@@ -260,7 +288,7 @@ const [email, setEmail] = useState("");
         : `0.${timer} ثانية `}
     </Text>
   ) : (
-    <TouchableOpacity onPress={()=>{resendOtpHandler(restoken || token);
+    <TouchableOpacity onPress={()=>{resendOtpHandler();
                                       handleResend()}}>
       <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
         {applanguage === "eng"
