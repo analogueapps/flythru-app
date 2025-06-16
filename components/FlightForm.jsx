@@ -21,9 +21,9 @@ const FlightForm = ({ formik }) => {
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false); // For Date Picker visibility
-  const [selectedDate, setSelectedDate] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [selectedTime, setSelectedTime] = useState("");
+  // const [selectedDate, setSelectedDate] = useState("");
+  // const [selectedTime, setSelectedTime] = useState("");
   //   const { loadToken } = useAuth()
   const { applanguage } = langaugeContext();
 
@@ -151,7 +151,7 @@ const FlightForm = ({ formik }) => {
     const year = date.getFullYear();
 
     const formattedDate = `${day}-${month}-${year}`;
-    setSelectedDate(formattedDate);
+    // setSelectedDate(formattedDate);
     formik.setFieldValue("departureDate", formattedDate);
     hideDatePicker();
   };
@@ -162,7 +162,7 @@ const FlightForm = ({ formik }) => {
     const formattedTime = `${hours}:${minutes}`;
 
     console.log("formattedTime", formattedTime);
-    setSelectedTime(formattedTime);
+    // setSelectedTime(formattedTime);
     formik.setFieldValue("departureTime", formattedTime);
     hideTimePicker();
   };
@@ -237,7 +237,7 @@ const FlightForm = ({ formik }) => {
             className="bg-gray-100 p-3 rounded-lg"
             onPress={() => setShowDatePicker(true)}
           >
-            <Text>{selectedDate || "yyyy-mm-dd"}</Text>
+            <Text>{formik.values.departureDate || "yyyy-mm-dd"}</Text>
           </TouchableOpacity>
         )}
 
@@ -278,7 +278,7 @@ const FlightForm = ({ formik }) => {
             onPress={() => setShowTimePicker(true)}
           >
             <Text>
-              {selectedTime ||
+              {formik.values.departureTime ||
                 (applanguage === "eng"
                   ? Translations.eng.flight_timing
                   : Translations.arb.flight_timing)}
