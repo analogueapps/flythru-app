@@ -110,10 +110,15 @@ const selectlocation = () => {
 
     switch (selectedItem.action) {
       case "map":
-        router.push("/home/selectlocationnext");
+        setTimeout(() => {
+          router.push("/home/selectlocationnext");
+        }, 100)
         break;
       case "manual":
-        router.push("/home/locaddress");
+        Keyboard.dismiss()
+        setTimeout(() => {
+          router.push("/home/locaddress");
+        }, 100)
         break;
       case "select":
         console.log(selectedItem);

@@ -7,6 +7,9 @@ import {
   TextInput,
   Animated,
   Easing,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -158,6 +161,15 @@ const editpro = () => {
     }
   };
 
+  useEffect(() => {
+    const onFocus =  () => {
+      Keyboard.dismiss();
+    }
+    const unsubscribe = router.addListener("focus",onFocus);
+
+    return () => unsubscribe();
+  }, [router]);
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
@@ -195,7 +207,12 @@ const editpro = () => {
           </View>
         </View>
       </View>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+       <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
+    >
+      <View className="flex-1">
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}  keyboardShouldPersistTaps="handled">
         <View className="px-7 flex-col gap-y-4">
           <View className="mb-2">
             <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
@@ -279,7 +296,8 @@ const editpro = () => {
           </View>
         </View>
       </ScrollView>
-
+      </View>
+</KeyboardAvoidingView>
       <TouchableOpacity
         disabled={loading}
         style={{

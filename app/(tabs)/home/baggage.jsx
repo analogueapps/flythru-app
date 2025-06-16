@@ -130,9 +130,8 @@ const baggage = () => {
       <View>
         <Image
           source={images.HeaderImg2}
-          className={`w-full ${
-            Platform.OS === "android" ? "h-auto" : "h-[250px]"
-          } relative`}
+          className={`w-full ${Platform.OS === "android" ? "h-auto" : "h-[250px]"
+            } relative`}
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -159,8 +158,8 @@ const baggage = () => {
               : Translations.arb.baggage_details}
           </Text>
         </View>
-        <View className="flex-row items-center justify-between px-4 mt-8">
-          <View className="flex-col items-center">
+        <View className="flex-row items-center justify-between px-4">
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
@@ -179,9 +178,9 @@ const baggage = () => {
             </Text>
           </View>
 
-          <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center">
-              <View className="flex-1 relative justify-center">
+          <View className="flex-1 items-center ">
+            <View className="w-full flex-row items-center overflow-hidden h-full justify-center">
+              <View className="flex-1 relative justify-center ">
                 <DashedLine dashColor="white" />
                 <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 bg-transparent z-10">
                   <PlaneIcon />
@@ -190,7 +189,7 @@ const baggage = () => {
             </View>
           </View>
 
-          <View className="flex-col items-center">
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}

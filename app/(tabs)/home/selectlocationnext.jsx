@@ -149,7 +149,7 @@ const selectlocation = () => {
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
       });
-      const formattedAddress = `${geo.name || ""} ${geo.street || ""}, ${geo.city || ""
+      const formattedAddress = `${geo?.name || ""} ${geo?.street || ""}, ${geo?.city || ""
         }`;
       setAddress(formattedAddress);
       formik.setFieldValue("pickUpLocation", formattedAddress);

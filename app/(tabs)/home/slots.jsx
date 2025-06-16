@@ -90,14 +90,14 @@ const slots = () => {
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: async (values) => {
-      console.log('values.departureTime',values.departureTime);
-      
+      console.log('values.departureTime', values.departureTime);
+
       if (values.departureTime == '') {
         setErrorMessage('Please select slot time')
         setIsModalShow(true)
-      }else{
-setErrorMessage('')
-setIsModalShow(false)
+      } else {
+        setErrorMessage('')
+        setIsModalShow(false)
         router.push({
           pathname: "/home/selectlocation",
           params: {
@@ -288,7 +288,7 @@ setIsModalShow(false)
     <View className="flex-1">
       {/* Header Background Image */}
 
-      {isModalShow && <AlertModal message={errorMessage} onClose={()=>setIsModalShow(false)}/>}
+      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
       <View>
         <Image
           source={images.HeaderImg2}
@@ -320,37 +320,53 @@ setIsModalShow(false)
               : Translations.arb.select_slots}
           </Text>
         </View>
-        <View className="flex-row items-center justify-between px-4 mt-8">
-          <View className="flex-col items-center">
+        <View className="flex-row items-center justify-between px-4">
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
               {flight?.departure?.iata || flight?.flight_from}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>
-              Departure
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                fontFamily: "Lato",
+              }}
+            >
+              {/* {flight.departure.airport} */}Departure
             </Text>
           </View>
 
-          <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center">
-              <View className="flex-1 relative justify-center">
+          <View className="flex-1 items-center ">
+            <View className="w-full flex-row items-center overflow-hidden h-full justify-center">
+              <View className="flex-1 relative justify-center ">
                 <DashedLine dashColor="white" />
-                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 z-10">
+                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 bg-transparent z-10">
                   <PlaneIcon />
                 </View>
               </View>
             </View>
           </View>
-          <View className="flex-col items-center">
+
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
               {flight?.arrival?.iata || flight?.flight_to}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                fontFamily: "Lato",
+              }}
+            >
+              {/* {flight.arrival.airport} */}
               Arrival
             </Text>
           </View>
@@ -445,38 +461,38 @@ setIsModalShow(false)
                 </View>
               </View>
             ))}
+            {formik.touched.time && formik.errors.time && (
+              <Text
+                className="text-red-500 w-[90%] mx-auto"
+                style={{ fontFamily: "Lato" }}
+              >
+                {formik.errors.time}
+              </Text>
+            )}
+
+            {/* Continue Button */}
+            <TouchableOpacity
+              className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-28"
+              onPress={() => {
+                // createNewCalendar();
+                formik.handleSubmit();
+                // router.push("/home/selectlocation");
+              }}
+            >
+              <Text
+                className="text-center text-[#164F90] font-bold"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.continue
+                  : Translations.arb.continue}
+              </Text>
+            </TouchableOpacity>
           </>
 
 
         )}
 
-        {formik.touched.time && formik.errors.time && (
-          <Text
-            className="text-red-500 w-[90%] mx-auto"
-            style={{ fontFamily: "Lato" }}
-          >
-            {formik.errors.time}
-          </Text>
-        )}
-
-        {/* Continue Button */}
-        <TouchableOpacity
-          className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-28"
-          onPress={() => {
-            // createNewCalendar();
-            formik.handleSubmit();
-            // router.push("/home/selectlocation");
-          }}
-        >
-          <Text
-            className="text-center text-[#164F90] font-bold"
-            style={{ fontFamily: "Lato" }}
-          >
-            {applanguage === "eng"
-              ? Translations.eng.continue
-              : Translations.arb.continue}
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
