@@ -21,6 +21,7 @@ import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg";
+import sorry from "../../../assets/images/sorry.png";
 import { Calendar } from "lucide-react-native";
 import Editprofile from "../../../assets/svgs/editprofile";
 import Rightarrow from "../../../assets/svgs/rightarrow";
@@ -64,6 +65,7 @@ import Constants from "expo-constants";
 import ChangePassword from "../../../assets/svgs/changePass";
 import Followus from "../../../assets/svgs/followus";
 import Aboutus from "../../../assets/svgs/aboutus";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 // import { Alert, Button } from "react-native";
 
@@ -115,6 +117,7 @@ const index = () => {
   const insets = useSafeAreaInsets();
   const drefRBSheet = useRef();
   const logoutrefRBSheet = useRef();
+  const sorryrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");
   const [loading, setLoading] = useState(false);
   const [shouldOpenSheet, setShouldOpenSheet] = useState(false);
@@ -334,6 +337,75 @@ const index = () => {
     );
   };
 
+   const sorryRbSheet = () => {
+    return (
+      <RBSheet
+  ref={sorryrefRBSheet}
+  closeOnDragDown={true}
+  closeOnPressMask={true}
+  height={Dimensions.get("window").height / 2}
+  customStyles={{
+    wrapper: {
+      backgroundColor: "rgba(0,0,0,0.2)",
+    },
+    container: {
+      backgroundColor: "#fff",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: -3,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    draggableIcon: {
+      backgroundColor: "#ccc",
+      width: 40,
+      height: 5,
+      borderRadius: 10,
+    },
+  }}
+>
+  <View className="rounded-2xl flex-col ">
+{/* 
+     <TouchableOpacity
+                className="absolute top-2 right-3  rounded-full p-1"
+                onPress={() => sorryrefRBSheet.current.close()}
+              >
+                <AntDesign name="closecircleo" size={24} color="black" />
+              </TouchableOpacity> */}
+
+    {/* Image */}
+    <Image
+      source={sorry}
+      className="w-28 relative self-center"
+      style={{ resizeMode: "contain" }}
+    />
+
+    {/* Heading */}
+    <Text className="text-center text-xl font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
+      {applanguage === "eng"
+        ? Translations.eng.sorry_heading
+        : Translations.arb.sorry_heading}
+    </Text>
+
+    {/* Message */}
+    <View className="mx-6 flex flex-col gap-3">
+      <Text className="text-[#164F90] text-center" style={{ fontFamily: "Lato" }}>
+        {applanguage === "eng"
+          ? Translations.eng.sorry_msg
+          : Translations.arb.sorry_msg}
+      </Text>
+    </View>
+
+  </View>
+</RBSheet>
+    );
+  };
+
   const deleteaccount = async (values) => {
     const finalReason = formik.values.reasonForDeleteAccount;
 
@@ -351,8 +423,14 @@ const index = () => {
       console.log(res);
       setAccountDeleted(true); // prevent reuse
       drefRBSheet.current?.close();
-      router.push("/(auth)");
+      // router.push("/(auth)");
       // Toast.show(res.data.message);
+      // Show sorry message
+      sorryrefRBSheet.current.open(); // Open sorry message sheet  for 30 seconds then redirect automatically to /(auth)
+      setTimeout(() => {
+        sorryrefRBSheet.current.close(); // Close after 30 seconds
+        router.replace("/(auth)"); // Redirect to auth screen
+      }, 30000); // 30 seconds
       Toast.show({
         type: "success",
         text1: res.data.message,
@@ -645,6 +723,7 @@ const index = () => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState !== "active") {
         logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
+       
         setShouldOpenSheet(false); // ✅ also reset the open flag
       }
     });
@@ -659,6 +738,7 @@ const index = () => {
       {/* Header Background Image */}
       {handleDelete()}
       {handleLogout()}
+      {sorryRbSheet()}
       <View>
         <Image
           source={images.HeaderImg}
@@ -918,6 +998,7 @@ const index = () => {
             onPress={() => {
               if (isLoggedIn) {
                 logoutrefRBSheet.current.open(); // open sheet only if logged in
+                //  sorryrefRBSheet.current.open();
               } else {
                 router.replace("/(auth)"); // go to auth screen if not logged in
               }

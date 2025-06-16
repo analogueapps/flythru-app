@@ -28,7 +28,8 @@ const Translations = {
     sign_up_to_register: "Sign Up to Register",
     otp_verification: "OTP Verification",
     enter_otp: "Enter OTP",
-
+    sorry_heading:"Your account has been successfully deleted. We’re truly sorry to see you go.",
+    sorry_msg:"Thank you for being part of our journey. If you ever decide to return, we’ll be more than happy to welcome you back.",
     otp_sent_message: "A 4-digit code has been sent to your email",
     otp_resent_message: "OTP has been resent to your email!",
     resend_otp: "Resend OTP",
@@ -257,7 +258,8 @@ const Translations = {
     flight_number: "رقم الرحلة",
     departure_date: "تاريخ المغادرة",
     search_results: "نتائج البحث",
-
+    sorry_heading:"تم حذف حسابك بنجاح. نحن آسفون لرؤيتك تذهب.",
+    sorry_msg:"شكرًا لكونك جزءًا من رحلتنا. إذا قررت العودة يومًا ما، فسنسعد باستقبالك مرة أخرى.", 
     flight_timing: "موعد الرحلة",
     book_services: "احجز الخدمات",
     for_hassle_free_trip: "لرحلة خالية من المتاعب",
