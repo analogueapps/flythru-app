@@ -29,8 +29,12 @@ import Toast from "react-native-toast-message";
 const baggage = () => {
   const insets = useSafeAreaInsets();
   const imagerefRBSheet = useRef();
-  const { flightData, departureDate , departureTime } = useLocalSearchParams();
+  const { flightData, departureDate, departureTime } = useLocalSearchParams();
   const flight = JSON.parse(flightData);
+  // const addflight = addflightData && typeof addflightData === "string"
+  //   ? JSON.parse(addflightData)
+  //   : null;
+
   const [persons, setPersons] = useState("1");
   const [bags, setBags] = useState("1");
   const [bagimages, setBagimages] = useState([]);
@@ -53,22 +57,17 @@ const baggage = () => {
   const numberOfBags = (type) => {
     const numericBags = parseInt(persons, 10) || 0;
     if (type === "increasebags" && numericBags < 10) {
-       const newValue = numericBags + 1;
+      const newValue = numericBags + 1;
       setBags(newValue.toString());
-   
-        formik.setFieldValue("baggageCount", newValue);
-        // return newValue;
-      
+
+      formik.setFieldValue("baggageCount", newValue);
+      // return newValue;
     } else if (type === "decreasebags" && bags > 1) {
-       const newValue = numericBags - 1;
+      const newValue = numericBags - 1;
       setBags(newValue.toString());
-        formik.setFieldValue("baggageCount", newValue);
-      
+      formik.setFieldValue("baggageCount", newValue);
     }
   };
-
-
- 
 
   useEffect(() => {
     formik.setValues({
@@ -76,8 +75,6 @@ const baggage = () => {
       baggageCount: bags,
     });
   }, [persons, bags]);
-
-  
 
   const formik = useFormik({
     initialValues: {
@@ -89,8 +86,7 @@ const baggage = () => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("values", values);
-     
-   
+
       router.push({
         pathname: "/home/slots",
         params: {
@@ -107,14 +103,12 @@ const baggage = () => {
   console.log("Formik errors:", formik.errors);
 
   useEffect(() => {
-      console.log(departureTime, "departureTimeppppppppppppppppppppp");
-      console.log(departureDate, "departureDatepppppppppppppppppppp");
-      
-    }, []);
+    console.log(departureTime, "departureTimeppppppppppppppppppppp");
+    console.log(departureDate, "departureDatepppppppppppppppppppp");
+    console.log(flight, "addflight////////////");
+  }, []);
 
- 
-
-  const DashedLine = ({ dashCount = 30, dashColor = 'white' }) => (
+  const DashedLine = ({ dashCount = 30, dashColor = "white" }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
         <View
@@ -130,14 +124,15 @@ const baggage = () => {
     </View>
   );
 
-
   return (
     <View className="flex-1">
       {/* Header Background Image */}
       <View>
         <Image
           source={images.HeaderImg2}
-          className={`w-full ${Platform.OS==="android"?"h-auto":"h-[250px]"} relative`}
+          className={`w-full ${
+            Platform.OS === "android" ? "h-auto" : "h-[250px]"
+          } relative`}
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -166,31 +161,23 @@ const baggage = () => {
         </View>
         <View className="flex-row items-center justify-between px-4 mt-8">
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {flight?.departure?.iata}
+            <Text
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: "Lato" }}
+            >
+              {flight?.departure?.iata || flight?.flight_from}
             </Text>
             <Text
               className="text-white "
               style={{
                 flexWrap: "wrap",
                 wordBreak: "break-word",
-                fontFamily: "Lato"
-
+                fontFamily: "Lato",
               }}
-
             >
               {/* {flight.departure.airport} */}Departure
             </Text>
           </View>
-          {/* <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center ">
-              <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
-                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
-                  <PlaneIcon />
-                </View>
-              </View>
-            </View>
-          </View> */}
 
           <View className="flex-1 items-center px-2">
             <View className="w-full flex-row items-center justify-center">
@@ -204,17 +191,23 @@ const baggage = () => {
           </View>
 
           <View className="flex-col items-center">
-            <Text className="text-2xl font-bold text-white" style={{ fontFamily: "Lato" }}>
-              {flight?.arrival?.iata}
+            <Text
+              className="text-2xl font-bold text-white"
+              style={{ fontFamily: "Lato" }}
+            >
+              {flight?.arrival?.iata || flight?.flight_to}
             </Text>
-            <Text className="text-white " style={{
-              flexWrap: "wrap",
-              wordBreak: "break-word",
-              fontFamily: "Lato"
-
-            }}>
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                fontFamily: "Lato",
+              }}
+            >
               {/* {flight.arrival.airport} */}
-              Arrival</Text>
+              Arrival
+            </Text>
           </View>
         </View>
       </View>
@@ -227,13 +220,19 @@ const baggage = () => {
         <ScrollView className="" showsVerticalScrollIndicator={false}>
           {/* Number of Persons */}
           <View className="mb-6">
-            <Text className="text-[#164F90] font-bold text-lg mb-3" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-[#164F90] font-bold text-lg mb-3"
+              style={{ fontFamily: "Lato" }}
+            >
               {applanguage === "eng"
                 ? Translations.eng.number_of_persons
                 : Translations.arb.number_of_persons}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-2 rounded-xl">
-              <Text className="text-[#164F90] font-semibold text-lg" style={{ fontFamily: "Lato" }}>
+              <Text
+                className="text-[#164F90] font-semibold text-lg"
+                style={{ fontFamily: "Lato" }}
+              >
                 {applanguage === "eng"
                   ? Translations.eng.number_of_persons
                   : Translations.arb.number_of_persons}{" "}
@@ -263,10 +262,13 @@ const baggage = () => {
                   }}
                   keyboardType="numeric"
                   className="text-[#194f90] w-8 border-b"
-                  style={{ fontFamily: "Lato", minWidth: 30, textAlign: "center" }}
+                  style={{
+                    fontFamily: "Lato",
+                    minWidth: 30,
+                    textAlign: "center",
+                  }}
                 />
                 <TouchableOpacity
-
                   className="ml-3"
                   onPress={() => numberOfPersons("increase")}
                 >
@@ -274,17 +276,25 @@ const baggage = () => {
                 </TouchableOpacity>
               </View>
             </View>
-                <Text className="text-red-500 text-[11px]">{formik.errors.personsCount}</Text>
+            <Text className="text-red-500 text-[11px]">
+              {formik.errors.personsCount}
+            </Text>
           </View>
           {/* Baggage */}
           <View className="mb-6">
-            <Text className="text-[#164F90] font-bold text-lg mb-3" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-[#164F90] font-bold text-lg mb-3"
+              style={{ fontFamily: "Lato" }}
+            >
               {applanguage === "eng"
                 ? Translations.eng.baggage
                 : Translations.arb.baggage}{" "}
             </Text>
             <View className="border border-[#F2F2F2] bg-[#FBFBFB] flex-row items-center justify-between p-2 rounded-xl">
-              <Text className="text-[#164F90] font-semibold text-lg" style={{ fontFamily: "Lato" }}>
+              <Text
+                className="text-[#164F90] font-semibold text-lg"
+                style={{ fontFamily: "Lato" }}
+              >
                 {applanguage === "eng"
                   ? Translations.eng.checked_in_bags
                   : Translations.arb.checked_in_bags}
@@ -298,7 +308,7 @@ const baggage = () => {
                   />
                 </TouchableOpacity>
                 {/* <Text className="text-[#194f90]" style={{ fontFamily: "Lato" }}>{bags}</Text> */}
-                 <TextInput
+                <TextInput
                   value={bags}
                   onChangeText={(value) => {
                     const numericValue = value.replace(/[^0-9]/g, "");
@@ -307,7 +317,11 @@ const baggage = () => {
                   }}
                   keyboardType="numeric"
                   className="text-[#194f90] w-8 border-b"
-                  style={{ fontFamily: "Lato", minWidth: 30, textAlign: "center" }}
+                  style={{
+                    fontFamily: "Lato",
+                    minWidth: 30,
+                    textAlign: "center",
+                  }}
                 />
                 <TouchableOpacity className="ml-3">
                   <Plus
@@ -318,51 +332,15 @@ const baggage = () => {
                 </TouchableOpacity>
               </View>
             </View>
-                 <Text className="text-red-500 text-[11px]">{formik.errors.baggageCount}</Text>
-          </View>
-          {/* Image Upload */}
-          {/* <View className="mb-6">
-            <TouchableOpacity
-              className="border border-dashed border-[#8B8B8B] rounded-xl p-6 items-center"
-              onPress={() => {
-                imagerefRBSheet.current.open();
-              }}
-            >
-              <Text className="text-[#515151] mb-1" style={{ fontFamily: "Lato" }}>
-                {applanguage === "eng"
-                  ? Translations.eng.upload_image
-                  : Translations.arb.upload_image}
-              </Text>
-            </TouchableOpacity>
-            <Text className="text-[#2D2A29] text-sm" style={{ fontFamily: "Lato" }}>
-              {applanguage === "eng"
-                ? Translations.eng.max_file_size
-                : Translations.arb.max_file_size}
+            <Text className="text-red-500 text-[11px]">
+              {formik.errors.baggageCount}
             </Text>
-            <View className="flex-row flex-wrap mt-3">
-              {bagimages.map((img, index) => (
-                <View
-                  key={index}
-                  className="bg-gray-100 rounded-md px-3 py-1 mr-2 mb-2 flex-row items-center"
-                >
-                  <Image
-                    source={{ uri: img }}
-                    className="w-16 h-16 rounded-md mr-2"
-                    style={{ resizeMode: "cover" }}
-                  />
-                  <TouchableOpacity onPress={() => removeImage(index)}>
-                    <Text className="text-gray-400" style={{ fontFamily: "Lato" }}>×</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          </View> */}
+          </View>
 
           {/* Continue Button */}
           <TouchableOpacity
             // onPress={()=>formik.handleSubmit()}
             onPress={() => {
-
               formik.handleSubmit();
 
               // router.push({
@@ -372,7 +350,10 @@ const baggage = () => {
             }}
             className="bg-[#FFB800] rounded-xl py-4"
           >
-            <Text className="text-center text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-center text-[#164F90] font-bold"
+              style={{ fontFamily: "Lato" }}
+            >
               {applanguage === "eng"
                 ? Translations.eng.continue
                 : Translations.arb.continue}

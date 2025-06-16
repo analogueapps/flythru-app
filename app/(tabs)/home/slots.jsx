@@ -44,15 +44,25 @@ const slots = () => {
   const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
-  const time =
-    flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
-      ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${
-          flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
-        } `
-      : flight.departure.scheduled;
+
+  
+  // const time =
+  //   flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
+  //     ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${
+  //         flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
+  //       } `
+  //     : flight.departure.scheduled;
+
+
+
   const [depDate, setdepDate] = useState("");
   const { applanguage } = langaugeContext();
   const { personsCount, baggageCount } = useLocalSearchParams();
+
+  useEffect(() =>{
+    console.log(flight, "flight data in slots page");
+    
+  },[])
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
@@ -67,6 +77,7 @@ const slots = () => {
       }
     }
   }, [departureDate]);
+
 
   const formik = useFormik({
     initialValues: {
@@ -304,7 +315,7 @@ useEffect(() => {
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {flight?.departure?.iata ?? "--"}
+              {flight?.departure?.iata || flight?.flight_from }
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Departure
@@ -326,7 +337,7 @@ useEffect(() => {
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {flight?.arrival?.iata ?? "--"}
+              {flight?.arrival?.iata || flight?.flight_to }
             </Text>
             <Text className="text-white" style={{ fontFamily: "Lato" }}>
               Arrival
@@ -440,7 +451,7 @@ useEffect(() => {
 
         {/* Continue Button */}
         <TouchableOpacity
-          className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
+          className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-28"
           onPress={() => {
             // createNewCalendar();
             formik.handleSubmit();

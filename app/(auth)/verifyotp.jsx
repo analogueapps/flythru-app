@@ -244,10 +244,6 @@ const { token } = useLocalSearchParams();
   };
   
 
- 
-
- 
-
   const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === "Backspace") {
       if (codes[index] === "") {

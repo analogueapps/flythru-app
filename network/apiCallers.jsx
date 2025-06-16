@@ -282,9 +282,15 @@ export const ALL_FLIGHTS = async (data) => {
   return await axios.post(`${LOCAL_URL}/allflights`, data); 
 };
 
-export const ADD_FLIGHTS = async (data) => {
+export const ADD_FLIGHTS = async (data,token) => {
   console.log("Adding flight data fetched:", data);
-  return await axios.post(`${LOCAL_URL}/user/add-flight`, data); 
+  return await axios.post(`${LOCAL_URL}/user/add-flight`, data,
+     {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  ); 
 };
 
 export const ALL_FLIGHTS_CLIENT = async (data) => {

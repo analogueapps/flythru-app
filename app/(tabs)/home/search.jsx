@@ -97,74 +97,99 @@ const Search = () => {
     formik.setFieldValue("departureTime", formattedTime);
   };
 
-   const formik = useFormik({
-      initialValues: {
-         dep_date: "", // Default date, can be changed
-      flight_time: "",
-      flight_number: "",
-      flight_from: "KWI",
-      flight_to: "",
-      },
-      // validationSchema: AllflightSchema(applanguage),
-      validateOnChange: false, // Disable auto-validation on change
-      validateOnBlur: false, // Disable auto-validation on blur
-      onSubmit: async (values) => {
-        console.log("Form Values:", values);
-  
-        const { dep_date, flight_number, flight_to, flight_from, flight_time } = values;
-  
-        if (!dep_date || !flight_number || !flight_from || !flight_to || !flight_time) {
-          Toast.show({
-            type: "error",
-            text1: "Please fill all fields",
-          });
-          return;
-        }
-        
-const [day, month, year] = values.dep_date.split("-");
-        // const parsedDepartureDate = `${year}-${month}-${day}`;
-        const parsedDepartureDate = `${day}-${month}-${year}`;
-        await addFlightshandler(values);
-        router.push({
-          pathname: "/home/baggage",
-             params: {
-      departureDate: values.dep_date,
-      flightNumber: values.flight_number,
-      departureTime: values.flight_time,
-    },
-        });
-      },
-    });
-
-
-
-  const addFlightshandler = async (values) => {
-    setLoading(true);
-    const token = await AsyncStorage.getItem("authToken");
-    if (!token) {
-      Toast.show("No token found. Please log in.");
-      return;
-    }
-
+const formik = useFormik({
+  initialValues: {
+    dep_date: "",
+    flight_time: "",
+    flight_number: "",
+    flight_from: "KWI",
+    flight_to: "",
+  },
+  validateOnChange: false,
+  validateOnBlur: false,
+  onSubmit: async (values) => {
     try {
-      const res = await ADD_FLIGHTS(values, token);
-      console.log(res.data.message);
-      Toast.show({
-        type: "success",
-        text1: res.data.message,
-      });
+      // Validate required fields
+      if (
+        !values.dep_date ||
+        !values.flight_time ||
+        !values.flight_number ||
+        !values.flight_to
+      ) {
+        Toast.show({
+          type: "error",
+          text1: "Please fill all required fields",
+        });
+        return;
+      }
 
-      router.back();
-    } catch (error) {
-      console.log("Error updating profile:", error?.response);
-      Toast.show({
-        type: "info",
-        text1: error.response?.data?.message || "Failed to update profile",
+      // Format date consistently (DD-MM-YYYY)
+      const [day, month, year] = values.dep_date.split("-");
+      const formattedDate = `${day}-${month}-${year}`;
+
+      // Prepare submission data
+      const flightData = {
+        dep_date: formattedDate,
+        flight_time: values.flight_time,
+        flight_number: values.flight_number,
+        flight_from: values.flight_from,
+        flight_to: values.flight_to,
+      };
+
+      // ✅ Send API call
+      await addFlightshandler(flightData);
+
+      // ✅ Pass data to baggage screen
+      router.push({
+        pathname: "/home/baggage",
+        params: {
+          flightData: JSON.stringify(flightData),
+          departureDate: formattedDate,
+          departureTime: values.flight_time,
+        },
       });
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error("Submission error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to submit flight details",
+      });
     }
-  };
+  },
+});
+
+
+const addFlightshandler = async (flightData) => {
+  setLoading(true);
+  const token = await AsyncStorage.getItem("authToken");
+
+  if (!token) {
+    Toast.show({
+      type: "error",
+      text1: "No token found. Please log in.",
+    });
+    return;
+  }
+
+  try {
+    const res = await ADD_FLIGHTS(flightData, token);
+    console.log(res.data.message);
+
+    Toast.show({
+      type: "success",
+      text1: res.data.message,
+    });
+  } catch (error) {
+    console.log("Error updating profile:", error?.response);
+    Toast.show({
+      type: "info",
+      text1: error?.response?.data?.message || "Failed to update profile",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const DashedLine2 = ({
     dashCount = 40,
@@ -187,6 +212,7 @@ const [day, month, year] = values.dep_date.split("-");
     </View>
   );
 
+  
   // const formatDate = (isoDateStr) => {
 
   //   const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
@@ -306,139 +332,17 @@ const [day, month, year] = values.dep_date.split("-");
     }
   };
 
-  const getAllFlight = () => {
-    return new Promise((resolve, reject) => {
-      const today = new Date();
-      const selectedDate = new Date(departureDate);
-      const isToday = selectedDate.toDateString() === today.toDateString();
-
-      // Debug logs to verify inputs
-      // console.log(`LOCAL_URL: ${LOCAL_URL}`);
-      // console.log(`Departure Date: ${departureDate}`);
-      // console.log(`Flight Number: ${flightNumber}`);
-      // console.log(`Is Today: ${isToday}`);
-
-      const formatTime = (timeString) => {
-        if (!timeString) return "N/A";
-        return timeString.includes("T")
-          ? `${timeString.split("T")[1].split(":")[0]}:${
-              timeString.split("T")[1].split(":")[1].split(".")[0]
-            }`
-          : timeString;
-      };
-
-      const mapFlights = (data) => {
-        if (!data || !Array.isArray(data)) {
-          console.log("Invalid data format received from API:", data);
-          return [];
-        }
-
-        return data.map((flight, index) => ({
-          _id: `api_${index}`,
-          airline: {
-            name: flight?.codeshared
-              ? `${flight?.codeshared?.airline?.name} (${flight?.codeshared?.airline?.iataCode})`
-              : `${flight?.airline?.name} (${flight?.airline?.iataCode})`,
-          },
-          flight: { number: flight?.flight?.iataNumber || "N/A" },
-          departure: {
-            scheduled: formatTime(flight?.departure?.scheduledTime),
-            airport: flight?.departure?.iataCode || "Unknown Airport",
-            iata: flight?.departure?.iataCode || "",
-          },
-          arrival: {
-            scheduled: formatTime(flight?.arrival?.scheduledTime),
-            airport: flight?.arrival?.iataCode || "Unknown Airport",
-            iata: flight?.arrival?.iataCode || "",
-          },
-          timing: `${formatTime(
-            flight?.departure?.scheduledTime
-          )} to ${formatTime(flight?.arrival?.scheduledTime)}`,
-        }));
-      };
-
-      // Common request handler
-      const makeRequest = (endpoint, params) => {
-        console.log(`Making request to ${endpoint} with params:`, params);
-
-        return axios
-          .get(`${LOCAL_URL}${endpoint}`, {
-            params,
-            // Add these headers if needed
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          })
-          .then((response) => {
-            console.log("API Response:", response.data);
-            if (response.data.error) {
-              // Toast.show(response.data.error);
-              // Toast.show({
-              //   type: "error",
-              //   text1: "Error",
-              //   text2: response.data.error,
-              // });
-              return [];
-            }
-            return mapFlights(response.data);
-          })
-          .catch((error) => {
-            // console.error("API Error Details:", {
-            //   message: error.message,
-            //   url: error.config?.url,
-            //   params: error.config?.params,
-            //   status: error.response?.status,
-            //   data: error.response?.data
-            // });
-            // toast.show(`API Error: ${error.message}`);
-            // throw error; // Re-throw to be caught by the Promise chain
-          });
-      };
-
-      try {
-        if (isToday) {
-          // Today's flights - schedules endpoint
-          const params = flightNumber
-            ? { flight_iata: flightNumber }
-            : { date: departureDate };
-
-          makeRequest("/aviation/schedules", params)
-            .then((data) => {
-              setFlightDatas(data);
-              resolve(data);
-            })
-            .catch(reject);
-        } else {
-          // Future flights - futreflights endpoint (with your confirmed spelling)
-          const params = { date: departureDate };
-          if (flightNumber) params.flight_num = flightNumber;
-
-          makeRequest("/aviation/futreflights", params)
-            .then((data) => {
-              setFlightDatas(data);
-              resolve(data);
-            })
-            .catch(reject);
-        }
-      } catch (error) {
-        console.error("Request setup error:", error);
-        reject(error);
-      }
-    });
-  };
-
   useEffect(() => {
     const fetchAllFlights = async () => {
       setLoading(true);
       try {
         const [dbFlights, apiFlights] = await Promise.all([
           fetchSingleFlights(),
-          getAllFlight(), // Now this will properly return the flight data
+          // getAllFlight(), // Now this will properly return the flight data
         ]);
 
         setSpecialflightDatas(dbFlights || []);
-        setFlightDatas(apiFlights || []);
+        // setFlightDatas(apiFlights || []);
       } catch (error) {
         console.error("Error fetching flights:", error);
         // toast.show('Failed to fetch flights');
@@ -563,8 +467,10 @@ const [day, month, year] = values.dep_date.split("-");
         </Modal>
 
         {/* Display Date */}
-        <View className="flex flex-row gap-x-36 items-center mb-6 mx-auto">
-          <Text className="text-[#696969] text-lg">Search Results</Text>
+        <View className="flex flex-row justify-between items-center mb-6 mx-auto w-full">
+          <Text className="text-[#696969] text-lg"> {applanguage === "eng"
+              ? Translations.eng.search_results
+              : Translations.arb.search_results}{" "}</Text>
           <Text className="text-[#164F90] font-bold">
             {" "}
             {applanguage === "eng"
@@ -846,136 +752,6 @@ const [day, month, year] = values.dep_date.split("-");
             })}
 
             {/* Normal Flights */}
-            {flightDatas.map((flight, index) => (
-              <TouchableOpacity
-                key={`normal-${index}`}
-                // onPress={() => {
-                //   if (!loginChecked) return;
-                //   if (isLoggedIn) {
-                //   router.push({
-                //     pathname: "/home/baggage",
-                //     params: { flightData: JSON.stringify(flight) },
-                //   })}
-                //   else{
-                //     setShowLoginPopup(true)
-                //   }
-                // }}
-
-                onPress={() => {
-                  console.log("Login checked:", loginChecked);
-                  console.log("Is Logged In:", isLoggedIn);
-                  console.log(
-                    "🧪 Just before submit:",
-                    formik.values.departureTime
-                  ); // Must show a value
-
-                  if (isLoggedIn) {
-                    console.log("Navigating to baggage...");
-                    router.push({
-                      pathname: "/home/baggage",
-                      params: {
-                        flightData: JSON.stringify(flight),
-                        departureDate: departureDate, // ✅ needs to be INSIDE params
-                        departureTime: departureTime,
-                      },
-                    });
-                  } else {
-                    console.log("User not logged in, showing popup");
-                    setShowLoginPopup(true);
-                  }
-                }}
-                className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
-              >
-                {/* Flight Header */}
-                <View className="flex-row items-center py-6 px-4">
-                  {/* <TempAirWaysLogo /> */}
-
-                  <View className="w-10 h-10 rounded-full border-[1px] border-[#164F90] justify-center items-center">
-                    <Image
-                      source={flightlogo}
-                      className="h-10"
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <View className="ml-2 flex flex-col items-start">
-                    <Text className="text-gray-600">
-                      {flight.airline?.name || "Unknown Airline"}{" "}
-                      {/* ({flight.airline?.iata || "N/A"}) */}
-                    </Text>
-                    <Text className="text-[#164F90] text-lg font-bold">
-                      {flight.flight?.number || "N/A"}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Divider */}
-                {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
-
-                <View className="w-full px-2">
-                  <DashedLine2 />
-                </View>
-
-                {/* Flight Details */}
-                <View className="flex-row justify-between items-center py-6 px-5">
-                  {/* Departure */}
-                  <View className="items-center">
-                    <Text className="text-2xl font-bold text-[#003C71]">
-                      {flight.departure?.scheduled || "N/A"}
-                    </Text>
-                    <Text className="text-gray-500 text-center">
-                      {flight.departure?.iata || "N/A"}
-                    </Text>
-                  </View>
-
-                  {/* Flight Duration */}
-                  {/* <View className="flex-1 items-center">
-                    <View className="w-full flex-row items-center justify-center mt-2">
-                      <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
-                        <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
-                          <FontAwesome5 name="plane" size={16} color="#164F90" />
-                        </View>
-                      </View>
-                    </View>
-                  </View> */}
-
-                  <View className="flex-1 items-center">
-                    <View className="w-full flex-row items-center justify-center mt-2">
-                      {/* <View className="flex-1 relative justify-center">
-                        <DashedLine />
-                        <View className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 z-10">
-                          <FontAwesome5 name="plane" size={16} color="#164F90" />
-                        </View>
-                      </View> */}
-                      <View className="relative flex-row items-center w-full px-1">
-                        {/* Plane icon at start */}
-                        <FontAwesome5
-                          name="plane"
-                          size={16}
-                          color="#164F90"
-                          className="z-10"
-                        />
-
-                        {/* Grey line */}
-                        <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
-
-                        {/* Small grey circle at end */}
-                        <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Arrival */}
-                  <View className="items-center">
-                    <Text className="text-2xl font-bold text-[#003C71]">
-                      {flight.arrival?.scheduled || "N/A"}
-                    </Text>
-                    <Text className="text-gray-500 text-center">
-                      {flight.arrival?.iata || "N/A"}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
           </>
         ) : (
           <View className="h-full  justify-center items-center">
@@ -997,7 +773,7 @@ const [day, month, year] = values.dep_date.split("-");
                   Add Manually
                 </Text>
               </View>
-                <AddFlightForm formik={formik}/>
+              <AddFlightForm formik={formik} />
             </View>
           </View>
         )}

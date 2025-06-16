@@ -182,6 +182,7 @@ const Translations = {
     search: "Search",
     entercity: "Enter City",
     enterairportname: "Enter Airport Name ",
+    search_results: "Search Results",
     cancelslot: "Cancel Slot",
     app_version: "Version",
 
@@ -255,6 +256,8 @@ const Translations = {
     select_date: "حدد التاريخ",
     flight_number: "رقم الرحلة",
     departure_date: "تاريخ المغادرة",
+    search_results: "نتائج البحث",
+
     flight_timing: "موعد الرحلة",
     book_services: "احجز الخدمات",
     for_hassle_free_trip: "لرحلة خالية من المتاعب",
