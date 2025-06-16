@@ -119,7 +119,7 @@ const forgotpasschange = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-6">
+    <SafeAreaView className="flex-1 bg-white p-6 pb-0">
       <View className="flex-1">
         {/* Back Button */}
         <TouchableOpacity className="py-6" onPress={() => router.back()}>
@@ -180,7 +180,7 @@ const forgotpasschange = () => {
                 onChangeText={formik.handleChange("password")}
                 onBlur={formik.handleBlur("password")}
                 value={formik.values.password}
-                className=" border h-14  my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
+                className=" border h-14 px-2 my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
@@ -208,7 +208,7 @@ const forgotpasschange = () => {
                 onChangeText={formik.handleChange("confirmPassword")}
                 onBlur={formik.handleBlur("confirmPassword")}
                 value={formik.values.confirmPassword}
-                className=" border h-14  my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
+                className=" border h-14 px-2 my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />

@@ -42,7 +42,7 @@ import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 // import {  signOut } from "firebase/auth";
-import  {
+import {
   firebase,
   getAuth,
   GoogleAuthProvider,
@@ -337,72 +337,76 @@ const index = () => {
     );
   };
 
-   const sorryRbSheet = () => {
+  const sorryRbSheet = () => {
     return (
       <RBSheet
-  ref={sorryrefRBSheet}
-  closeOnDragDown={true}
-  closeOnPressMask={true}
-  height={Dimensions.get("window").height / 2}
-  customStyles={{
-    wrapper: {
-      backgroundColor: "rgba(0,0,0,0.2)",
-    },
-    container: {
-      backgroundColor: "#fff",
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: -3,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    draggableIcon: {
-      backgroundColor: "#ccc",
-      width: 40,
-      height: 5,
-      borderRadius: 10,
-    },
-  }}
->
-  <View className="rounded-2xl flex-col ">
-{/* 
-     <TouchableOpacity
-                className="absolute top-2 right-3  rounded-full p-1"
-                onPress={() => sorryrefRBSheet.current.close()}
-              >
-                <AntDesign name="closecircleo" size={24} color="black" />
-              </TouchableOpacity> */}
+        ref={sorryrefRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        height={Dimensions.get("window").height / 2}
+        customStyles={{
+          wrapper: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          container: {
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -3,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            elevation: 5,
+          },
+          draggableIcon: {
+            backgroundColor: "#ccc",
+            width: 40,
+            height: 5,
+            borderRadius: 10,
+          },
+        }}
+        onClose={()=>
+        router.replace("/(auth)")}
+      >
+        <View className="rounded-2xl flex-col ">
 
-    {/* Image */}
-    <Image
-      source={sorry}
-      className="w-28 relative self-center"
-      style={{ resizeMode: "contain" }}
-    />
+          <TouchableOpacity
+            className="absolute top-2 right-3  rounded-full p-1"
+            onPress={() => sorryrefRBSheet.current.close()}
+          >
+            <AntDesign name="closecircleo" size={24} color="black" />
+          </TouchableOpacity>
+        <View className=" flex-col p-5 gap-y-5 ">
 
-    {/* Heading */}
-    <Text className="text-center text-xl font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
-      {applanguage === "eng"
-        ? Translations.eng.sorry_heading
-        : Translations.arb.sorry_heading}
-    </Text>
+          {/* Image */}
+          <Image
+            source={sorry}
+            className="w-28 h-28  relative self-center"
+            style={{ resizeMode: "contain" }}
+          />
 
-    {/* Message */}
-    <View className="mx-6 flex flex-col gap-3">
-      <Text className="text-[#164F90] text-center" style={{ fontFamily: "Lato" }}>
-        {applanguage === "eng"
-          ? Translations.eng.sorry_msg
-          : Translations.arb.sorry_msg}
-      </Text>
-    </View>
+          {/* Heading */}
+          <Text className="text-center text-[22px] font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
+            {applanguage === "eng"
+              ? Translations.eng.sorry_heading
+              : Translations.arb.sorry_heading}
+          </Text>
 
-  </View>
-</RBSheet>
+          {/* Message */}
+          <View className="mx-6 flex flex-col gap-3">
+            <Text className="text-[#164F90] text-[14px] text-center" style={{ fontFamily: "Lato" }}>
+              {applanguage === "eng"
+                ? Translations.eng.sorry_msg
+                : Translations.arb.sorry_msg}
+            </Text>
+          </View>
+          </View>
+
+        </View>
+      </RBSheet>
     );
   };
 
@@ -420,17 +424,14 @@ const index = () => {
 
     try {
       const res = await DELETE_ACCOUNT(values, token);
-      console.log(res);
       setAccountDeleted(true); // prevent reuse
       drefRBSheet.current?.close();
-      // router.push("/(auth)");
-      // Toast.show(res.data.message);
-      // Show sorry message
-      sorryrefRBSheet.current.open(); // Open sorry message sheet  for 30 seconds then redirect automatically to /(auth)
-      setTimeout(() => {
-        sorryrefRBSheet.current.close(); // Close after 30 seconds
-        router.replace("/(auth)"); // Redirect to auth screen
-      }, 30000); // 30 seconds
+      
+      sorryrefRBSheet.current.open(); 
+      // setTimeout(() => {
+      //   sorryrefRBSheet.current.close(); // Close after 30 seconds
+      //   router.replace("/(auth)"); // Redirect to auth screen
+      // }, 10000); 
       Toast.show({
         type: "success",
         text1: res.data.message,
@@ -723,7 +724,7 @@ const index = () => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState !== "active") {
         logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
-       
+
         setShouldOpenSheet(false); // ✅ also reset the open flag
       }
     });
@@ -1020,7 +1021,7 @@ const index = () => {
           </TouchableOpacity>
         </View>
 
-        <View className="">
+        {/* <View className="">
           <Text className="text-center text-[#A0A0A0] text-[12px] mt-4 mb-4" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.app_version
@@ -1035,7 +1036,7 @@ const index = () => {
               © Analogue IT Solutions
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );
