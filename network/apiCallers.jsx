@@ -150,12 +150,20 @@ export const FORGOT_PASSWORD_OTP= async (data) => {
   });
 };
 
+export const FORGOT_PASS_RESEND_OTP= async (data) => {
+  console.log("FORGOT PASSWORD resend otp fetched", data);
+  return await axios.post(`${LOCAL_URL}/user/resend-otp`, data, {
+   
+  });
+};
+
 export const RESET_PASSWORD= async (data) => {
   console.log("FORGOT PASSWORD RESET API FETCHED", data);
   return await axios.post(`${LOCAL_URL}/user/reset-password`, data, {
    
   });
 };
+
 
 export const LOGOUT = async (token) => {
   console.log("LOGGED OUT SUCCESSFULLY");

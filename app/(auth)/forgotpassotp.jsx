@@ -7,7 +7,7 @@ import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
 import flightloader from "../../assets/images/flightload.gif";
 import logo from '../../assets/images/mainLogo.png';
-import { FORGOT_PASSWORD_OTP, RESEND_OTP, VERIFY_OTP } from "../../network/apiCallers";
+import { FORGOT_PASS_RESEND_OTP, FORGOT_PASSWORD_OTP, RESEND_OTP, VERIFY_OTP } from "../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { langaugeContext } from "../../customhooks/languageContext";
 import Translations from "../../language";
@@ -31,7 +31,7 @@ const [email, setEmail] = useState("");
   // console.log("Received Token:", restoken); 
   const [fcm,setFcm]=useState("")
 
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(5);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   
   const translateX = useRef(new Animated.Value(0)).current;
@@ -48,6 +48,19 @@ const [email, setEmail] = useState("");
       })
     ).start();
   };
+
+   useEffect(() => {
+      let interval;
+      if (isTimerRunning && timer > 0) {
+        interval = setInterval(() => {
+          setTimer((prev) => prev - 1);
+        }, 1000);
+      } else if (timer === 0) {
+        setIsTimerRunning(false);
+      }
+    
+      return () => clearInterval(interval);
+    }, [isTimerRunning, timer]);
    
   // Run it when loading starts
   useEffect(() => {
@@ -87,6 +100,13 @@ const [email, setEmail] = useState("");
     }
   };
 
+    useEffect(() => {
+  if (updatedParams?.email) {
+    setEmail(updatedParams.email);
+  }
+}, [updatedParams?.email]);
+
+
   const formik = useFormik({
       initialValues: {
         email: updatedParams.email || "",
@@ -102,6 +122,23 @@ const [email, setEmail] = useState("");
       
       },
     });
+
+    const resend_otp_formik = useFormik({
+      initialValues: {
+        email: updatedParams.email || "",
+      },
+      // validationSchema: otpValidationSchema(applanguage),
+      validateOnChange: true,
+      validateOnBlur: true,
+    onSubmit: async () => {
+
+      console.log("Resending OTP with values:", resend_otp_formik.values);
+await forgotPassResendotpHandler(resend_otp_formik.values);
+},
+
+    });
+
+  
   
     const { values, handleSubmit, setFieldValue, errors, touched } = formik;
    
@@ -136,19 +173,16 @@ const [email, setEmail] = useState("");
 
          const forgotPassResendotpHandler = async (values) => {
         setLoading(true);
-        console.log("Forgot Password Email Handler called with values:", values);
+        console.log("Forgot Password OTP called with values:", values);
     
         try {
-          const res = await FORGOT_PASSWORD_OTP(values);
+          const res = await FORGOT_PASS_RESEND_OTP(values);
           console.log(res.data.message);
           Toast.show({
             type: "success",
             text1: res.data.message,
           });
-           router.push({
-      pathname: "/forgotpasschange",
-      params: updatedParams,
-    });
+         
           
         
         } catch (error) {
@@ -288,8 +322,9 @@ const [email, setEmail] = useState("");
         : `0.${timer} ثانية `}
     </Text>
   ) : (
-    <TouchableOpacity onPress={()=>{resendOtpHandler();
-                                      handleResend()}}>
+    <TouchableOpacity 
+onPress={() => resend_otp_formik.handleSubmit()}
+                                    >
       <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
         {applanguage === "eng"
           ? Translations.eng.resend_otp
