@@ -19,6 +19,7 @@ import Translations from "../../../language";
 import verticalline from "../../../assets/images/verticalline.png";
 import Toast from "react-native-toast-message";
 import { useFormik } from "formik";
+import AlertModal from "../../alertmodal";
 
 
 const bookingd = () => {
@@ -27,6 +28,8 @@ const bookingd = () => {
   const { userId, orderId, baggageId, bookingId , paymentId,bookingid } = useLocalSearchParams();
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
     const [bookingData , setBookingData] = useState() 
+     const [errorMessage, setErrorMessage] = useState('')
+      const [isModalShow, setIsModalShow] = useState(false)
   // const { bookingId } = useLocalSearchParams(); 
     const { applanguage } = langaugeContext()
 const [verifiedBookingId, setVerifiedBookingId] = useState(null);
@@ -84,12 +87,14 @@ useFocusEffect(useCallback(()=>
     const fetchBookingDetails = async () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Toast.show(
-          {
-            type: "error",
-            text1: "Token not found",
-          }
-        );
+        // Toast.show(
+        //   {
+        //     type: "error",
+        //     text1: "Token not found",
+        //   }
+        // );
+        setErrorMessage('Token not found')
+        setIsModalShow(true)
         return;
       }
     
@@ -99,10 +104,12 @@ useFocusEffect(useCallback(()=>
         setBookingData(res.data);
         console.log("Booking details response:", res.data);
       } catch (error) {
-        Toast.show({
-          type: "error",
-          text1: error?.response?.data?.message || "Failed to fetch booking details",
-        });
+        // Toast.show({
+        //   type: "error",
+        //   text1: error?.response?.data?.message || "Failed to fetch booking details",
+        // });
+         setErrorMessage(error?.response?.data?.message || "Failed to fetch booking details")
+        setIsModalShow(true)
       }
     };
     
@@ -120,6 +127,8 @@ useFocusEffect(useCallback(()=>
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <View>
         <Image
           source={images.HeaderImg2}

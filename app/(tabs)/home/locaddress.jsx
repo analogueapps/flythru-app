@@ -24,6 +24,8 @@ import addaddresSchema from "../../../yupschema/addressSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import Checkbox from 'expo-checkbox';
+import AlertModal from "../../alertmodal";
+import SuccessModal from "../../successmodal";
 // import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 // import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 // import dp from "../../../assets/images/dpfluthru.jpg";
@@ -35,7 +37,9 @@ const locaddress = () => {
   const { applanguage } = langaugeContext()
   const [loading, setLoading] = useState(false);
   const [isDefault, setIsDefault] = useState(false);
-
+ const [errorMessage, setErrorMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
+  const [isSuccessModalShow, setIsSuccessModalShow] = useState(false)
   const translateX = useRef(new Animated.Value(0)).current;
 
 
@@ -89,10 +93,12 @@ const locaddress = () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
         // Toast.show("No token found. Please log in.");
-        Toast.show({
-          type: "info",
-          text1: "Please login to add address",
-        });
+        // Toast.show({
+        //   type: "info",
+        //   text1: "Please login to add address",
+        // });
+        setErrorMessage('Please login to add address"')
+        setIsModalShow(true)
         return;
       }
 
@@ -102,20 +108,23 @@ const locaddress = () => {
 
       const res = await ADD_ADDRESS(forSenddata, token);
       // Toast.show("Address saved successfully");
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Address saved successfully",
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: "Success",
+      //   text2: "Address saved successfully",
+      // });
+      setIsSuccessModalShow(true)
       router.back();
     } catch (error) {
       console.log("Error:", error.response);
       // Toast.show(error?.response?.data?.message || "Failed to submit address");
-      Toast.show({
-        type: "info",
+      // Toast.show({
+      //   type: "info",
 
-        text1: error?.response?.data?.message || "Failed to submit address",
-      })
+      //   text1: error?.response?.data?.message || "Failed to submit address",
+      // })
+      setErrorMessage(error?.response?.data?.message || "Failed to submit address")
+        setIsModalShow(true)
     }
     finally {
       setLoading(false);
@@ -129,6 +138,9 @@ const locaddress = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+            {isSuccessModalShow && <SuccessModal heading="Success" message='Address saved successfully' onClose={() => setIsSuccessModalShow(false)} />}
+
       <View className="flex-1">
         {/* Header Background Image */}
         <View>

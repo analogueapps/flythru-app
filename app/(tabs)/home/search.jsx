@@ -45,6 +45,8 @@ import FlightForm from "../../../components/FlightForm";
 
 import addFlightSchema from "../../../yupschema/addFlight";
 import AddFlightForm from "../../../components/addflightform";
+import SuccessModal from "../../successmodal";
+import AlertModal from "../../alertmodal";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
@@ -60,7 +62,10 @@ const Search = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [loginChecked, setLoginChecked] = useState(false);
-
+ const [errorMessage, setErrorMessage] = useState('')
+ const [successMessage, setSuccessMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
+  const [isSuccessModalShow, setIsSuccessModalShow] = useState(false)
   const DashedLine = ({ dashCount = 20, dashColor = "#164F90" }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
@@ -120,10 +125,12 @@ const formik = useFormik({
         !values.flight_number ||
         !values.flight_to
       ) {
-        Toast.show({
-          type: "error",
-          text1: "Please fill all required fields",
-        });
+        // Toast.show({
+        //   type: "error",
+        //   text1: "Please fill all required fields",
+        // });
+        setErrorMessage("Please fill all required fields")
+        setIsModalShow(true)
         return;
       }
 
@@ -154,10 +161,12 @@ const formik = useFormik({
       });
     } catch (error) {
       console.error("Submission error:", error);
-      Toast.show({
-        type: "error",
-        text1: "Failed to submit flight details",
-      });
+      // Toast.show({
+      //   type: "error",
+      //   text1: "Failed to submit flight details",
+      // });
+      setErrorMessage("Failed to submit flight details")
+        setIsModalShow(true)
     }
   },
 });
@@ -168,27 +177,32 @@ const addFlightshandler = async (flightData) => {
   const token = await AsyncStorage.getItem("authToken");
 
   if (!token) {
-    Toast.show({
-      type: "error",
-      text1: "No token found. Please log in.",
-    });
+    // Toast.show({
+    //   type: "error",
+    //   text1: "No token found. Please log in.",
+    // });
+    setErrorMessage("No token found. Please log in.")
+        setIsModalShow(true)
     return;
   }
 
   try {
     const res = await ADD_FLIGHTS(flightData, token);
     console.log(res.data.message);
-
-    Toast.show({
-      type: "success",
-      text1: res.data.message,
-    });
+    // Toast.show({
+    //   type: "success",
+    //   text1: res.data.message,
+    // });
+    setSuccessMessage(res.data.message)
+setIsSuccessModalShow(true)
   } catch (error) {
     console.log("Error updating profile:", error?.response);
-    Toast.show({
-      type: "info",
-      text1: error?.response?.data?.message || "Failed to update profile",
-    });
+    // Toast.show({
+    //   type: "info",
+    //   text1: error?.response?.data?.message || "Failed to update profile",
+    // });
+     setErrorMessage(error?.response?.data?.message || "Failed to update profile")
+        setIsModalShow(true)
   } finally {
     setLoading(false);
   }
@@ -349,7 +363,6 @@ const addFlightshandler = async (flightData) => {
         // setFlightDatas(apiFlights || []);
       } catch (error) {
         console.error("Error fetching flights:", error);
-        // toast.show('Failed to fetch flights');
       } finally {
         setLoading(false);
       }
@@ -377,6 +390,9 @@ const addFlightshandler = async (flightData) => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+                  {isSuccessModalShow && <SuccessModal heading="Success" message={successMessage} onClose={() => setIsSuccessModalShow(false)} />}
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <View>
         <Image
           source={images.HeaderImg}

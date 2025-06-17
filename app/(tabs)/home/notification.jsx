@@ -14,6 +14,7 @@ import { NOTIFICATION } from "../../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import CustomAlert from "../../../components/PopupModel";
+import AlertModal from "../../alertmodal";
 
 
 const notification = () => {
@@ -25,7 +26,8 @@ const notification = () => {
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false);
   const [alertShow, setAlertShow] = useState(false)
-
+ const [errorMessage, setErrorMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchActivities(); // Reuse your existing fetch function
@@ -87,10 +89,12 @@ const notification = () => {
     } catch (error) {
       console.error("Error fetching notifications:", error);
       // Toast.show(error?.response?.data?.message || "Failed to fetch notifications");
-      Toast.show({
-        type: "info",
-        text1: error?.response?.data?.message || "Failed to fetch notifications",
-      });
+      // Toast.show({
+      //   type: "info",
+      //   text1: error?.response?.data?.message || "Failed to fetch notifications",
+      // });
+      setErrorMessage(error?.response?.data?.message || "Failed to fetch notifications")
+        setIsModalShow(true)
     }
     finally {
       setLoading(false);
@@ -108,6 +112,8 @@ const notification = () => {
 
   return (
     <View className="flex-1">
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={() => { router.push('/(auth)'); setAlertShow(false) }} />
 
       {/* Header Background Image */}

@@ -42,6 +42,7 @@ import Toast from "react-native-toast-message";
 import { useAuth } from "../../../UseContext/AuthContext";
 import FlightForm from "../../../components/FlightForm";
 import { AllflightSchema } from "../../../yupschema/allFlightSchema";
+import AlertModal from "../../alertmodal";
 
 const Index = () => {
   const insets = useSafeAreaInsets();
@@ -49,7 +50,8 @@ const Index = () => {
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
-
+ const [errorMessage, setErrorMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
   const { loadToken } = useAuth();
   // const [showDatePicker,setshowDatePicker]
   // Swap function
@@ -110,10 +112,12 @@ const Index = () => {
       const { departureDate, flightNumber, to, from, departureTime } = values;
 
       if (!departureDate || !flightNumber || !from || !to || !departureTime) {
-        Toast.show({
-          type: "error",
-          text1: "Please fill all fields",
-        });
+        // Toast.show({
+        //   type: "error",
+        //   text1: "Please fill all fields",
+        // });
+        setErrorMessage('Please fill all fields')
+        setIsModalShow(true)
         return;
       }
       const [day, month, year] = departureDate.split("-");
@@ -162,6 +166,8 @@ const Index = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <View>
         <Image
           source={images.HeroHeader}

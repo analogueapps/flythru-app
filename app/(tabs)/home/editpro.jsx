@@ -29,11 +29,14 @@ import editprofileSchema from "../../../yupschema/editProfileSchema";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
+import AlertModal from "../../alertmodal";
 
 const editpro = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('')
+const [isModalShow, setIsModalShow] = useState(false)
   const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
     useAuth();
 
@@ -93,10 +96,9 @@ const editpro = () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Toast.show({
-          type: "info",
-          text1: "Please login again",
-        });
+        
+        setErrorMessage('Please login again')
+        setIsModalShow(true)
         return;
       }
 
@@ -116,10 +118,12 @@ const editpro = () => {
       if (userDetails.email) SaveMail(userDetails.email);
     } catch (error) {
       console.log("Error fetching profile:", error);
-      Toast.show({
-        type: "info",
-        text1: "Failed to load profile data",
-      });
+      // Toast.show({
+      //   type: "info",
+      //   text1: "Failed to load profile data",
+      // });
+      setErrorMessage('Failed to load profile data')
+        setIsModalShow(true)
     }
   };
 
@@ -127,17 +131,21 @@ const editpro = () => {
     setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      Toast.show("No token found. Please log in.");
+      // Toast.show("No token found. Please log in.");
+      setErrorMessage('No token found. Please log in')
+        setIsModalShow(true)
       return;
     }
 
     try {
       const res = await EDIT_PROFILE(values, token);
       console.log(res.data.message);
-      Toast.show({
-        type: "success",
-        text1: res.data.message,
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: res.data.message,
+      // });
+      setErrorMessage(res.data.message)
+        setIsModalShow(true)
 
       // Update context with new values
       await SaveName(values.name);
@@ -152,10 +160,12 @@ const editpro = () => {
       router.back();
     } catch (error) {
       console.log("Error updating profile:", error?.response);
-      Toast.show({
-        type: "info",
-        text1: error.response?.data?.message || "Failed to update profile",
-      });
+      // Toast.show({
+      //   type: "info",
+      //   text1: error.response?.data?.message || "Failed to update profile",
+      // });
+      setErrorMessage( error.response?.data?.message || "Failed to update profile")
+        setIsModalShow(true)
     } finally {
       setLoading(false);
     }
@@ -173,6 +183,8 @@ const editpro = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <View>
         <Image
           source={images.HeaderImg}
