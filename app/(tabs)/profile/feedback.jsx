@@ -19,6 +19,8 @@ import Translations from "../../../language";
 import feedbackSchema from "../../../yupschema/feedbackSchema";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
+import AlertModal from "../../alertmodal";
+import SuccessModal from "../../successmodal";
 
 
 const feedback = () => {
@@ -29,6 +31,11 @@ const feedback = () => {
   const [userName, setUserName] = useState('');
   const [errormsg, setErrormessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+const [modalMessage, setModalMessage] = useState("");
+const [successVisible, setSuccessVisible] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
 
 
 
@@ -102,21 +109,31 @@ const feedback = () => {
 
       const res = await FEEDBACK(values, token);
       console.log("Feedback sent successfully", res.data.message);
-      Toast.show({
-        type: "success",
-        text1: res.data.message || "Feedback sent successfully",
-      })
+      // Toast.show({
+      //   type: "success",
+      //   text1: res.data.message || "Feedback sent successfully",
+      // })
+      const message = res.data.message || "Feedback sent successfully";
+setSuccessMessage(message);
+setSuccessVisible(true);
 
-      router.push("/profile");
+// Remove router.push("/profile"); and instead navigate after closing modal
+
+
+      
     } catch (error) {
       console.log("Error:", error);
       // toast.show(error?.response?.data?.message || "Failed to submit feedback");
-      setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
-      Toast.show({
-        type: "info",
+      // Toast.show({
+      //   type: "info",
 
-        text1: error?.response?.data?.message || "Failed to submit feedback",
-      });
+      //   text1: error?.response?.data?.message || "Failed to submit feedback",
+      // });
+
+      setErrormessage(error?.response?.data?.message || "Failed to submit feedback");
+setModalMessage(error?.response?.data?.message || "Failed to submit feedback");
+setModalVisible(true);
+
     }
     finally {
       setLoading(false);
@@ -218,8 +235,10 @@ const feedback = () => {
               textAlignVertical="top"
               placeholderTextColor={"#1A1C1E"}
             />
-            {errormsg && <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{errormsg}</Text>
-            }
+            {/* {errormsg && <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{errormsg}
+              
+            </Text>
+            } */}
 
 
             {formik.touched.comment && formik.errors.comment && (
@@ -268,6 +287,28 @@ const feedback = () => {
           }</Text>
         )}
       </TouchableOpacity>
+      {modalVisible && (
+  <AlertModal
+    message={modalMessage}
+    heading={applanguage === "eng" ? "Alert" : "تنبيه"}
+    onClose={() => setModalVisible(false)}
+  />
+)}
+
+{successVisible && (
+  <SuccessModal
+    visible={successVisible}
+    heading={applanguage === "eng" ? "Thank you!" : "شكرًا لك"}
+    message={successMessage}
+    type="success"
+    onClose={() => {
+      setSuccessVisible(false);
+      router.push("/profile"); // navigate after modal closes
+    }}
+  />
+)}
+
+
     </View>
   );
 };

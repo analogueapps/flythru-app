@@ -27,7 +27,7 @@ import images from "../../../constants/images";
 import { StatusBar } from "expo-status-bar";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
-
+import { Alert } from "react-native";
 import SwipeButton from "rn-swipe-button";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Bell, ChevronLeft } from "lucide-react-native";
@@ -76,7 +76,7 @@ const selectlocation = () => {
   const [pickuploaction, setPickuploaction] = useState([]);
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
-
+const [alertActive, setAlertActive] = useState(false);
   const addressRefRBSheet = useRef();
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
@@ -185,6 +185,8 @@ const selectlocation = () => {
       });
       setLoading(false);
     }
+
+
   }, [latitude, longitude]);
 
   const onRegionChangeComplete = async (newRegion) => {
@@ -203,21 +205,151 @@ const selectlocation = () => {
     }
   };
 
-  const searchLocation = async () => {
-    const text = formik.values.pickUpLocation;
+  // const searchLocation = async () => {
+  //   const text = formik.values.pickUpLocation;
 
-    if (text.length > 2) {
-      try {
-        const results = await Location.geocodeAsync(text);
-        if (results.length > 0) {
-          const { latitude, longitude } = results[0];
-          setMarkerCoords({ latitude, longitude });
-        }
-      } catch (error) {
-        console.error("Geocoding error:", error);
-      }
+  //   if (text.length > 2) {
+  //     try {
+  //       const results = await Location.geocodeAsync(text);
+  //       if (results.length > 0) {
+  //         const { latitude, longitude } = results[0];
+  //         setMarkerCoords({ latitude, longitude });
+  //       }
+  //     } catch (error) {
+  //       console.error("Geocoding error:", error);
+  //     }
+  //   }
+  // };
+
+
+
+// const searchLocation = async () => {
+//   const text = formik.values.pickUpLocation;
+
+//   if (text.length > 2) {
+//     try {
+//       const results = await Location.geocodeAsync(text);
+
+//       if (results.length > 0) {
+//         const { latitude, longitude } = results[0];
+//         console.log("📍 Searched Location:");
+//         console.log("Latitude:", latitude);
+//         console.log("Longitude:", longitude);
+
+//         setMarkerCoords({ latitude, longitude });
+//         return; // exit early if valid
+//       } else {
+//         handleFallbackToCurrentLocation(); // No results
+//       }
+//     } catch (error) {
+//       console.error("Geocoding error:", error);
+//       handleFallbackToCurrentLocation();
+//     }
+//   } else {
+//   Alert.alert(
+//   "Address is Required",
+//   "Please enter a valid pickup location.",
+//   [
+//     {
+//       text: "OK",
+//       onPress: () => {
+//         addressRefRBSheet.current?.open();
+//         setAlertActive(false);
+//       },
+//     },
+//   ]
+// );
+
+    
+//   }
+// };
+
+const searchLocation = async () => {
+  const text = formik.values.pickUpLocation;
+
+  if (text.length <= 2) {
+    Alert.alert(
+      "Address is Required",
+      "Please enter a valid pickup location.",
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            // Do NOT open the RBSheet here
+          },
+        },
+      ]
+    );
+    return;
+  }
+
+  try {
+    const results = await Location.geocodeAsync(text);
+
+    if (results.length > 0) {
+      const { latitude, longitude } = results[0];
+      console.log("📍 Searched Location:");
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+
+      setMarkerCoords({ latitude, longitude });
+
+      // ✅ Open RBSheet only after successful location search
+      addressRefRBSheet.current?.open();
+    } else {
+      await handleFallbackToCurrentLocation();
     }
-  };
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    await handleFallbackToCurrentLocation();
+  }
+};
+
+
+
+const handleFallbackToCurrentLocation = async () => {
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      Alert.alert("Permission Denied", "Location permission is required to use current location.");
+      return;
+    }
+
+    const currentLocation = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = currentLocation.coords;
+
+    console.log("📍 Current Device Location:");
+    console.log("Latitude:", latitude);
+    console.log("Longitude:", longitude);
+
+    const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+
+    const fullAddress = `${address.name || ""}, ${address.street || ""}, ${
+      address.city || address.subregion || ""
+    }, ${address.region || ""}`.replace(/, ,/g, ",").trim();
+
+    setMarkerCoords({ latitude, longitude });
+    formik.setFieldValue("pickUpLocation", fullAddress);
+
+    Alert.alert(
+      "Invalid Location",
+      "We couldn't find that location. Using your current location instead.",
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            addressRefRBSheet.current?.open();
+          },
+        },
+      ]
+    );
+  } catch (error) {
+    console.error("Reverse geocoding error:", error);
+    Alert.alert("Error", "Could not retrieve your current location. Please try again.");
+  }
+};
+
 
   const handleLocationInput = (text) => {
     formik.setFieldValue("pickUpLocation", text);
@@ -324,7 +456,7 @@ const selectlocation = () => {
 
     try {
       const res = await PAYEMNT_API(values, token);
-
+ 
       console.log("Payment API Response:", res.data);
 
       const orderIdFromRes = res.data.orderId;
@@ -338,7 +470,7 @@ const selectlocation = () => {
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
-      setShowSuccess(true)
+      // setShowSuccess(true)
       console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
       // Toast.show({
@@ -458,7 +590,7 @@ const selectlocation = () => {
           {/* Address Header */}
           <View className="mt-7">
             <Text
-              className="text-[16px] text-[#9B9E9F]"
+              className="text-[16px] text-[#666868]"
               style={{ fontFamily: "Lato" }}
             >
               {formik.values.pickUpLocation || "No address selected"}
@@ -801,8 +933,10 @@ const selectlocation = () => {
               </TouchableWithoutFeedback>
             }
 
-            <TouchableOpacity
-              onPress={() => addressRefRBSheet.current?.open()}
+            {/* <TouchableOpacity
+              onPress={() => {addressRefRBSheet.current?.open();
+                searchLocation()
+              }}
               disabled={loading}
               className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
             >
@@ -811,7 +945,18 @@ const selectlocation = () => {
                   ? Translations.eng.search
                   : Translations.arb.search}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity
+  onPress={searchLocation}
+  disabled={loading}
+  className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
+>
+  <Text className="text-center text-[#164F90] font-bold text-lg">
+    {applanguage === "eng" ? Translations.eng.search : Translations.arb.search}
+  </Text>
+</TouchableOpacity>
+
           </KeyboardAvoidingView>
 
         </View>
@@ -823,29 +968,29 @@ const selectlocation = () => {
 
         
 
+        // scrollEnabled={false}
+        // zoomEnabled={false}
+        // rotateEnabled={false}
+        // pitchEnabled={false}
         </ScrollView> */}
       <View style={styles.mapContainer}>
         {longitude && latitude ? (
           <MapView
             style={styles.map}
             showsUserLocation={true}
-            scrollEnabled={false}
-            zoomEnabled={false}
-            rotateEnabled={false}
-            pitchEnabled={false}
             region={{
               latitude: markerCoords?.latitude || latitude,
               longitude: markerCoords?.longitude || longitude,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
-          >
-            {/* <Marker
+          > 
+            <Marker
               coordinate={{
                 latitude: markerCoords?.latitude || latitude,
                 longitude: markerCoords?.longitude || longitude,
               }}
-            /> */}
+            />
           </MapView>
         ) : (
           <View className="flex-1 justify-center items-center">

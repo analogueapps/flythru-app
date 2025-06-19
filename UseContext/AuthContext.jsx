@@ -118,6 +118,8 @@ export const AuthProvider = ({ children }) => {
         checkUserStatus,
         inactiveModalVisible,
         setInactiveModalVisible,
+
+        
       }}
     >
       {children}

@@ -108,12 +108,25 @@ const Search = () => {
 
 const formik = useFormik({
   initialValues: {
-    dep_date: "",
-    flight_time: "",
-    flight_number: "",
-    flight_from: "KWI",
-    flight_to: "",
+    // dep_date: "",
+    // flight_time: "",
+    // flight_number: "",
+    // flight_from: "KWI",
+    // flight_to: "",
+
+    
+       dep_date: "20-06-2025",
+      flight_time: "12:00",
+      flight_number: "Aaaaa1",
+      flight_from: "KWI",
+      flight_to: "hyd",
   },
+
+
+ 
+
+
+  validationSchema: addFlightSchema(applanguage),
   validateOnChange: false,
   validateOnBlur: false,
   onSubmit: async (values) => {
@@ -152,7 +165,7 @@ const formik = useFormik({
 
       // ✅ Pass data to baggage screen
       router.push({
-        pathname: "/home/baggage",
+        // pathname: "/home/baggage",
         params: {
           flightData: JSON.stringify(flightData),
           departureDate: formattedDate,
@@ -181,7 +194,7 @@ const addFlightshandler = async (flightData) => {
     //   type: "error",
     //   text1: "No token found. Please log in.",
     // });
-    setErrorMessage("No token found. Please log in.")
+    setErrorMessage("Please login")
         setIsModalShow(true)
     return;
   }
@@ -390,7 +403,7 @@ setIsSuccessModalShow(true)
   return (
     <View className="flex-1">
       {/* Header Background Image */}
-                  {isSuccessModalShow && <SuccessModal heading="Success" message={successMessage} onClose={() => setIsSuccessModalShow(false)} />}
+                  {isSuccessModalShow && <SuccessModal heading="Success" message={successMessage} onClose={() => {setIsSuccessModalShow(false);router.push("/home/baggage");}} />}
             {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
 
       <View>
@@ -633,7 +646,7 @@ setIsSuccessModalShow(true)
                 <TouchableOpacity
                   key={`special-${index}`}
                   // onPress={() => {
-                  //   if (!loginChecked) return;
+                  //   if (!loginChecked) return; 
                   //   if (isLoggedIn) {
                   //   router.push({
                   //     pathname: "/home/baggage",

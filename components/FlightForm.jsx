@@ -205,16 +205,19 @@ const FlightForm = ({ formik }) => {
           {applanguage === "eng" ? Translations.eng.to : Translations.arb.to}:
         </Text>
         <TextInput
-        maxLength={3}
-          value={formik.values.to}
-          onChangeText={formik.handleChange("to")}
-          onBlur={formik.handleBlur("to")}
-          // placeholder={
-          //   applanguage === "eng" ? Translations.eng.to : Translations.arb.to
-          // }
-          className="flex-1 text-black"
-          placeholderTextColor="#2D2A29"
-        />
+  maxLength={3}
+  value={formik.values.to}
+  onChangeText={(text) => {
+    // Remove any numbers from the input
+    const filteredText = text.replace(/[0-9]/g, '');
+    formik.setFieldValue("to", filteredText);
+  }}
+  onBlur={formik.handleBlur("to")}
+  className="flex-1 text-black"
+  placeholderTextColor="#2D2A29"
+  keyboardType="default" // Prevents number keypad
+/>
+
       </View>
 
       {/* </View> */}
@@ -312,17 +315,17 @@ const FlightForm = ({ formik }) => {
         }
         onChangeText={formik.handleChange("flightNumber")}
         onBlur={formik.handleBlur("flightNumber")}
-        value={formik.values.flightNumber}
+        value={formik.values.flightNumber.toUpperCase()}
         name="flightNumber"
         className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
         placeholderTextColor="#2D2A29"
       />
 
-      {/* {formik.touched.flightNumber && formik.errors.flightNumber && (
+      {formik.touched.flightNumber && formik.errors.flightNumber && (
           <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
             {formik.errors.flightNumber}
           </Text>
-        )} */}
+        )}
 
       <TouchableOpacity
         activeOpacity={0.5}

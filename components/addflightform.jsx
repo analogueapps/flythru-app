@@ -147,17 +147,20 @@ const AddFlightForm = ({ formik }) => {
         <Text className="text-[#2D2A29] mr-2 font-medium">
           {applanguage === "eng" ? Translations.eng.to : Translations.arb.to}:
         </Text>
-        <TextInput
-                maxLength={3}
-          value={formik.values.flight_to}
-          onChangeText={formik.handleChange("flight_to")}
-          onBlur={formik.handleBlur("flight_to")}
-          // placeholder={
-          //   applanguage === "eng" ? Translations.eng.to : Translations.arb.to
-          // }
-          className="flex-1 text-black"
-          placeholderTextColor="#2D2A29"
-        />
+       <TextInput
+  maxLength={3}
+  value={formik.values.flight_to}
+  onChangeText={(text) => {
+    // Remove numeric characters
+    const filtered = text.replace(/[0-9]/g, '');
+    formik.setFieldValue("flight_to", filtered);
+  }}
+  onBlur={formik.handleBlur("flight_to")}
+  className="flex-1 text-black"
+  placeholderTextColor="#2D2A29"
+  keyboardType="default"
+/>
+
       </View>
 
       {/* </View> */}
@@ -255,17 +258,17 @@ const AddFlightForm = ({ formik }) => {
         }
         onChangeText={formik.handleChange("flight_number")}
         onBlur={formik.handleBlur("flight_number")}
-        value={formik.values.flight_number}
+        value={formik.values.flight_number.toUpperCase()}
         name="flightNumber"
         className="border h-[50px] border-gray-300 my-2 rounded-xl px-4 py-3 bg-gray-50"
         placeholderTextColor="#2D2A29"
       />
 
-      {/* {formik.touched.flightNumber && formik.errors.flightNumber && (
+      {formik.touched.flight_number && formik.errors.flight_number && (
           <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
-            {formik.errors.flightNumber}
+            {formik.errors.flight_number}
           </Text>
-        )} */}
+        )}
 <TouchableOpacity
   onPress={() => {
     // Validate before submitting
@@ -287,7 +290,7 @@ const AddFlightForm = ({ formik }) => {
   className="bg-[#FFB800] rounded-lg py-4 mt-2 shadow-lg"
 >
   <Text className="text-center text-[#164E8D] font-bold text-base">
-    {applanguage === "eng" ? Translations.eng.search : Translations.arb.search}
+    {applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit}
   </Text>
 </TouchableOpacity>
 

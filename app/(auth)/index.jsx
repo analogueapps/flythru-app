@@ -22,7 +22,7 @@ import {
   OAUTH,
   RESEND_OTP,
   SIGN_UP_API,
-} from "../../network/apiCallers";
+} from "../../network/apiCallers"; 
 import loginSchema from "../../yupschema/loginSchema";
 import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext } from "../../customhooks/languageContext";

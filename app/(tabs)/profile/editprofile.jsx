@@ -29,6 +29,7 @@ import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import { Alert } from 'react-native';
 import CustomAlert from "../../../components/PopupModel";
+import AlertModal from "../../alertmodal";
 
 const editprofile = () => {
   const insets = useSafeAreaInsets();
@@ -36,6 +37,11 @@ const editprofile = () => {
   const [loading, setLoading] = useState(false);
 const [alertShow,setAlertShow] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true); // 👈 for page loader
+   const [modalVisible, setModalVisible] = useState(false);
+const [modalMessage, setModalMessage] = useState("");
+const [successVisible, setSuccessVisible] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
 
   const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
     useAuth();
@@ -142,11 +148,14 @@ const [alertShow,setAlertShow] = useState(false)
 
     } catch (error) {
       console.log("Error fetching profile:", error);
-      Toast.show({
-        type: "info",
+      // Toast.show({
+      //   type: "info",
   
-        text1: "Failed to load profile data",
-      });
+      //   text1: "Failed to load profile data",
+      // });
+setErrormessage(error?.response?.data?.message || "Failed to load profile data");
+setModalMessage(error?.response?.data?.message || "Failed to load profile data");
+setModalVisible(true);
     } 
     finally {
       setInitialLoading(false);
@@ -368,6 +377,13 @@ const [alertShow,setAlertShow] = useState(false)
       </TouchableOpacity>
       </ScrollView>
         )}
+         {modalVisible && (
+  <AlertModal
+    message={modalMessage}
+    heading={applanguage === "eng" ? "Alert" : "تنبيه"}
+    onClose={() => setModalVisible(false)}
+  />
+)}
     </View>
   );
 };

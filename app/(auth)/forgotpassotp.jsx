@@ -31,7 +31,7 @@ const [email, setEmail] = useState("");
   // console.log("Received Token:", restoken); 
   const [fcm,setFcm]=useState("")
 
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   
   const translateX = useRef(new Animated.Value(0)).current;
