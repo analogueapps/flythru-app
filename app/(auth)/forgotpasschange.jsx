@@ -18,7 +18,7 @@ import React, {
   useState,
 } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react-native";
 import OTPinput from "../../components/OTPinput";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
@@ -44,6 +44,8 @@ const forgotpasschange = () => {
   const [loading, setLoading] = useState(false);
   const { token } = useLocalSearchParams();
   const [email, setEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const updatedParams = useLocalSearchParams();
   // console.log("Received Token:", restoken);
@@ -88,11 +90,11 @@ const forgotpasschange = () => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       console.log("Submitting OTP with values:", values);
-    
+
       await forgotPasschangeHandler(values);
     },
-  }); 
- 
+  });
+
   const { values, handleSubmit, setFieldValue, errors, touched } = formik;
 
   const forgotPasschangeHandler = async (values) => {
@@ -106,7 +108,7 @@ const forgotpasschange = () => {
         type: "success",
         text1: res.data.message,
       });
-        router.push("/(auth)");
+      router.push("/(auth)");
     } catch (error) {
       console.log("Error updating password:", error?.response?.data);
       Toast.show({
@@ -145,16 +147,7 @@ const forgotpasschange = () => {
                 : Translations.arb.create_password}
             </Text>
 
-            <View className="py-4">
-              <Text
-                className="text-[#164F90] font-bold text-[20px] mb-1"
-                style={{ fontFamily: "Lato" }}
-              >
-                {applanguage === "eng"
-                  ? Translations.eng.enter_email_id
-                  : Translations.arb.enter_email_id}
-              </Text>
-            </View>
+
 
             {resentOtpMsg && (
               <Text
@@ -174,16 +167,28 @@ const forgotpasschange = () => {
                   : Translations.arb.new_password}
                 <Text className="text-red-700">*</Text>
               </Text>
-              <TextInput
-                // value={email}
-                // onChangeText={setEmail}
-                onChangeText={formik.handleChange("password")}
-                onBlur={formik.handleBlur("password")}
-                value={formik.values.password}
-                className=" border h-14 px-2 my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+              <View className="flex-row items-center  border border-[#8B8B8B] h-14 px-2 my-4 rounded-lg w-[100%] mx-auto">
+
+                <TextInput
+                  // value={email}
+                  // onChangeText={setEmail}
+                  onChangeText={formik.handleChange("password")}
+                  onBlur={formik.handleBlur("password")}
+                  value={formik.values.password}
+                  className="  h-14 px-2 my-4 py-2 rounded-lg  w-[90%] mx-auto"
+                  autoCapitalize="none"
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={22} color="#8B8B8B" />
+                  ) : (
+                    <Eye size={22} color="#8B8B8B" />
+                  )}
+                </TouchableOpacity>
+              </View>
               {formik.touched.password && formik.errors.password && (
                 <Text
                   className="text-red-500 self-start"
@@ -202,16 +207,26 @@ const forgotpasschange = () => {
                 <Text className="text-red-700">*</Text>
               </Text>
 
-              <TextInput
-                // value={email}
-                // onChangeText={setEmail}
-                onChangeText={formik.handleChange("confirmPassword")}
-                onBlur={formik.handleBlur("confirmPassword")}
-                value={formik.values.confirmPassword}
-                className=" border h-14 px-2 my-4 py-2 rounded-lg border-[#8B8B8B] w-[100%] mx-auto"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+              <View className="flex-row items-center  border border-[#8B8B8B] h-14 px-2 my-4 rounded-lg w-[100%] mx-auto">
+
+                <TextInput
+                  // value={email}
+                  // onChangeText={setEmail}
+                  onChangeText={formik.handleChange("confirmPassword")}
+                  onBlur={formik.handleBlur("confirmPassword")}
+                  value={formik.values.confirmPassword}
+                  className="  h-14 px-2 my-4 py-2 rounded-lg  w-[90%] mx-auto"
+                  autoCapitalize="none"
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? (
+                    <EyeOff size={22} color="#8B8B8B" />
+                  ) : (
+                    <Eye size={22} color="#8B8B8B" />
+                  )}
+                </TouchableOpacity>
+              </View>
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
                 <Text
                   className="text-red-500 self-start"

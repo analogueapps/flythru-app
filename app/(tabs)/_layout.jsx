@@ -100,8 +100,8 @@ const _layout = () => {
               ? Translations.eng.activities
               : Translations.arb.activities,
           tabBarIcon: ({ color }) => <SvgActivities color={color} />,
-          // tabBarButton:(props) => (
-          //   <TouchableOpacity {...props} onPress={()=>props.onPress()}/>)
+          tabBarButton:(props) => (
+            <TouchableOpacity {...props} onPress={()=>props.onPress()}/>)
         }}
       />
 

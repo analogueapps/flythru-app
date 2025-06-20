@@ -146,20 +146,20 @@ const notification = () => {
         </View>
 
       </View>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}
+      <ScrollView className="flex-1" 
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {loading ? (
-          <View className="flex-1 items-center justify-center">
+          <View className="flex-1 px-3 items-center justify-center">
             <ActivityIndicator size="large" color="#164F90" />
           </View>
         ) : notifications.length > 0 ? (
           notifications.map((notif, index) => (
             <TouchableOpacity
               key={notif._id || index}
-              className="flex-row justify-between px-3 border-b-[1px] border-[#B1B1B1] py-6"
+              className="flex-row justify-between px-3 w-full border-b-[1px] border-[#B1B1B1] py-6 bg-blue-100"
               onPress={() =>
                 router.push({
                   pathname: "/home/notificationdetail",
@@ -169,7 +169,7 @@ const notification = () => {
                 })
               }
             >
-              <View className="w-[300px]">
+              <View className="flex-1">
                 <Text className="text-lg font-bold" style={{ fontFamily: "Lato" }}>{notif.title}</Text>
                 <Text style={{ fontFamily: "Lato" }}>{notif.body}</Text>
               </View>

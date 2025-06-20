@@ -54,20 +54,20 @@ const baggage = () => {
     }
   };
 
-  const numberOfBags = (type) => {
-    const numericBags = parseInt(persons, 10) || 0;
-    if (type === "increasebags" && numericBags < 10) {
-      const newValue = numericBags + 1;
-      setBags(newValue.toString());
+ const numberOfBags = (type) => {
+  const numericBags = parseInt(bags, 10) || 0;
 
-      formik.setFieldValue("baggageCount", newValue);
-      // return newValue;
-    } else if (type === "decreasebags" && bags > 1) {
-      const newValue = numericBags - 1;
-      setBags(newValue.toString());
-      formik.setFieldValue("baggageCount", newValue);
-    }
-  };
+  if (type === "increasebags" && numericBags < 10) {
+    const newValue = numericBags + 1;
+    setBags(newValue.toString());
+    formik.setFieldValue("baggageCount", newValue);
+  } else if (type === "decreasebags" && numericBags > 1) {
+    const newValue = numericBags - 1;
+    setBags(newValue.toString());
+    formik.setFieldValue("baggageCount", newValue);
+  }
+};
+
 
   useEffect(() => {
     formik.setValues({

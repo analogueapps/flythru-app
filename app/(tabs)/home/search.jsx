@@ -62,10 +62,12 @@ const Search = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [loginChecked, setLoginChecked] = useState(false);
- const [errorMessage, setErrorMessage] = useState('')
- const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [isModalShow, setIsModalShow] = useState(false)
   const [isSuccessModalShow, setIsSuccessModalShow] = useState(false)
+  const [manualSubmitData, setManualSubmitData] = useState(false)
+
   const DashedLine = ({ dashCount = 20, dashColor = "#164F90" }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
@@ -106,107 +108,137 @@ const Search = () => {
     formik.setFieldValue("departureTime", formattedTime);
   };
 
-const formik = useFormik({
-  initialValues: {
-    dep_date: "",
-    flight_time: "",
-    flight_number: "",
-    flight_from: "KWI",
-    flight_to: "",
-  },
-  validateOnChange: false,
-  validateOnBlur: false,
-  onSubmit: async (values) => {
-    try {
-      // Validate required fields
-      if (
-        !values.dep_date ||
-        !values.flight_time ||
-        !values.flight_number ||
-        !values.flight_to
-      ) {
+  const formik = useFormik({
+    initialValues: {
+      // dep_date: "",
+      // flight_time: "",
+      // flight_number: "",
+      // flight_from: "KWI",
+      // flight_to: "",
+
+
+      dep_date: "",
+      flight_time: "",
+      flight_number: "",
+      flight_from: "KWI",
+      flight_to: "",
+    },
+
+
+
+
+
+    validationSchema: addFlightSchema(applanguage),
+    validateOnChange: false,
+    validateOnBlur: false,
+    onSubmit: async (values) => {
+      try {
+        // Validate required fields
+        if (
+          !values.dep_date ||
+          !values.flight_time ||
+          !values.flight_number ||
+          !values.flight_to
+        ) {
+          // Toast.show({
+          //   type: "error",
+          //   text1: "Please fill all required fields",
+          // });
+          setErrorMessage("Please fill all required fields")
+          setIsModalShow(true)
+          return;
+        }
+
+        // Format date consistently (DD-MM-YYYY)
+        const [day, month, year] = values.dep_date.split("-");
+        const formattedDate = `${day}-${month}-${year}`;
+
+
+
+        // const [day, month, year] = departureDate.split("-"); // assuming format is DD-MM-YYYY
+        const [hours, minutes] = values.flight_time.split(":"); // assuming format is HH:mm
+
+        const selectedDateTime = new Date(
+          `${year}-${month}-${day}T${hours}:${minutes}:00`
+        );
+
+        const twelveHoursLater = new Date(Date.now() + 12 * 60 * 60 * 1000); // current time + 12 hrs
+
+        if (selectedDateTime <= twelveHoursLater) {
+          setErrorMessage("Departure must be at least 12 hours from now");
+          setIsModalShow(true);
+          return;
+        }
+
+        // Prepare submission data
+        const flightData = {
+          dep_date: formattedDate,
+          flight_time: values.flight_time,
+          flight_number: values.flight_number,
+          flight_from: values.flight_from,
+          flight_to: values.flight_to,
+        };
+
+        // ✅ Send API call
+        await addFlightshandler(flightData);
+        setManualSubmitData({ flightData: JSON.stringify(flightData), departureDate: formattedDate, departureTime: values.flight_time, })
+        // ✅ Pass data to baggage screen
+        // router.push({
+        //   pathname: "/home/baggage",
+        //   params: {
+        //     flightData: JSON.stringify(flightData),
+        //     departureDate: formattedDate,
+        //     departureTime: values.flight_time,
+        //   },
+        // });
+      } catch (error) {
+        console.error("Submission error:", error);
         // Toast.show({
         //   type: "error",
-        //   text1: "Please fill all required fields",
+        //   text1: "Failed to submit flight details",
         // });
-        setErrorMessage("Please fill all required fields")
+        setErrorMessage("Failed to submit flight details")
         setIsModalShow(true)
-        return;
       }
+    },
+  });
 
-      // Format date consistently (DD-MM-YYYY)
-      const [day, month, year] = values.dep_date.split("-");
-      const formattedDate = `${day}-${month}-${year}`;
 
-      // Prepare submission data
-      const flightData = {
-        dep_date: formattedDate,
-        flight_time: values.flight_time,
-        flight_number: values.flight_number,
-        flight_from: values.flight_from,
-        flight_to: values.flight_to,
-      };
+  const addFlightshandler = async (flightData) => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("authToken");
 
-      // ✅ Send API call
-      await addFlightshandler(flightData);
-
-      // ✅ Pass data to baggage screen
-      router.push({
-        pathname: "/home/baggage",
-        params: {
-          flightData: JSON.stringify(flightData),
-          departureDate: formattedDate,
-          departureTime: values.flight_time,
-        },
-      });
-    } catch (error) {
-      console.error("Submission error:", error);
+    if (!token) {
       // Toast.show({
       //   type: "error",
-      //   text1: "Failed to submit flight details",
+      //   text1: "No token found. Please log in.",
       // });
-      setErrorMessage("Failed to submit flight details")
-        setIsModalShow(true)
+      setErrorMessage("Please login")
+      setIsModalShow(true)
+      return;
     }
-  },
-});
 
-
-const addFlightshandler = async (flightData) => {
-  setLoading(true);
-  const token = await AsyncStorage.getItem("authToken");
-
-  if (!token) {
-    // Toast.show({
-    //   type: "error",
-    //   text1: "No token found. Please log in.",
-    // });
-    setErrorMessage("No token found. Please log in.")
-        setIsModalShow(true)
-    return;
-  }
-
-  try {
-    const res = await ADD_FLIGHTS(flightData, token);
-    console.log(res.data.message);
-    // Toast.show({
-    //   type: "success",
-    //   text1: res.data.message,
-    // });
-    setSuccessMessage(res.data.message)
-setIsSuccessModalShow(true)
-  } catch (error) {
-    console.log("Error updating profile:", error?.response);
-    // Toast.show({
-    //   type: "info",
-    //   text1: error?.response?.data?.message || "Failed to update profile",
-    // });
-     setErrorMessage(error?.response?.data?.message || "Failed to update profile")
-        setIsModalShow(true)
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const res = await ADD_FLIGHTS(flightData, token);
+      console.log(res.data.message);
+      // Toast.show({
+      //   type: "success",
+      //   text1: res.data.message,
+      // });
+      setSuccessMessage(res.data.message)
+      setIsSuccessModalShow(true)
+    } catch (error) {
+      console.log("Error updating profile:", error?.response);
+      // Toast.show({
+      //   type: "info",
+      //   text1: error?.response?.data?.message || "Failed to update profile",
+      // });
+      setErrorMessage(error?.response?.data?.message || "Failed to update profile")
+      setIsModalShow(true)
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const DashedLine2 = ({
@@ -230,7 +262,7 @@ setIsSuccessModalShow(true)
     </View>
   );
 
-  
+
   // const formatDate = (isoDateStr) => {
 
   //   const date = new Date(isoDateStr); // Handles "2025-05-12T14:30:00Z"
@@ -390,8 +422,13 @@ setIsSuccessModalShow(true)
   return (
     <View className="flex-1">
       {/* Header Background Image */}
-                  {isSuccessModalShow && <SuccessModal heading="Success" message={successMessage} onClose={() => setIsSuccessModalShow(false)} />}
-            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+      {isSuccessModalShow && <SuccessModal heading="Success" message={successMessage} onClose={() => {
+        setIsSuccessModalShow(false); router.push({
+          pathname: "/home/baggage",
+          params: { ...manualSubmitData },
+        });;
+      }} />}
+      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
 
       <View>
         <Image
@@ -489,8 +526,8 @@ setIsSuccessModalShow(true)
         {/* Display Date */}
         <View className="flex flex-row justify-between items-center mb-6 mx-auto w-full">
           <Text className="text-[#696969] text-lg"> {applanguage === "eng"
-              ? Translations.eng.search_results
-              : Translations.arb.search_results}{" "}</Text>
+            ? Translations.eng.search_results
+            : Translations.arb.search_results}{" "}</Text>
           <Text className="text-[#164F90] font-bold">
             {" "}
             {applanguage === "eng"
@@ -633,7 +670,7 @@ setIsSuccessModalShow(true)
                 <TouchableOpacity
                   key={`special-${index}`}
                   // onPress={() => {
-                  //   if (!loginChecked) return;
+                  //   if (!loginChecked) return; 
                   //   if (isLoggedIn) {
                   //   router.push({
                   //     pathname: "/home/baggage",
@@ -691,8 +728,8 @@ setIsSuccessModalShow(true)
                       <Text className="text-[20px]  ">
                         {flight.departure?.scheduled?.includes("T")
                           ? flight.departure?.scheduled
-                              .split("T")[1]
-                              .slice(0, 5)
+                            .split("T")[1]
+                            .slice(0, 5)
                           : flight.departure?.scheduled || "N/A"}
                       </Text>
                       <Text className="text-gray-400 text-start text-[13px] ">
@@ -784,7 +821,7 @@ setIsSuccessModalShow(true)
                 shadowColor: "#000",
                 shadowOffset: { width: 3, height: 6 },
                 shadowOpacity: 0.3,
-                shadowRadius: 8, 
+                shadowRadius: 8,
                 elevation: 10,
               }}
             >

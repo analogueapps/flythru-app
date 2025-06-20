@@ -50,7 +50,7 @@ const Index = () => {
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
- const [errorMessage, setErrorMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
   const [isModalShow, setIsModalShow] = useState(false)
   const { loadToken } = useAuth();
   // const [showDatePicker,setshowDatePicker]
@@ -97,13 +97,13 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      departureDate: "19-08-2025",
-      departureTime: "12:48",
-      flightNumber: "AAAAA1",
+      departureDate: "",
+      departureTime: "",
+      flightNumber: "",
       from: "kwi",
-      to: "hyd",
+      to: "",
     },
-    // validationSchema: AllflightSchema(applanguage),
+    validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
     validateOnBlur: false, // Disable auto-validation on blur
     onSubmit: async (values) => {
@@ -120,7 +120,22 @@ const Index = () => {
         setIsModalShow(true)
         return;
       }
-      const [day, month, year] = departureDate.split("-");
+
+      const [day, month, year] = departureDate.split("-"); // assuming format is DD-MM-YYYY
+      const [hours, minutes] = departureTime.split(":"); // assuming format is HH:mm
+
+      const selectedDateTime = new Date(
+        `${year}-${month}-${day}T${hours}:${minutes}:00`
+      );
+
+      const twelveHoursLater = new Date(Date.now() + 12 * 60 * 60 * 1000); // current time + 12 hrs
+
+      if (selectedDateTime <= twelveHoursLater) {
+        setErrorMessage("Departure must be at least 12 hours from now");
+        setIsModalShow(true);
+        return;
+      }
+      // const [day, month, year] = departureDate.split("-");
       // const parsedDepartureDate = `${year}-${month}-${day}`;
       const parsedDepartureDate = `${day}-${month}-${year}`;
 
@@ -166,7 +181,7 @@ const Index = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
-            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
 
       <View>
         <Image
@@ -205,9 +220,8 @@ const Index = () => {
         </TouchableOpacity>
       </View>
       <View
-        className={`bg-white self-center absolute ${
-          Platform.OS === "android" ? "top-36" : "top-44"
-        } z-10  p-6 rounded-2xl w-[90%] shadow-lg`}
+        className={`bg-white self-center absolute ${Platform.OS === "android" ? "top-36" : "top-44"
+          } z-10  p-6 rounded-2xl w-[90%] shadow-lg`}
       >
         <View>
           <Text className="text-[#164E8D] font-semibold mb-2">Search By</Text>

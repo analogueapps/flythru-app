@@ -227,7 +227,7 @@ const index = () => {
                   </View>
                   <View className="flex-col gap-y-2">
                     <Text className="font-extrabold text-[15px]" style={{ fontFamily: "Lato" }}>
-                      {booking.pickUpTimings}, {new Date(booking.date).toLocaleDateString()}
+                      {booking.pickUpTimings}, {booking.date}
                     </Text>
                     <Text className="text-[#383F47] text-[13px]" style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng" ? Translations.eng.status : Translations.arb.status}: {booking?.updateStatus || "-"}

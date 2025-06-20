@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Animated,Easing, Image, BackHandler, Platform ,TextInput } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Animated, Easing, Image, BackHandler, Platform, TextInput } from "react-native";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
@@ -23,22 +23,22 @@ const forgotpassotp = () => {
   const [apiErr, setApiErr] = useState("");
   const [resentOtpMsg, setResentOtpMsg] = useState(false);
   const { applanguage } = langaugeContext();
-const [loading, setLoading] = useState(false);
-const { token } = useLocalSearchParams();
-const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { token } = useLocalSearchParams();
+  const [email, setEmail] = useState("");
 
   const updatedParams = useLocalSearchParams();
   // console.log("Received Token:", restoken); 
-  const [fcm,setFcm]=useState("")
+  const [fcm, setFcm] = useState("")
 
-  const [timer, setTimer] = useState(5);
+  const [timer, setTimer] = useState(60);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
-  
+
   const translateX = useRef(new Animated.Value(0)).current;
 
   const startAnimation = () => {
     translateX.setValue(-30); // Reset position
-  
+
     Animated.loop(
       Animated.timing(translateX, {
         toValue: 100, // How far to move
@@ -49,19 +49,19 @@ const [email, setEmail] = useState("");
     ).start();
   };
 
-   useEffect(() => {
-      let interval;
-      if (isTimerRunning && timer > 0) {
-        interval = setInterval(() => {
-          setTimer((prev) => prev - 1);
-        }, 1000);
-      } else if (timer === 0) {
-        setIsTimerRunning(false);
-      }
-    
-      return () => clearInterval(interval);
-    }, [isTimerRunning, timer]);
-   
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      setIsTimerRunning(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timer]);
+
   // Run it when loading starts
   useEffect(() => {
     if (loading) {
@@ -72,7 +72,7 @@ const [email, setEmail] = useState("");
     }
   }, [loading]);
 
-    const onChangeCode = (text, index) => {
+  const onChangeCode = (text, index) => {
     const numericText = text.replace(/[^0-9]/g, "");
     const newCodes = [...codes];
     newCodes[index] = numericText;
@@ -80,13 +80,13 @@ const [email, setEmail] = useState("");
     setFieldValue("otp", newCodes.join(""));
 
     if (apiErr) setApiErr("");
-  
+
     if (numericText && index < refs.length - 1) {
       refs[index + 1]?.current?.focus();
     }
   };
 
-    const handleKeyPress = (e, index) => {
+  const handleKeyPress = (e, index) => {
     if (e.nativeEvent.key === "Backspace") {
       if (codes[index] === "") {
         const newCodes = [...codes];
@@ -100,101 +100,101 @@ const [email, setEmail] = useState("");
     }
   };
 
-    useEffect(() => {
-  if (updatedParams?.email) {
-    setEmail(updatedParams.email);
-  }
-}, [updatedParams?.email]);
+  useEffect(() => {
+    if (updatedParams?.email) {
+      setEmail(updatedParams.email);
+    }
+  }, [updatedParams?.email]);
 
 
   const formik = useFormik({
-      initialValues: {
-        email: updatedParams.email || "",
-        otp: "",
-      },
-      validationSchema: otpValidationSchema(applanguage),
-      validateOnChange: true,
-      validateOnBlur: true,
-      onSubmit: async (values) => {
-        console.log("Submitting OTP with values:", values);
+    initialValues: {
+      email: updatedParams.email || "",
+      otp: "",
+    },
+    validationSchema: otpValidationSchema(applanguage),
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log("Submitting OTP with values:", values);
 
-        await forgotPassotpHandler(values);
-      
-      },
-    });
+      await forgotPassotpHandler(values);
 
-    const resend_otp_formik = useFormik({
-      initialValues: {
-        email: updatedParams.email || "",
-      },
-      // validationSchema: otpValidationSchema(applanguage),
-      validateOnChange: true,
-      validateOnBlur: true,
+    },
+  });
+
+  const resend_otp_formik = useFormik({
+    initialValues: {
+      email: updatedParams.email || "",
+    },
+    // validationSchema: otpValidationSchema(applanguage),
+    validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async () => {
 
       console.log("Resending OTP with values:", resend_otp_formik.values);
-await forgotPassResendotpHandler(resend_otp_formik.values);
-},
+      await forgotPassResendotpHandler(resend_otp_formik.values);
+    },
 
-    });
+  });
 
-  
-  
-    const { values, handleSubmit, setFieldValue, errors, touched } = formik;
-   
-    const forgotPassotpHandler = async (values) => {
-        setLoading(true);
-        console.log("Forgot Password Email Handler called with values:", values);
-    
-        try {
-          const res = await FORGOT_PASSWORD_OTP(values);
-          console.log(res.data.message);
-          Toast.show({
-            type: "success",
-            text1: res.data.message,
-          });
-           router.push({
-      pathname: "/forgotpasschange",
-      params: updatedParams,
-    });
-          
-        
-        } catch (error) {
-          console.log("Error otpppp:", error?.response);
-          Toast.show({
-            type: "error",
-            text1: error.response?.data?.message
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-  
 
-         const forgotPassResendotpHandler = async (values) => {
-        setLoading(true);
-        console.log("Forgot Password OTP called with values:", values);
-    
-        try {
-          const res = await FORGOT_PASS_RESEND_OTP(values);
-          console.log(res.data.message);
-          Toast.show({
-            type: "success",
-            text1: res.data.message,
-          });
-         
-          
-        
-        } catch (error) {
-          console.log("Error otpppp:", error?.response);
-          Toast.show({
-            type: "error",
-            text1: error.response?.data?.message
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
+
+  const { values, handleSubmit, setFieldValue, errors, touched } = formik;
+
+  const forgotPassotpHandler = async (values) => {
+    setLoading(true);
+    console.log("Forgot Password Email Handler called with values:", values);
+
+    try {
+      const res = await FORGOT_PASSWORD_OTP(values);
+      console.log(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
+      router.replace({
+        pathname: "/forgotpasschange",
+        params: updatedParams,
+      });
+
+
+    } catch (error) {
+      console.log("Error otpppp:", error?.response);
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const forgotPassResendotpHandler = async (values) => {
+    setLoading(true);
+    console.log("Forgot Password OTP called with values:", values);
+
+    try {
+      const res = await FORGOT_PASS_RESEND_OTP(values);
+      console.log(res.data.message);
+      Toast.show({
+        type: "success",
+        text1: res.data.message,
+      });
+
+
+
+    } catch (error) {
+      console.log("Error otpppp:", error?.response);
+      Toast.show({
+        type: "error",
+        text1: error.response?.data?.message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white p-6">
@@ -206,17 +206,17 @@ await forgotPassResendotpHandler(resend_otp_formik.values);
 
         <ScrollView className="flex-1">
 
-             <View className="flex-1 mb-12 justify-center items-center bg-white">
-                    <Image
-                      source={logo}
-                      className="w-44 self-center"
-                      resizeMode="contain"
-                    />
-            </View>
+          <View className="flex-1 mb-12 justify-center items-center bg-white">
+            <Image
+              source={logo}
+              className="w-44 self-center"
+              resizeMode="contain"
+            />
+          </View>
           <View className="px-6">
-            <Text 
-             className="py-4 text-[18px] font-normal text-center"
-                  style={{ fontFamily: "CenturyGothic" }}
+            <Text
+              className="py-4 text-[18px] font-normal text-center"
+              style={{ fontFamily: "CenturyGothic" }}
             >
               {" "}
               {applanguage === "eng"
@@ -225,23 +225,23 @@ await forgotPassResendotpHandler(resend_otp_formik.values);
             </Text>
 
             <View className="py-4">
-              <Text className="text-[#164F90] font-bold text-[20px] mb-1"  style={{ fontFamily: "Lato" }}>
+              <Text className="text-[#164F90] font-bold text-[20px] mb-1" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.enter_otp
                   : Translations.arb.enter_otp}
               </Text>
-               <Text className="font-light"  style={{ fontFamily: "Lato" }}>
+              <Text className="font-light" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.otp_sent_message
                   : Translations.arb.otp_sent_message}{" "}
               </Text>
-             
+
             </View>
 
-             {/* OTP Input */}
+            {/* OTP Input */}
             <View className="w-[90%] mx-auto flex items-center justify-center ">
-            <OTPinput   
-              
+              <OTPinput
+
                 codes={codes}
                 refs={refs}
                 errorMessages={errorMessages}
@@ -264,77 +264,77 @@ await forgotPassResendotpHandler(resend_otp_formik.values);
             </View>
 
             {resentOtpMsg && (
-              <Text className="text-green-500 text-sm mb-2"  style={{ fontFamily: "Lato" }}>
+              <Text className="text-green-500 text-sm mb-2" style={{ fontFamily: "Lato" }}>
                 {applanguage === "eng"
                   ? Translations.eng.otp_resent_message
                   : Translations.arb.otp_resent_message}
               </Text>
             )}
 
-            
 
-          
+
+
             <TouchableOpacity
-            disabled={loading}
-            style={{
-              elevation: 5,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.50,
-              shadowRadius: 3.84,
-            }}
+              disabled={loading}
+              style={{
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }}
               onPress={formik.handleSubmit} //  Use handleSubmit instead of router.push
               className="bg-[#FFB648] rounded-lg w-[90%] h-14 mx-auto flex items-center justify-center mt-40"
             >
-               {loading ? (
-    <Animated.View
-    style={{
-      transform: [{ translateX }],
-      width: 100,
-      height: 100,
-      alignSelf: "center",
-    }}
-    
-  >
-    <Image
-      source={flightloader}
-      style={{ width: 100, height: 100 }}
-      resizeMode="contain"
-      
-    />
-  </Animated.View>
-  
-  ) : (
-              <Text className="text-center text-[#08203C] font-bold text-lg"  style={{ fontFamily: "Lato" }}>
-                {applanguage === "eng"
-                  ? Translations.eng.submit
-                  : Translations.arb.submit}
-              </Text>
-  )}
+              {loading ? (
+                <Animated.View
+                  style={{
+                    transform: [{ translateX }],
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
+
+                  />
+                </Animated.View>
+
+              ) : (
+                <Text className="text-center text-[#08203C] font-bold text-lg" style={{ fontFamily: "Lato" }}>
+                  {applanguage === "eng"
+                    ? Translations.eng.submit
+                    : Translations.arb.submit}
+                </Text>
+              )}
             </TouchableOpacity>
 
 
             <View className="mt-6 items-center">
-  {isTimerRunning ? (
-    <Text className="text-[#164F90] text-base" style={{ fontFamily: "CenturyGothic" }}>
-      {applanguage === "eng"
-        ? `0.${timer} sec`
-        : `0.${timer} ثانية `}
-    </Text>
-  ) : (
-    <TouchableOpacity 
-onPress={() => resend_otp_formik.handleSubmit()}
-                                    >
-      <Text className="text-[#164F90] font-semibold text-base underline"  style={{ fontFamily: "CenturyGothic" }}>
-        {applanguage === "eng"
-          ? Translations.eng.resend_otp
-          : Translations.arb.resend_otp}
-      </Text>
-    </TouchableOpacity>
-  )}
-</View>
+              {isTimerRunning ? (
+                <Text className="text-[#164F90] text-base" style={{ fontFamily: "CenturyGothic" }}>
+                  {applanguage === "eng"
+                    ? `0.${timer} sec`
+                    : `0.${timer} ثانية `}
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => resend_otp_formik.handleSubmit()}
+                >
+                  <Text className="text-[#164F90] font-semibold text-base underline" style={{ fontFamily: "CenturyGothic" }}>
+                    {applanguage === "eng"
+                      ? Translations.eng.resend_otp
+                      : Translations.arb.resend_otp}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-            
+
 
 
           </View>
@@ -347,4 +347,3 @@ onPress={() => resend_otp_formik.handleSubmit()}
 export default forgotpassotp;
 
 
- 

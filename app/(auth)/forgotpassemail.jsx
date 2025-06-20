@@ -57,7 +57,7 @@ const [email, setEmail] = useState("");
     if (loading) {
       startAnimation();
     } else {
-      translateX.stopAnimation();
+      translateX.stopAnimation(); 
       translateX.setValue(0); // Reset to start
     }
   }, [loading]);
@@ -71,20 +71,21 @@ const [email, setEmail] = useState("");
     validationSchema: forgotpassemailSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
-  onSubmit: async (values) => {
-  console.log("values submitted edit profile:", values);
-  await forgotPassemailHandler(values);
+onSubmit: async (values) => {
+  const success = await forgotPassemailHandler(values);
+  if (success) {
+    const updatedParams = {
+      ...params,
+      email: values.email,
+    };
 
-  const updatedParams = {
-    ...params,
-    email: values.email,
-  };
-
-  router.push({
-    pathname: "/forgotpassotp",
-    params: updatedParams,
-  });
+    router.replace({
+      pathname: "/forgotpassotp",
+      params: updatedParams,
+    });
+  }
 },
+
 
   });
 
@@ -99,7 +100,7 @@ const [email, setEmail] = useState("");
         type: "success",
         text1: res.data.message,
       });
-      
+       return true;
     
     } catch (error) {
       console.log("Error updating profile:", error?.response);
@@ -107,6 +108,7 @@ const [email, setEmail] = useState("");
         type: "info",
         text1: error.response?.data?.message || "Failed to update profile",
       });
+       return false;
     } finally {
       setLoading(false);
     }

@@ -195,6 +195,7 @@ const selectlocation = () => {
       try {
         const res = await ALL_ADDRESS(token);
         const raw = res?.data?.addresses || [];
+        console.log("raw",raw)
 
         const mapped = raw.map((addr) => ({
           label: `${addr.addressName}`,
@@ -216,7 +217,7 @@ const selectlocation = () => {
     initialValues: {
       pickUpLocation: "",
       // pickUpTimings: time,
-      pickUpTimings: "07:00 AM",
+      pickUpTimings: "07:00",
     },
     validationSchema: selectlocationSchema(applanguage),
     validateOnChange: true,
@@ -300,6 +301,7 @@ const selectlocation = () => {
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
+      // setShowSuccess(true);
       // setShowSuccess(true);
 
       console.log("okieeeeeeeeeeeeeee", paymentUrl);
@@ -390,7 +392,7 @@ const selectlocation = () => {
           {/* Address Header */}
           <View className="mt-7">
             <Text
-              className="text-[16px] text-[#9B9E9F]"
+              className="text-[16px] text-[#666868]"
               style={{ fontFamily: "Lato" }}
             >
               {formik.values.pickUpLocation || "No address selected"}
