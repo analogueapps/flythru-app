@@ -121,7 +121,7 @@ export const OAUTH = async (firebaseToken) => {
     }
 
     return res;
-  } catch (error) { 
+  } catch (error) {
     console.log("OAuth Login Error:", error);
     throw error;
   }
@@ -131,36 +131,36 @@ export const VERIFY_OTP = async (data, token) => {
   console.log();
   return await axios.post(`${LOCAL_URL}/user/verifyotp`, data, {
     headers: {
-      Authorization: `Bearer ${token}`, 
+      Authorization: `Bearer ${token}`,
     },
   });
 };
 
-export const FORGOT_PASSWORD_EMAIL= async (data) => {
+export const FORGOT_PASSWORD_EMAIL = async (data) => {
   console.log("FORGOT PASSWORD EMAIL API FETCHED", data);
   return await axios.post(`${LOCAL_URL}/user/forgot-password`, data, {
-   
+
   });
 };
 
-export const FORGOT_PASSWORD_OTP= async (data) => {
+export const FORGOT_PASSWORD_OTP = async (data) => {
   console.log("FORGOT PASSWORD OTP API FETCHED", data);
   return await axios.post(`${LOCAL_URL}/user/verify-otp`, data, {
-   
+
   });
 };
 
-export const FORGOT_PASS_RESEND_OTP= async (data) => {
+export const FORGOT_PASS_RESEND_OTP = async (data) => {
   console.log("FORGOT PASSWORD resend otp fetched", data);
   return await axios.post(`${LOCAL_URL}/user/resend-otp`, data, {
-   
+
   });
 };
 
-export const RESET_PASSWORD= async (data) => {
+export const RESET_PASSWORD = async (data) => {
   console.log("FORGOT PASSWORD RESET API FETCHED", data);
   return await axios.post(`${LOCAL_URL}/user/reset-password`, data, {
-   
+
   });
 };
 
@@ -286,19 +286,19 @@ export const PAYMENT_VERIFICATION_API = async (data) => {
 };
 
 export const ALL_FLIGHTS = async (data) => {
-  console.log("Fetched All flights",data);
-  return await axios.post(`${LOCAL_URL}/allflights`, data); 
+  console.log("Fetched All flights", data);
+  return await axios.post(`${LOCAL_URL}/allflights`, data);
 };
 
-export const ADD_FLIGHTS = async (data,token) => {
+export const ADD_FLIGHTS = async (data, token) => {
   console.log("Adding flight data fetched:", data);
   return await axios.post(`${LOCAL_URL}/user/add-flight`, data,
-     {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-  ); 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
 
 export const ALL_FLIGHTS_CLIENT = async (data) => {
@@ -369,7 +369,7 @@ export const GET_PROFILE = async (token) => {
 
 export const STATUS = async (token) => {
   console.log("Fetched All address");
-  return await axios.post(`${LOCAL_URL}/user/profile`,{}, {
+  return await axios.post(`${LOCAL_URL}/user/profile`, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -384,7 +384,7 @@ export const ALL_TIME_SLOTS = async () => {
 // all slots
 export const ALL_SLOTS = async (data, token) => {
   try {
-    console.log("all slots fetched",data);
+    console.log("all slots fetched", data);
     return await axios.post(`${LOCAL_URL}/user/slots`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -399,7 +399,7 @@ export const ALL_SLOTS = async (data, token) => {
 // select slots
 export const SELECT_SLOTS = async (data, token) => {
   try {
-    console.log("all slots fetched",data);
+    console.log("all slots fetched", data);
     return await axios.post(`${LOCAL_URL}/user/select-slots`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -429,13 +429,20 @@ export const ADD_ADDRESS = async (data, token) => {
     },
   });
 };
-export const UPDATE_ADDRESS = async (data,id, token) => {
-  console.log("data",data,id);
-  
+export const UPDATE_ADDRESS = async (data, id, token) => {
+  console.log("data", data, id);
+
   return await axios.post(`${LOCAL_URL}/user/update-address/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
       // 'Content-Type': 'multipart/form-data',
     },
+  });
+};
+export const UpdateNotify = async (id) => {
+  console.log("data", id);
+
+  return await axios.post(`${LOCAL_URL}/driver/read-notification`, {
+    notificationId: id,
   });
 };

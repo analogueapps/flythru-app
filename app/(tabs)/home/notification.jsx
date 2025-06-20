@@ -1,16 +1,16 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, RefreshControl } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
-import { NOTIFICATION } from "../../../network/apiCallers";
+import { NOTIFICATION, UpdateNotify } from "../../../network/apiCallers";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
 import CustomAlert from "../../../components/PopupModel";
@@ -26,7 +26,7 @@ const notification = () => {
   const [loading, setLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false);
   const [alertShow, setAlertShow] = useState(false)
- const [errorMessage, setErrorMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
   const [isModalShow, setIsModalShow] = useState(false)
   const onRefresh = async () => {
     setRefreshing(true);
@@ -94,25 +94,34 @@ const notification = () => {
       //   text1: error?.response?.data?.message || "Failed to fetch notifications",
       // });
       setErrorMessage(error?.response?.data?.message || "Failed to fetch notifications")
-        setIsModalShow(true)
+      setIsModalShow(true)
     }
     finally {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  useFocusEffect(useCallback(() => {
+    fetchNotifications()
+  }, []))
+  // useEffect(() => {
+  //   fetchNotifications();
+  // }, []);
   useEffect(() => {
     console.log("notifications", notifications)
 
   }, [notifications]);
 
-
+  const UpdateNotification = async (id) => {
+    try {
+      const res = await UpdateNotify(id)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <View className="flex-1">
-            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
 
       <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={() => { router.push('/(auth)'); setAlertShow(false) }} />
 
@@ -146,7 +155,7 @@ const notification = () => {
         </View>
 
       </View>
-      <ScrollView className="flex-1" 
+      <ScrollView className="flex-1"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -159,14 +168,16 @@ const notification = () => {
           notifications.map((notif, index) => (
             <TouchableOpacity
               key={notif._id || index}
-              className="flex-row justify-between px-3 w-full border-b-[1px] border-[#B1B1B1] py-6 bg-blue-100"
-              onPress={() =>
+              className={`flex-row justify-between px-3 w-full border-b-[1px] border-[#B1B1B1] py-6  ${notif?.isRead ? "" : "bg-blue-100"}`}
+              onPress={() => {
+                UpdateNotification(notif._id)
                 router.push({
                   pathname: "/home/notificationdetail",
                   params: {
                     notifId: notif._id,
-                  },
+                  }
                 })
+              }
               }
             >
               <View className="flex-1">
