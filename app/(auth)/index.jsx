@@ -816,7 +816,7 @@ const Index = () => {
                     await AsyncStorage.setItem("skippedLogin", "true");
 
                     // Navigate to home
-                    router.push("/home");
+                    router.replace("/home");
                   }}
                 >
                   <Text className="text-[#0F7BE6] text-lg" style={{ fontFamily: "Lato" }}>
@@ -954,7 +954,7 @@ const Index = () => {
                     await AsyncStorage.setItem("skippedLogin", "true");
 
                     // Navigate to home
-                    router.push("/home");
+                    router.replace("/home");
                   }}
                 >
                   <Text className="text-[#0F7BE6] text-lg" style={{ fontFamily: "Lato" }}>

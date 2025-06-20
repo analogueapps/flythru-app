@@ -17,6 +17,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -76,6 +77,7 @@ const selectlocation = () => {
   const [pickuploaction, setPickuploaction] = useState([]);
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loader, setLoader] = useState(false)
 
   const addressRefRBSheet = useRef();
 
@@ -105,13 +107,16 @@ const selectlocation = () => {
 
   const dropdownRef = useRef();
   const [inputFocused, setInputFocused] = useState(false);
-  const handleSelectOption = (selectedItem) => {
+  const handleSelectOption = async (selectedItem) => {
     if (selectedItem.disabled) return;
 
     switch (selectedItem.action) {
       case "map":
         setTimeout(() => {
-          router.push("/home/selectlocationnext");
+          router.push({
+            pathname: "/home/selectlocationnext",
+            params: { date, time, personsCount, baggageCount, baggagePictures }
+          });
         }, 100)
         break;
       case "manual":
@@ -124,6 +129,13 @@ const selectlocation = () => {
         console.log(selectedItem);
 
         setInputValue(selectedItem.label);
+        const coards = await Location.geocodeAsync(selectedItem.label)
+        console.log("coards checking", coards)
+        // userLat: '',
+        // userLng: '',
+        formik.setFieldValue("userLat", coards.latitude);
+        formik.setFieldValue("userLng", coards.longitude);
+        setMarkerCoords({ latitude: coards.latitude, longitude: coards.longitude })
         formik.setFieldValue("pickUpLocation", selectedItem.label);
         break;
     }
@@ -240,12 +252,18 @@ const selectlocation = () => {
         try {
           const res = await ALL_ADDRESS(token);
           const raw = res?.data?.addresses || [];
+          console.log(raw);
 
-          const mapped = raw.map((addr) => ({
-            label: `${addr.addressName}`,
-            value: addr.id,
-            fullData: addr,
-          }));
+          const mapped = raw.map((addr) => {
+            const officialAddress = `${addr.flatNo}-${addr.floorNo}/${addr.buildingNumber}, ${addr.addressName} , ${addr.block} , ${addr.streetAddress}, ${addr.area}, ${addr.avenue}`;
+
+            return {
+              label: officialAddress,
+              value: addr.id,
+              fullData: addr,
+            };
+          });
+
 
           setAddresses(mapped);
           setFilteredAddresses(mapped);
@@ -262,6 +280,8 @@ const selectlocation = () => {
 
   const formik = useFormik({
     initialValues: {
+      userLat: '',
+      userLng: '',
       pickUpLocation: "",
       pickUpTimings: time,
     },
@@ -270,26 +290,8 @@ const selectlocation = () => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       // console.log("values CREATE ORDER", values);
-      searchLocation;
-      // Include additional data for the API call
-      const requestData = {
-        ...values,
-        date,
-        time,
-        personsCount: parsedPersonsCount,
-        baggageCount: parsedBaggageCount,
-        baggagePictures: parsedBaggagePictures,
-        CallBackUrl: "flythru://home/paymentsuccess",
-        ErrorUrl: "flythru://home/paymentfailed",
-      };
-      console.log("values CREATE ORDER", requestData);
-
-      const success = await paymentApi(requestData);
-      if (success) {
-        locationrefRBSheet.current?.open();
-      }
-
-      // await paymentApi(requestData);
+      searchLocation();
+      addressRefRBSheet.current.open()
     },
   });
 
@@ -310,7 +312,7 @@ const selectlocation = () => {
 
   const paymentApi = async (values) => {
     setLoading(true);
-
+    setLoader(true)
     const token = await AsyncStorage.getItem("authToken");
 
     if (!token) {
@@ -338,7 +340,6 @@ const selectlocation = () => {
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
-      setShowSuccess(true)
       console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
       // Toast.show({
@@ -360,6 +361,7 @@ const selectlocation = () => {
       }
     } finally {
       setLoading(false);
+      setLoader(false)
     }
   };
 
@@ -435,7 +437,7 @@ const selectlocation = () => {
       {showSuccess && (
         <SuccessModal
           visible={showSuccess}
-          onClose={() => setShowSuccess(false)}
+          onClose={() => { setShowSuccess(false); locationrefRBSheet.current?.open(); }}
         />
       )}
       <RBSheet
@@ -470,23 +472,44 @@ const selectlocation = () => {
 
           {/* Select Address Button */}
           <TouchableOpacity
-            onPress={() => {
-              addressRefRBSheet.current?.close();
-              setTimeout(() => {
-                formik.handleSubmit();
-                locationrefRBSheet.current?.open(); // ✅ open location sheet manually
-              }, 500); // Give time for address sheet to close smoothly
+            onPress={async () => {
+              const requestData = {
+                ...formik.values,
+                date,
+                personsCount: parsedPersonsCount,
+                baggageCount: parsedBaggageCount,
+                baggagePictures: parsedBaggagePictures,
+                CallBackUrl: "flythru://home/paymentsuccess",
+                ErrorUrl: "flythru://home/paymentfailed",
+              };
+
+              console.log("values CREATE ORDER", requestData);
+
+              const success = await paymentApi(requestData);
+              if (success) {
+                setShowSuccess(true)
+
+                addressRefRBSheet.current?.close();
+                setTimeout(() => {
+                  // ✅ open location sheet manually
+                }, 2000);
+              }
+              // setTimeout(() => {
+              //   // formik.handleSubmit();
+              //   locationrefRBSheet.current?.open(); // ✅ open location sheet manually
+              // }, 500); // Give time for address sheet to close smoothly
             }}
             className="bg-[#FFB648] rounded-lg w-[80%] h-11 mx-auto mt-4 flex items-center justify-center"
+            disabled={loader}
           >
-            <Text
+            {!loader ? <Text
               className="text-center  text-[#164F90] font-bold text-lg"
               style={{ fontFamily: "Lato" }}
             >
               {applanguage === "eng"
                 ? Translations.eng.select_address
                 : Translations.arb.select_address}
-            </Text>
+            </Text> : <ActivityIndicator size="small" color="white" />}
           </TouchableOpacity>
         </View>
       </RBSheet>
@@ -497,7 +520,7 @@ const selectlocation = () => {
         closeOnPressMask={true}
         draggable={true}
         // height={200}
-        height={Dimensions.get("window").height / 2}
+        height={Dimensions.get("window").height / 1.8}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -507,120 +530,124 @@ const selectlocation = () => {
           },
         }}
       >
-        {paymentUrl ? <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
-            <View className="flex flex-row ">
-              {/* <Image
+        {paymentUrl ?
+          <ScrollView>
+
+            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+              <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
+                <View className="flex flex-row ">
+                  {/* <Image
                 source={dp}
                 className="h-16 w-16 rounded-full mr-4"
                 resizeMode="cover" 
               /> */}
 
-              <View>
-                <Text
-                  className=" text-[24px] font-thin"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {userName}
-                </Text>
-                {/* <Text>Dubai</Text> */}
-              </View>
-            </View>
+                  <View>
+                    <Text
+                      className=" text-[24px] font-thin"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {userName}
+                    </Text>
+                    {/* <Text>Dubai</Text> */}
+                  </View>
+                </View>
 
-            <View>
-              <Text
-                className="text-[#164F90] text-[18px] font-bold"
-                style={{ fontFamily: "Lato" }}
-              >
-                {applanguage === "eng"
-                  ? Translations.eng.total
-                  : Translations.arb.total}{" "}
-                : {price}
-              </Text>
-              <Text className="text-[14px]" style={{ fontFamily: "Lato" }}>
-                {pickupdate} {time}{" "}
-              </Text>
-            </View>
-          </View>
-
-          <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
-            <Image
-              source={verticalline}
-              className="h-24 mt-3" // add negative margin-top
-              resizeMode="contain"
-            />
-
-            <View className="flex-col gap-5">
-              <View className="flex-col gap-1">
-                <Text
-                  className="text-[#164F90] text-[18px] font-bold"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {applanguage === "eng"
-                    ? Translations.eng.pick_up
-                    : Translations.arb.pick_up}{" "}
-                </Text>
-                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
-                  {pickuploaction}
-                </Text>
+                <View>
+                  <Text
+                    className="text-[#164F90] text-[18px] font-bold"
+                    style={{ fontFamily: "Lato" }}
+                  >
+                    {applanguage === "eng"
+                      ? Translations.eng.total
+                      : Translations.arb.total}{" "}
+                    : {price}
+                  </Text>
+                  <Text className="text-[14px]" style={{ fontFamily: "Lato" }}>
+                    {pickupdate} {time}{" "}
+                  </Text>
+                </View>
               </View>
 
-              <View className="flex-col gap-1">
-                <Text
-                  className="text-[#164F90] text-[18px] font-bold"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {applanguage === "eng"
-                    ? Translations.eng.drop_off
-                    : Translations.arb.drop_off}{" "}
-                </Text>
-                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
-                  Airport
-                </Text>
+              <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
+                <Image
+                  source={verticalline}
+                  className="h-24 mt-3" // add negative margin-top
+                  resizeMode="contain"
+                />
+
+                <View className="flex-col gap-5">
+                  <View className="flex-col gap-1">
+                    <Text
+                      className="text-[#164F90] text-[18px] font-bold"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {applanguage === "eng"
+                        ? Translations.eng.pick_up
+                        : Translations.arb.pick_up}{" "}
+                    </Text>
+                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                      {pickuploaction}
+                    </Text>
+                  </View>
+
+                  <View className="flex-col gap-1">
+                    <Text
+                      className="text-[#164F90] text-[18px] font-bold"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {applanguage === "eng"
+                        ? Translations.eng.drop_off
+                        : Translations.arb.drop_off}{" "}
+                    </Text>
+                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                      Airport
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
+
+              <View className="flex flex-row justify-center">
+                <SwipeButton
+                  title="Swipe Right to Book"
+                  thumbIconBackgroundColor="#FFB648"
+                  thumbIconWidth={60}
+                  thumbIconBorderColor="#FFB800"
+                  thumbIconComponent={() => (
+                    <AntDesign name="arrowright" size={24} color="#164F90" />
+                  )}
+                  railBackgroundColor="white"
+                  railBorderColor="#A6A6A6"
+                  railFillBackgroundColor="#FFB800"
+                  railFillBorderColor="#FFB800"
+                  titleColor="#000"
+                  titleFontSize={16}
+                  containerStyles={{
+                    width: "95%", // Ensure the button is wide enough
+                    alignSelf: "center", // Center it horizontally
+                  }}
+                  onSwipeSuccess={() => {
+                    console.log("Booking Confirmed!");
+
+                    if (locationrefRBSheet.current) {
+                      locationrefRBSheet.current.close();
+                    }
+
+                    if (paymentUrl) {
+                      router.push({
+                        pathname: "/home/payment",
+                        params: { paymentUrl, orderId },
+                      });
+                    } else {
+                      console.error("No payment URL found");
+                    }
+                  }}
+                />
               </View>
             </View>
-          </View>
-
-          <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
-
-          <View className="flex flex-row justify-center">
-            <SwipeButton
-              title="Swipe Right to Book"
-              thumbIconBackgroundColor="#FFB648"
-              thumbIconWidth={60}
-              thumbIconBorderColor="#FFB800"
-              thumbIconComponent={() => (
-                <AntDesign name="arrowright" size={24} color="#164F90" />
-              )}
-              railBackgroundColor="white"
-              railBorderColor="#A6A6A6"
-              railFillBackgroundColor="#FFB800"
-              railFillBorderColor="#FFB800"
-              titleColor="#000"
-              titleFontSize={16}
-              containerStyles={{
-                width: "95%", // Ensure the button is wide enough
-                alignSelf: "center", // Center it horizontally
-              }}
-              onSwipeSuccess={() => {
-                console.log("Booking Confirmed!");
-
-                if (locationrefRBSheet.current) {
-                  locationrefRBSheet.current.close();
-                }
-
-                if (paymentUrl) {
-                  router.push({
-                    pathname: "/home/payment",
-                    params: { paymentUrl, orderId },
-                  });
-                } else {
-                  console.error("No payment URL found");
-                }
-              }}
-            />
-          </View>
-        </View> :
+          </ScrollView> :
           <BookingSkeleton />
         }
       </RBSheet>
@@ -802,7 +829,8 @@ const selectlocation = () => {
             }
 
             <TouchableOpacity
-              onPress={() => addressRefRBSheet.current?.open()}
+              // onPress={() => addressRefRBSheet.current?.open()}
+              onPress={() => formik.handleSubmit()}
               disabled={loading}
               className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
             >

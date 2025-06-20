@@ -90,6 +90,7 @@ const selectlocation = () => {
 
   const [hasVisited, setHasVisited] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [coards,setCoards]=useState({})
 
   useEffect(() => {
     const checkVisit = async () => {
@@ -145,6 +146,7 @@ const selectlocation = () => {
   const onRegionChangeComplete = async (newRegion) => {
     setRegion(newRegion);
     try {
+      setCoards({userLat:newRegion.latitude,userLng:newRegion.longitude})
       const [geo] = await Location.reverseGeocodeAsync({
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
@@ -224,25 +226,28 @@ const selectlocation = () => {
       searchLocation;
       // Include additional data for the API call
       const requestData = {
-        ...values,
+        // ...values,
         // date,
         // time,
         // personsCount: parsedPersonsCount,
         // baggageCount: parsedBaggageCount
         // baggagePictures: parsedBaggagePictures,
 
-        pickUpLocation: "hyd",
-        date: "09-06-2025",
-        pickUpTimings: "07:00 AM",
-        personsCount: "1",
-        baggageCount: "1",
+        pickUpLocation: address,
+        userLat:coards.userLat,
+        userLng:coards.userLng,
+        date: date,
+        pickUpTimings: time,
+        personsCount: personsCount,
+        baggageCount: baggageCount,
         CallBackUrl: "flythru://home/paymentsuccess",
         ErrorUrl: "flythru://home/paymentfailed",
       };
       console.log("values CREATE ORDER", requestData);
 
       const success = await paymentApi(requestData);
-      if (success) {
+      if (success) {setShowSuccess(true)
+
         locationrefRBSheet.current?.open();
       }
 
@@ -295,7 +300,7 @@ const selectlocation = () => {
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
-      setShowSuccess(true);
+      // setShowSuccess(true);
 
       console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
@@ -423,7 +428,7 @@ const selectlocation = () => {
         closeOnDragDown={true}
         closeOnPressMask={true}
         draggable={true}
-        height={Dimensions.get("window").height / 2}
+        height={Dimensions.get("window").height / 1.8}
         // height={200}
         customStyles={{
           wrapper: {
@@ -434,7 +439,9 @@ const selectlocation = () => {
           },
         }}
       >
-        {paymentUrl ? <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+        {paymentUrl ? 
+          <ScrollView>
+        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
           <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
             <View className="flex flex-row ">
               {/* <Image
@@ -547,7 +554,9 @@ const selectlocation = () => {
               }}
             />
           </View>
-        </View> : <BookingSkeleton />}
+        </View> 
+          </ScrollView>
+        : <BookingSkeleton />}
       </RBSheet>
 
       <View>
@@ -602,10 +611,11 @@ const selectlocation = () => {
                   ? Translations.eng.select_location
                   : Translations.arb.select_location
               }
-              className="flex-1 h-[30px]"
+              className="flex-1 h-[30px] text-black"
               placeholderTextColor="#2D2A29"
               value={formik.values.pickUpLocation}
               onChangeText={handleLocationInput}
+              editable={false}
             />
 
             <TouchableOpacity onPress={searchLocation}>
