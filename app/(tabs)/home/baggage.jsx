@@ -43,7 +43,8 @@ const baggage = () => {
   const numberOfPersons = (type) => {
     const numericPersons = parseInt(persons, 10) || 0;
 
-    if (type === "increase" && numericPersons < 10) {
+    // if (type === "increase" && numericPersons < 10) {
+    if (type === "increase") {
       const newValue = numericPersons + 1;
       setPersons(newValue.toString());
       formik.setFieldValue("personsCount", newValue);
@@ -57,7 +58,8 @@ const baggage = () => {
  const numberOfBags = (type) => {
   const numericBags = parseInt(bags, 10) || 0;
 
-  if (type === "increasebags" && numericBags < 10) {
+  // if (type === "increasebags" && numericBags < 10) {
+  if (type === "increasebags") {
     const newValue = numericBags + 1;
     setBags(newValue.toString());
     formik.setFieldValue("baggageCount", newValue);

@@ -667,6 +667,7 @@ const Search = () => {
               );
 
               return (
+                flight.arrival.scheduled ? 
                 <TouchableOpacity
                   key={`special-${index}`}
                   // onPress={() => {
@@ -802,6 +803,101 @@ const Search = () => {
                             : formatDate(flight.arrival?.scheduled) || "N/A"}
                         </Text>
                       </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                :
+                <TouchableOpacity
+                  key={`special-${index}`}
+                 
+                  onPress={() => {
+                    if (isLoggedIn) {
+                      console.log("Navigating to baggage...");
+                      router.push({
+                        pathname: "/home/baggage",
+                        params: {
+                          flightData: JSON.stringify(flight),
+                          departureDate: departureDate,
+                          departureTime: departureTime,
+                        },
+                      });
+                    } else {
+                      setShowLoginPopup(true);
+                    }
+                  }}
+                  className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
+                >
+                  {/* Flight Header */}
+
+                  {/* Divider */}
+                  {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
+
+                  <View className="w-full px-2">
+                    <Image
+                      source={jazeera}
+                      className="h-11 self-center mt-3"
+                      resizeMode="contain"
+                    />
+                  </View>
+
+                  {/* Flight Details */}
+                  <View
+                    className="flex-row justify-between items-center pt-1 pb-6 px-5 "
+                    style={{ fontFamily: "lato" }}
+                  >
+                    {/* Departure */}
+                    <View className="items-start w-24 ">
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        className="text-[#003C71] font-bold text-center text-[18px] "
+                      >
+                        {flight.departure?.iata.toUpperCase() || "N/A"}
+                      </Text>
+                      
+                    </View>
+
+                    <View
+                      className="flex-1 items-center h-full mt-"
+                      style={{ fontFamily: "lato" }}
+                    >
+                      <Text className="text-[#000000] text-[14px] font-bold">
+                        {flight.flight?.number || "N/A"}
+                      </Text>
+                      <View className="w-full flex-row items-center justify-center mt-2">
+                        <View className="relative flex-row items-center w-full px-1">
+                          {/* Plane icon at start */}
+                          <FontAwesome5
+                            name="plane"
+                            size={16}
+                            color="#164F90"
+                            className="z-10"
+                          />
+
+                          {/* Grey line */}
+                          <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+                          {/* Small grey circle at end */}
+                          <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                        </View>
+                      </View>
+
+                      {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
+                    </View>
+
+                    {/* Arrival */}
+                    <View
+                      className="items-end w-24"
+                      style={{ fontFamily: "lato" }}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        className="text-[#003C71] font-bold  text-[18px] "
+                      >
+                        {flight.arrival?.iata.toUpperCase() || "N/A"}
+                      </Text>
+                      
                     </View>
                   </View>
                 </TouchableOpacity>

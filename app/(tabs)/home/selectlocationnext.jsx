@@ -90,7 +90,14 @@ const selectlocation = () => {
 
   const [hasVisited, setHasVisited] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [coards,setCoards]=useState({})
+  const [coards, setCoards] = useState({})
+  const [markerCoards, setMarkerCoards] = useState({
+    latitude: 37.78825, // or any initial value
+    longitude: -122.4324,
+  });
+
+  const [isMapReady, setIsMapReady] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const checkVisit = async () => {
@@ -146,11 +153,12 @@ const selectlocation = () => {
   const onRegionChangeComplete = async (newRegion) => {
     setRegion(newRegion);
     try {
-      setCoards({userLat:newRegion.latitude,userLng:newRegion.longitude})
+      setCoards({ userLat: newRegion.latitude, userLng: newRegion.longitude })
       const [geo] = await Location.reverseGeocodeAsync({
         latitude: newRegion.latitude,
         longitude: newRegion.longitude,
       });
+      setMarkerCoards({ latitude: newRegion.latitude, longitude: newRegion.longitude })
       const formattedAddress = `${geo?.name || ""} ${geo?.street || ""}, ${geo?.city || ""
         }`;
       setAddress(formattedAddress);
@@ -159,6 +167,10 @@ const selectlocation = () => {
       console.error("Reverse Geocode Error", error);
     }
   };
+
+
+
+
 
   const searchLocation = async () => {
     const text = formik.values.pickUpLocation;
@@ -195,7 +207,7 @@ const selectlocation = () => {
       try {
         const res = await ALL_ADDRESS(token);
         const raw = res?.data?.addresses || [];
-        console.log("raw",raw)
+        console.log("raw", raw)
 
         const mapped = raw.map((addr) => ({
           label: `${addr.addressName}`,
@@ -235,8 +247,8 @@ const selectlocation = () => {
         // baggagePictures: parsedBaggagePictures,
 
         pickUpLocation: address,
-        userLat:coards.userLat,
-        userLng:coards.userLng,
+        userLat: coards.userLat,
+        userLng: coards.userLng,
         date: date,
         pickUpTimings: time,
         personsCount: personsCount,
@@ -247,7 +259,8 @@ const selectlocation = () => {
       console.log("values CREATE ORDER", requestData);
 
       const success = await paymentApi(requestData);
-      if (success) {setShowSuccess(true)
+      if (success) {
+        setShowSuccess(true)
 
         locationrefRBSheet.current?.open();
       }
@@ -365,12 +378,12 @@ const selectlocation = () => {
       {/* Header Background Image */}
       {/* {handlelocation()} */}
 
-      {showSuccess && (
+      {/* {showSuccess && (
         <SuccessModal
           visible={showSuccess}
           onClose={() => setShowSuccess(false)}
         />
-      )}
+      )} */}
 
       <RBSheet
         ref={addressRefRBSheet}
@@ -390,9 +403,9 @@ const selectlocation = () => {
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6 w-[90%] m-auto">
           {/* Address Header */}
-          <View className="mt-7">
+          <View className="mt-4">
             <Text
-              className="text-[16px] text-[#666868]"
+              className="text-[16px] pb-2"
               style={{ fontFamily: "Lato" }}
             >
               {formik.values.pickUpLocation || "No address selected"}
@@ -441,124 +454,124 @@ const selectlocation = () => {
           },
         }}
       >
-        {paymentUrl ? 
+        {paymentUrl ?
           <ScrollView>
-        <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
-          <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
-            <View className="flex flex-row ">
-              {/* <Image
+            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+              <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
+                <View className="flex flex-row ">
+                  {/* <Image
                 source={dp}
                 className="h-16 w-16 rounded-full mr-4"
                 resizeMode="cover" 
               /> */}
 
-              <View>
-                <Text
-                  className=" text-[24px] font-thin"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {userName}
-                </Text>
-                {/* <Text>Dubai</Text> */}
-              </View>
-            </View>
+                  <View>
+                    <Text
+                      className=" text-[24px] font-thin"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {userName}
+                    </Text>
+                    {/* <Text>Dubai</Text> */}
+                  </View>
+                </View>
 
-            <View>
-              <Text
-                className="text-[#164F90] text-[18px] font-bold"
-                style={{ fontFamily: "Lato" }}
-              >
-                {applanguage === "eng"
-                  ? Translations.eng.total
-                  : Translations.arb.total}{" "}
-                : {price}
-              </Text>
-              <Text className="text-[14px]" style={{ fontFamily: "Lato" }}>
-                {pickupdate} {time}{" "}
-              </Text>
-            </View>
-          </View>
-
-          <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
-            <Image
-              source={verticalline}
-              className="h-24 mt-3" // add negative margin-top
-              resizeMode="contain"
-            />
-
-            <View className="flex-col gap-5">
-              <View className="flex-col gap-1">
-                <Text
-                  className="text-[#164F90] text-[18px] font-bold"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {applanguage === "eng"
-                    ? Translations.eng.pick_up
-                    : Translations.arb.pick_up}{" "}
-                </Text>
-                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
-                  {pickuploaction}
-                </Text>
+                <View>
+                  <Text
+                    className="text-[#164F90] text-[18px] font-bold"
+                    style={{ fontFamily: "Lato" }}
+                  >
+                    {applanguage === "eng"
+                      ? Translations.eng.total
+                      : Translations.arb.total}{" "}
+                    : {price}
+                  </Text>
+                  <Text className="text-[14px]" style={{ fontFamily: "Lato" }}>
+                    {pickupdate} {time}{" "}
+                  </Text>
+                </View>
               </View>
 
-              <View className="flex-col gap-1">
-                <Text
-                  className="text-[#164F90] text-[18px] font-bold"
-                  style={{ fontFamily: "Lato" }}
-                >
-                  {applanguage === "eng"
-                    ? Translations.eng.drop_off
-                    : Translations.arb.drop_off}{" "}
-                </Text>
-                <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
-                  Airport
-                </Text>
+              <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
+                <Image
+                  source={verticalline}
+                  className="h-24 mt-3" // add negative margin-top
+                  resizeMode="contain"
+                />
+
+                <View className="flex-col gap-5">
+                  <View className="flex-col gap-1">
+                    <Text
+                      className="text-[#164F90] text-[18px] font-bold"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {applanguage === "eng"
+                        ? Translations.eng.pick_up
+                        : Translations.arb.pick_up}{" "}
+                    </Text>
+                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                      {pickuploaction}
+                    </Text>
+                  </View>
+
+                  <View className="flex-col gap-1">
+                    <Text
+                      className="text-[#164F90] text-[18px] font-bold"
+                      style={{ fontFamily: "Lato" }}
+                    >
+                      {applanguage === "eng"
+                        ? Translations.eng.drop_off
+                        : Translations.arb.drop_off}{" "}
+                    </Text>
+                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                      Airport
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
+
+              <View className="flex flex-row justify-center">
+                <SwipeButton
+                  title="Swipe Right to Book"
+                  thumbIconBackgroundColor="#FFB648"
+                  thumbIconWidth={60}
+                  thumbIconBorderColor="#FFB800"
+                  thumbIconComponent={() => (
+                    <AntDesign name="arrowright" size={24} color="#164F90" />
+                  )}
+                  railBackgroundColor="white"
+                  railBorderColor="#A6A6A6"
+                  railFillBackgroundColor="#FFB800"
+                  railFillBorderColor="#FFB800"
+                  titleColor="#000"
+                  titleFontSize={16}
+                  containerStyles={{
+                    width: "95%", // Ensure the button is wide enough
+                    alignSelf: "center", // Center it horizontally
+                  }}
+                  onSwipeSuccess={() => {
+                    console.log("Booking Confirmed!");
+
+                    if (locationrefRBSheet.current) {
+                      locationrefRBSheet.current.close();
+                    }
+
+                    if (paymentUrl) {
+                      router.push({
+                        pathname: "/home/payment",
+                        params: { paymentUrl, orderId },
+                      });
+                    } else {
+                      console.error("No payment URL found");
+                    }
+                  }}
+                />
               </View>
             </View>
-          </View>
-
-          <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
-
-          <View className="flex flex-row justify-center">
-            <SwipeButton
-              title="Swipe Right to Book"
-              thumbIconBackgroundColor="#FFB648"
-              thumbIconWidth={60}
-              thumbIconBorderColor="#FFB800"
-              thumbIconComponent={() => (
-                <AntDesign name="arrowright" size={24} color="#164F90" />
-              )}
-              railBackgroundColor="white"
-              railBorderColor="#A6A6A6"
-              railFillBackgroundColor="#FFB800"
-              railFillBorderColor="#FFB800"
-              titleColor="#000"
-              titleFontSize={16}
-              containerStyles={{
-                width: "95%", // Ensure the button is wide enough
-                alignSelf: "center", // Center it horizontally
-              }}
-              onSwipeSuccess={() => {
-                console.log("Booking Confirmed!");
-
-                if (locationrefRBSheet.current) {
-                  locationrefRBSheet.current.close();
-                }
-
-                if (paymentUrl) {
-                  router.push({
-                    pathname: "/home/payment",
-                    params: { paymentUrl, orderId },
-                  });
-                } else {
-                  console.error("No payment URL found");
-                }
-              }}
-            />
-          </View>
-        </View> 
           </ScrollView>
-        : <BookingSkeleton />}
+          : <BookingSkeleton />}
       </RBSheet>
 
       <View>
@@ -602,11 +615,11 @@ const selectlocation = () => {
           shadowRadius: 3.84,
         }}
       >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-          >
-        <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
             <TextInput
               placeholder={
                 applanguage === "eng"
@@ -631,10 +644,10 @@ const selectlocation = () => {
                   borderRadius: 12,
                   marginLeft: 8,
                 }}
-                />
+              />
             </TouchableOpacity>
-        </View>
-                </KeyboardAvoidingView>
+          </View>
+        </KeyboardAvoidingView>
 
         {formik.touched.pickUpLocation && formik.errors.pickUpLocation && (
           <Text
@@ -657,36 +670,7 @@ const selectlocation = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      {/* Safe Area Content */}
-      {/* <ScrollView className="flex-1" contentContainerStyle={{}}>
-         
 
-        
-
-        </ScrollView> */}
-      {/* <View style={styles.mapContainer}>
-        {longitude && latitude ? (
-          <MapView
-            style={styles.map}
-            showsUserLocation={true}
-            region={{
-              latitude: markerCoords?.latitude || latitude,
-              longitude: markerCoords?.longitude || longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            }}
-          >
-            <Marker
-              coordinate={{
-                latitude: markerCoords?.latitude || latitude,
-                longitude: markerCoords?.longitude || longitude,
-              }}
-            />
-          </MapView>
-        ) : (
-          <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text> // Show a placeholder while location is being fetched
-        )}
-      </View> */}
 
       <View style={styles.mapContainer}>
         {!loading ? (
@@ -696,18 +680,22 @@ const selectlocation = () => {
               region={region}
               onRegionChangeComplete={onRegionChangeComplete}
               showsUserLocation={true}
-            />
+              showsMyLocationButton={true}
+              zoomEnabled={true}
 
-            <View style={styles.centerMarker}>
-              <Ionicons name="location-sharp" size={32} color="#194F90" />
-            </View>
+            >
+              <Marker
+                coordinate={{
+                  latitude: markerCoards.latitude,
+                  longitude: markerCoards.longitude,
+                }}
+              />
+            </MapView>
           </>
         ) : (
           <Text>Loading Map...</Text>
         )}
       </View>
-
-      {/* <Image source={mapimg} className="h-full " /> */}
     </View>
   );
 };

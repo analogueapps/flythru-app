@@ -79,7 +79,7 @@ const selectlocation = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loader, setLoader] = useState(false)
 
-const [alertActive, setAlertActive] = useState(false);
+  const [alertActive, setAlertActive] = useState(false);
   const addressRefRBSheet = useRef();
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
@@ -236,132 +236,131 @@ const [alertActive, setAlertActive] = useState(false);
 
 
 
-// const searchLocation = async () => {
-//   const text = formik.values.pickUpLocation;
+  // const searchLocation = async () => {
+  //   const text = formik.values.pickUpLocation;
 
-//   if (text.length > 2) {
-//     try {
-//       const results = await Location.geocodeAsync(text);
+  //   if (text.length > 2) {
+  //     try {
+  //       const results = await Location.geocodeAsync(text);
 
-//       if (results.length > 0) {
-//         const { latitude, longitude } = results[0];
-//         console.log("📍 Searched Location:");
-//         console.log("Latitude:", latitude);
-//         console.log("Longitude:", longitude);
+  //       if (results.length > 0) {
+  //         const { latitude, longitude } = results[0];
+  //         console.log("📍 Searched Location:");
+  //         console.log("Latitude:", latitude);
+  //         console.log("Longitude:", longitude);
 
-//         setMarkerCoords({ latitude, longitude });
-//         return; // exit early if valid
-//       } else {
-//         handleFallbackToCurrentLocation(); // No results
-//       }
-//     } catch (error) {
-//       console.error("Geocoding error:", error);
-//       handleFallbackToCurrentLocation();
-//     }
-//   } else {
-//   Alert.alert(
-//   "Address is Required",
-//   "Please enter a valid pickup location.",
-//   [
-//     {
-//       text: "OK",
-//       onPress: () => {
-//         addressRefRBSheet.current?.open();
-//         setAlertActive(false);
-//       },
-//     },
-//   ]
-// );
+  //         setMarkerCoords({ latitude, longitude });
+  //         return; // exit early if valid
+  //       } else {
+  //         handleFallbackToCurrentLocation(); // No results
+  //       }
+  //     } catch (error) {
+  //       console.error("Geocoding error:", error);
+  //       handleFallbackToCurrentLocation();
+  //     }
+  //   } else {
+  //   Alert.alert(
+  //   "Address is Required",
+  //   "Please enter a valid pickup location.",
+  //   [
+  //     {
+  //       text: "OK",
+  //       onPress: () => {
+  //         addressRefRBSheet.current?.open();
+  //         setAlertActive(false);
+  //       },
+  //     },
+  //   ]
+  // );
 
-    
-//   }
-// };
 
-const searchLocation = async () => {
-  const text = formik.values.pickUpLocation;
+  //   }
+  // };
 
-  if (text.length <= 2) {
-    Alert.alert(
-      "Address is Required",
-      "Please enter a valid pickup location.",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            // Do NOT open the RBSheet here
+  const searchLocation = async () => {
+    const text = formik.values.pickUpLocation;
+
+    if (text.length <= 2) {
+      Alert.alert(
+        "Address is Required",
+        "Please enter a valid pickup location.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Do NOT open the RBSheet here
+            },
           },
-        },
-      ]
-    );
-    return;
-  }
-
-  try {
-    const results = await Location.geocodeAsync(text);
-
-    if (results.length > 0) {
-      const { latitude, longitude } = results[0];
-      console.log("📍 Searched Location:");
-      console.log("Latitude:", latitude);
-      console.log("Longitude:", longitude);
-
-      setMarkerCoords({ latitude, longitude });
-
-      // ✅ Open RBSheet only after successful location search
-      addressRefRBSheet.current?.open();
-    } else {
-      await handleFallbackToCurrentLocation();
-    }
-  } catch (error) {
-    console.error("Geocoding error:", error);
-    await handleFallbackToCurrentLocation();
-  }
-};
-
-
-
-const handleFallbackToCurrentLocation = async () => {
-  try {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-
-    if (status !== "granted") {
-      Alert.alert("Permission Denied", "Location permission is required to use current location.");
+        ]
+      );
       return;
     }
 
-    const currentLocation = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = currentLocation.coords;
+    try {
+      const results = await Location.geocodeAsync(text);
 
-    console.log("📍 Current Device Location:");
-    console.log("Latitude:", latitude);
-    console.log("Longitude:", longitude);
+      if (results.length > 0) {
+        const { latitude, longitude } = results[0];
+        console.log("📍 Searched Location:");
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
 
-    const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+        setMarkerCoords({ latitude, longitude });
 
-    const fullAddress = `${address.name || ""}, ${address.street || ""}, ${
-      address.city || address.subregion || ""
-    }, ${address.region || ""}`.replace(/, ,/g, ",").trim();
+        // ✅ Open RBSheet only after successful location search
+        addressRefRBSheet.current?.open();
+      } else {
+        await handleFallbackToCurrentLocation();
+      }
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      await handleFallbackToCurrentLocation();
+    }
+  };
 
-    setMarkerCoords({ latitude, longitude });
-    formik.setFieldValue("pickUpLocation", fullAddress);
 
-    Alert.alert(
-      "Invalid Location",
-      "We couldn't find that location. Using your current location instead.",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            addressRefRBSheet.current?.open();
+
+  const handleFallbackToCurrentLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        Alert.alert("Permission Denied", "Location permission is required to use current location.");
+        return;
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = currentLocation.coords;
+
+      console.log("📍 Current Device Location:");
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+
+      const [address] = await Location.reverseGeocodeAsync({ latitude, longitude });
+
+      const fullAddress = `${address.name || ""}, ${address.street || ""}, ${address.city || address.subregion || ""
+        }, ${address.region || ""}`.replace(/, ,/g, ",").trim();
+
+      setMarkerCoords({ latitude, longitude });
+      formik.setFieldValue("pickUpLocation", fullAddress);
+
+      Alert.alert(
+        "Invalid Location",
+        "We couldn't find that location. Using your current location instead.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              addressRefRBSheet.current?.open();
+            },
           },
-        },
-      ]
-    );
-  } catch (error) {
-    console.error("Reverse geocoding error:", error);
-    Alert.alert("Error", "Could not retrieve your current location. Please try again.");
-  }
-};
+        ]
+      );
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      Alert.alert("Error", "Could not retrieve your current location. Please try again.");
+    }
+  };
 
 
   const handleLocationInput = (text) => {
@@ -459,22 +458,23 @@ const handleFallbackToCurrentLocation = async () => {
 
     try {
       const res = await PAYEMNT_API(values, token);
- 
+
       console.log("Payment API Response:", res.data);
 
       const orderIdFromRes = res.data.orderId;
       const userIdFromRes = res.data.baggage?.userId;
       const baggageIdFromRes = res.data.baggage?.id;
-
+      setUserName(res.data.baggage.name)
       setPrice(res.data.price);
-      setPickupdate(res.data.date);
+      setPickupdate(res.data.baggage.date);
+      setPickupdate(res.data.baggage.date);
       setPickuploaction(res.data.baggage.pickUpLocation);
       setOrderId(orderIdFromRes);
       setUserId(userIdFromRes);
       setBaggageId(baggageIdFromRes);
       setPaymentUrl(res?.data?.paymentUrl);
       // setShowSuccess(true)
-      console.log("okieeeeeeeeeeeeeee", paymentUrl);
+      // console.log("okieeeeeeeeeeeeeee", paymentUrl);
 
       // Toast.show({
       //   type: "success",
@@ -551,14 +551,7 @@ const handleFallbackToCurrentLocation = async () => {
   }, []);
 
 
-  useEffect(() => {
-    const fetchUserName = async () => {
-      const name = await getUserName();
-      setUserName(name);
-      console.log("User name set:", name);
-    };
-    fetchUserName();
-  }, []);
+
 
   useEffect(() => {
     console.log("pickUpLocation updated:", formik.values.pickUpLocation);
@@ -568,12 +561,12 @@ const handleFallbackToCurrentLocation = async () => {
     <View className="flex-1">
       {/* Header Background Image */}
       {/* {handlelocation()} */}
-      {showSuccess && (
+      {/* {showSuccess && (
         <SuccessModal
           visible={showSuccess}
           onClose={() => { setShowSuccess(false); locationrefRBSheet.current?.open(); }}
         />
-      )}
+      )} */}
       <RBSheet
         ref={addressRefRBSheet}
         closeOnDragDown={true}
@@ -592,61 +585,63 @@ const handleFallbackToCurrentLocation = async () => {
       >
         <View className="p-3 rounded-2xl flex-col gap-y-6 w-[90%] m-auto">
           {/* Address Header */}
-         <ScrollView showsVerticalScrollIndicator={false}>
-           <View className="mt-7">
-            <Text
-              className="text-[16px] text-[#666868]"
-              style={{ fontFamily: "Lato" }}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View className="mt-4">
+              <Text
+                className="text-[16px] pb-2"
+                style={{ fontFamily: "Lato" }}
+              >
+                {formik.values.pickUpLocation || "No address selected"}
+              </Text>
+            </View>
+
+            {/* Divider */}
+            <View className="flex-1 h-[1px] w-[90%] mx-auto border-t border-[#00000026] relative" />
+
+            {/* Select Address Button */}
+            <TouchableOpacity
+              onPress={async () => {
+                const requestData = {
+                  ...formik.values,
+                  date,
+                  personsCount: parsedPersonsCount,
+                  baggageCount: parsedBaggageCount,
+                  baggagePictures: parsedBaggagePictures,
+                  CallBackUrl: "flythru://home/paymentsuccess",
+                  ErrorUrl: "flythru://home/paymentfailed",
+                };
+
+                console.log("values CREATE ORDER", requestData);
+
+                const success = await paymentApi(requestData);
+                if (success) {
+                  setShowSuccess(true)
+
+                  addressRefRBSheet.current?.close();
+
+                  setTimeout(() => {
+                    // ✅ open location sheet manually
+                    locationrefRBSheet.current?.open();
+                  }, 2000);
+                }
+                // setTimeout(() => {
+                //   // formik.handleSubmit();
+                //   locationrefRBSheet.current?.open(); // ✅ open location sheet manually
+                // }, 500); // Give time for address sheet to close smoothly
+              }}
+              className="bg-[#FFB648] rounded-lg w-[80%] h-11 mx-auto mt-4 flex items-center justify-center"
+              disabled={loader}
             >
-              {formik.values.pickUpLocation || "No address selected"}
-            </Text>
-          </View>
-
-          {/* Divider */}
-          <View className="flex-1 h-[1px] w-[90%] mx-auto border-t border-[#00000026] relative" />
-
-          {/* Select Address Button */}
-          <TouchableOpacity
-            onPress={async () => {
-              const requestData = {
-                ...formik.values,
-                date,
-                personsCount: parsedPersonsCount,
-                baggageCount: parsedBaggageCount,
-                baggagePictures: parsedBaggagePictures,
-                CallBackUrl: "flythru://home/paymentsuccess",
-                ErrorUrl: "flythru://home/paymentfailed",
-              };
-
-              console.log("values CREATE ORDER", requestData);
-
-              const success = await paymentApi(requestData);
-              if (success) {
-                setShowSuccess(true)
-
-                addressRefRBSheet.current?.close();
-                setTimeout(() => {
-                  // ✅ open location sheet manually
-                }, 2000);
-              }
-              // setTimeout(() => {
-              //   // formik.handleSubmit();
-              //   locationrefRBSheet.current?.open(); // ✅ open location sheet manually
-              // }, 500); // Give time for address sheet to close smoothly
-            }}
-            className="bg-[#FFB648] rounded-lg w-[80%] h-11 mx-auto mt-4 flex items-center justify-center"
-            disabled={loader}
-          >
-            {!loader ? <Text
-              className="text-center  text-[#164F90] font-bold text-lg"
-              style={{ fontFamily: "Lato" }}
-            >
-              {applanguage === "eng"
-                ? Translations.eng.select_address
-                : Translations.arb.select_address}
-            </Text> : <ActivityIndicator size="small" color="white" />}
-          </TouchableOpacity>
-         </ScrollView>
+              {!loader ? <Text
+                className="text-center  text-[#164F90] font-bold text-lg"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.select_address
+                  : Translations.arb.select_address}
+              </Text> : <ActivityIndicator size="small" color="white" />}
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </RBSheet>
 
@@ -929,8 +924,16 @@ const handleFallbackToCurrentLocation = async () => {
                     keyboardShouldPersistTaps="handled"
                   >
                     {[
-                      { label: "Select from map", action: "map" },
-                      { label: "Enter manually", action: "manual" },
+                      {
+                        label: applanguage === "eng"
+                          ? Translations.eng.select_from_map
+                          : Translations.arb.select_from_map, action: "map"
+                      },
+                      {
+                        label: applanguage === "eng"
+                          ? Translations.eng.enter_manually
+                          : Translations.arb.enter_manually, action: "manual"
+                      },
                       ...(filteredAddresses.length > 0
                         ? filteredAddresses.map((item) => ({
                           label: item.label,
@@ -978,14 +981,14 @@ const handleFallbackToCurrentLocation = async () => {
             </TouchableOpacity>  */}
 
             <TouchableOpacity
-  onPress={searchLocation}
-  disabled={loading}
-  className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
->
-  <Text className="text-center text-[#164F90] font-bold text-lg">
-    {applanguage === "eng" ? Translations.eng.search : Translations.arb.search}
-  </Text>
-</TouchableOpacity>
+              onPress={searchLocation}
+              disabled={loading}
+              className="bg-[#FFB648] z-10 rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
+            >
+              <Text className="text-center text-[#164F90] font-bold text-lg">
+                {applanguage === "eng" ? Translations.eng.search : Translations.arb.search}
+              </Text>
+            </TouchableOpacity>
 
           </KeyboardAvoidingView>
 
@@ -1014,7 +1017,7 @@ const handleFallbackToCurrentLocation = async () => {
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
-          > 
+          >
             <Marker
               coordinate={{
                 latitude: markerCoords?.latitude || latitude,

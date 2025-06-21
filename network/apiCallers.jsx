@@ -190,6 +190,8 @@ export const RESEND_OTP = async (token) => {
 };
 
 export const CANCELLATION = async (data, token, bookingId) => {
+  console.log(data, token, bookingId);
+  
   return await axios.post(
     `${LOCAL_URL}/payment/cancelbooking`,
     { ...data, bookingId }, // 👈 Combine data and bookingId in the body
@@ -197,6 +199,7 @@ export const CANCELLATION = async (data, token, bookingId) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      validateStatus:()=>true
     }
   );
 };

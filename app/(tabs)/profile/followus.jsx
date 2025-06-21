@@ -73,11 +73,11 @@ const openLink = (url) => {
 
 
 const socialLinks = [
-  { name: "Instagram", icon: instagramImg, url: links.instagram },
-  { name: "Facebook", icon: facebookImg, url: links.facebook },
-  { name: "LinkedIn", icon: linkdinImg, url: links.linkedin },
-  { name: "Twitter", icon: xImg, url: links.twitter },
-  { name: "YouTube", icon: youtubeImg, url: links.youtube },
+  { name: applanguage === "eng" ? Translations.eng.instagram : Translations.arb.instagram, icon: instagramImg, url: links.instagram },
+  { name: applanguage === "eng" ? Translations.eng.facebook : Translations.arb.facebook, icon: facebookImg, url: links.facebook },
+  { name: applanguage === "eng" ? Translations.eng.linkedIn : Translations.arb.linkedIn, icon: linkdinImg, url: links.linkedin },
+  { name: applanguage === "eng" ? Translations.eng.twitter : Translations.arb.twitter, icon: xImg, url: links.twitter },
+  { name: applanguage === "eng" ? Translations.eng.youtube : Translations.arb.youtube, icon: youtubeImg, url: links.youtube },
 ];
 
   return (

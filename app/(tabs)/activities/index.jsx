@@ -242,18 +242,26 @@ const index = () => {
 
                   <TouchableOpacity
                     onPress={() => {
-                      if (booking.bookingStatus !== "Cancelled") {
-                        router.push("/activities/cancellation");
+                      console.log(booking.bookingStatus);
+                      
+                      if (booking.bookingStatus.toLowerCase() !== "cancelled") {
+                        
+                        // router.push("/activities/cancellation");
+                         router.push({
+                        pathname: "/activities/cancellation",
+                        params: { bookingId: booking._id }, // Use the actual booking ID
+                      })
                       }
                     }}
-                    disabled={booking.bookingStatus === "Cancelled"}
-                    className={`my-4 mx-2 border-2 rounded-xl py-4 px-5 w-[45%] ${booking.bookingStatus === "Cancelled"
+                    
+                    disabled={booking.bookingStatus.toLowerCase() === "cancelled"}
+                    className={`my-4 mx-2 border-2 rounded-xl py-4 px-5 w-[45%] ${booking.bookingStatus.toLowerCase() === "cancelled"
                       ? "border-gray-300 bg-gray-200"
                       : "border-[#164F90]"
                       }`}
                   >
                     <Text
-                      className={`text-center font-semibold ${booking.bookingStatus === "Cancelled" ? "text-gray-400" : "text-[#164F90]"
+                      className={`text-center font-semibold ${booking.bookingStatus.toLowerCase() === "cancelled" ? "text-gray-400" : "text-[#164F90]"
                         }`}
                       style={{ fontFamily: "Lato" }}
                     >
