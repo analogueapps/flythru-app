@@ -23,7 +23,7 @@ const Payment = () => {
   const router = useRouter();
 
   const extractPaymentId = (url) => {
-    const match = url.match(/[?&]PaymentId=([^&]+)/);
+    const match = url.match(/[?&]PaymentID=([^&]+)/);
     return match ? match[1] : null;
   };
 
@@ -61,7 +61,7 @@ const Payment = () => {
     console.log("Current URL:", url);
 
     // Extract and store PaymentId if found
-    if (url.includes("PaymentId=")) {
+    if (url.includes("PaymentID=")) {
       const paymentId = extractPaymentId(url);
       if (paymentId) {
         console.log("Extracted PaymentId:", paymentId);
