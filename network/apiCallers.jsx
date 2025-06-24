@@ -127,6 +127,43 @@ export const OAUTH = async (firebaseToken) => {
   }
 };
 
+export const APPLE_OAUTH = async (appleToken) => {
+  try {
+    console.log("apple OAuth token from API:", appleToken);
+
+    // Send the token to the backend
+    const res = await axios.post(`${LOCAL_URL}/user/apple`, {
+      identityToken: appleToken,
+    });
+
+    // Log the response from the server
+    console.log("Response from OAuth API:", res);
+
+    // Extract the token and userId from the response
+    const authToken = res?.data?.token;
+    const userId = res?.data?.user._id;
+
+    // Check if the token and userId are available
+    if (authToken) {
+      console.log("Saving token and userId...");
+      console.log("Token:349875896589649656", authToken);
+      await saveToken(authToken);
+      await saveUserId(userId);
+
+      // Debug to ensure the token is saved correctly
+      const savedToken = await AsyncStorage.getItem("authToken");
+      console.log("Saved Token after saving:", savedToken); // Verify the token in AsyncStorage
+    } else {
+      console.log("No token or userId in response.");
+    }
+
+    return res;
+  } catch (error) {
+    console.log("apple Login Error:", error);
+    throw error;
+  }
+};
+
 export const VERIFY_OTP = async (data, token) => {
   console.log();
   return await axios.post(`${LOCAL_URL}/user/verifyotp`, data, {

@@ -1,6 +1,7 @@
 import {
   View,
   Text,
+  StyleSheet,
   Pressable,
   Animated,
   Easing,
@@ -10,6 +11,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
+import * as AppleAuthentication from 'expo-apple-authentication';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SvgGoogle from "../../assets/svgs/GoogleIcon";
@@ -18,6 +20,7 @@ import images from "../../constants/images";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
 import {
+  APPLE_OAUTH,
   LOGIN_API,
   OAUTH,
   RESEND_OTP,
@@ -165,12 +168,48 @@ const Index = () => {
   //   }
   // };
 
+const onAppleButtonPress = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // Handle the signed-in user's credentials
+      console.log('Apple credential:', credential);
+
+       try {
+      const res = await APPLE_OAUTH(credential.identityToken);
+      console.log("Apple response:", res);
+ router.replace("/home")
+      await checkLoginStatus();
+     
+      Toast.show({
+        type: "success",
+        text1: res.data.message || "Login successful",
+      });
+    } catch (error) {
+      console.log("Error signing up:", error?.response?.data);
+      Toast.show({
+        type: "error",
+        text1: error?.response?.data?.message || "Login failed",
+      });
+    }
+
+    } catch (e) {
+      if (e.code === 'ERR_REQUEST_CANCELED') {
+        console.log('User canceled Apple Sign-In');
+      } else {
+        console.error('Apple Sign-In Error:', e);
+      }
+    }
+  };
 
 
   async function onGoogleButtonPress() {
     try {
-
-
       console.log("Preessed button");
       // Check if your device supports Google Play
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -780,7 +819,7 @@ const Index = () => {
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                <View className="flex flex-row items-center justify-center gap-x-8 py-10">
+                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
                   <TouchableOpacity
                     onPress={() => onGoogleButtonPress()}
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
@@ -788,6 +827,15 @@ const Index = () => {
                     <SvgGoogle />
                     <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
                       Login with Google
+                    </Text>
+                  </TouchableOpacity>
+                   <TouchableOpacity
+                                      onPress={() => onAppleButtonPress()}
+                                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+>
+                    <SvgApple />
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Signup with Apple
                     </Text>
                   </TouchableOpacity>
                   {/* <TouchableOpacity>
@@ -928,7 +976,7 @@ const Index = () => {
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                <View className="flex flex-row items-center justify-center gap-x-8 py-10">
+                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
                   <TouchableOpacity
                     onPress={() => onGoogleButtonPress()}
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
@@ -938,9 +986,38 @@ const Index = () => {
                       Signup with Google
                     </Text>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity>
+                   {/* <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.Transparent}
+        cornerRadius={5}
+        style={styles.button}
+        onPress={async () => {
+          try {
+            const credential = await AppleAuthentication.signInAsync({
+              requestedScopes: [
+                AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                AppleAuthentication.AppleAuthenticationScope.EMAIL,
+              ],
+            });
+            // signed in
+          } catch (e) {
+            if (e.code === 'ERR_REQUEST_CANCELED') {
+              // handle that the user canceled the sign-in flow
+            } else {
+              // handle other errors
+            }
+          }
+        }}
+      /> */}
+                  <TouchableOpacity
+                                      onPress={() => onAppleButtonPress()}
+                                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+>
                     <SvgApple />
-                  </TouchableOpacity> */}
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Signup with Apple
+                    </Text>
+                  </TouchableOpacity>
                 </View>
                 <TouchableOpacity
                   className="self-center"
@@ -974,3 +1051,23 @@ const Index = () => {
 
 export default Index;
 //////////////////////////////////
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+   borderColor: '#D1D5DB',     // gray-300
+    borderWidth: 5,
+    borderRadius: 12,           // rounded-xl
+    width: '80%',
+    paddingHorizontal: 8,       // p-2 (left & right)
+    paddingTop: 30,             // py-3
+    paddingBottom: 12,
+    flexDirection: 'row',       // flex-row
+    alignItems: 'center',       // items-center
+    justifyContent: 'center',   // justify-center
+    columnGap: 20,
+  },
+});
