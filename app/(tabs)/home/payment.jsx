@@ -8,10 +8,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import paymentload from "../../../assets/images/paymentload.gif";
 import Toast from "react-native-toast-message";
 import { VERIFY_ORDER } from "../../../network/apiCallers";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Payment = () => {
   console.log('jkjkdjfdkdfjkdkjdfkfd ......................fdjgdhjgfdhjgfdhjg');
-  
+
   const webViewRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const paymentIdRef = useRef(null);
@@ -27,6 +28,7 @@ const Payment = () => {
   };
 
   const verifyOrder = async (paymentId) => {
+      const token = await AsyncStorage.getItem("authToken");
     if (verificationAttemptedRef.current || verificationInProgressRef.current) {
       return;
     }
@@ -35,14 +37,14 @@ const Payment = () => {
     verificationAttemptedRef.current = true;
 
     try {
-      const res = await VERIFY_ORDER(orderId, paymentId);
-      console.log("Verify order response:", res.data);
+      const res = await VERIFY_ORDER(orderId, paymentId, token);
+      console.log("Verify order response:", res);
 
       if (res.data.paymentStatus === "Verified") {
         Toast.show({ type: "success", text1: res.data.message });
         router.replace({
           pathname: "/home/paymentsuccess",
-          params: { bookingid:res.data.bookingId },
+          params: { bookingid: res.data.bookingId },
         });
       } else {
         router.replace("/home/paymentfailed");
@@ -57,7 +59,7 @@ const Payment = () => {
 
   const handleUrlChange = (url) => {
     console.log("Current URL:", url);
- 
+
     // Extract and store PaymentId if found
     if (url.includes("PaymentId=")) {
       const paymentId = extractPaymentId(url);
@@ -76,8 +78,10 @@ const Payment = () => {
     }
 
     // Handle success cases
-    const isSuccessUrl =url.includes("/payment/success") || 
-                        url.includes("PayInvoice/Result");
+    // const isSuccessUrl =url.includes("/payment/success") || 
+    //                     url.includes("PayInvoice/Result");
+    const isSuccessUrl = url.includes("/payment/success") ||
+      url.includes("PayInvoice");
 
     if (isSuccessUrl && paymentIdRef.current && !verificationAttemptedRef.current) {
       verifyOrder(paymentIdRef.current);
@@ -108,10 +112,10 @@ const Payment = () => {
         javaScriptEnabled
         domStorageEnabled
         startInLoadingState
-        // onNavigationStateChange={(navState) => {
-        //   // Additional safeguard for navigation changes
-        //   handleUrlChange(navState.url);
-        // }}
+      // onNavigationStateChange={(navState) => {
+      //   // Additional safeguard for navigation changes
+      //   handleUrlChange(navState.url);
+      // }}
       />
     </View>
   );

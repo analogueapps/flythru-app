@@ -90,6 +90,8 @@ const bookingdetails = () => {
 
   const fetchBookingDetails = async (id) => {
     const token = await AsyncStorage.getItem("authToken");
+    console.log(token);
+    
     if (!token) {
       Toast.show(
         {
@@ -103,6 +105,8 @@ const bookingdetails = () => {
     try {
       console.log("Fetching details for bookingId:", id);
       const res = await BOOKING_DETAILS(id, token);
+      console.log("resvvvvvvvvvvvvvvvvvvvvvvvv",res);
+      
       setBookingData(res.data);
       console.log("Booking details response:", res.data);
     } catch (error) {
@@ -117,6 +121,8 @@ const bookingdetails = () => {
 
   useEffect(() => {
     const finalBookingId = verifiedBookingId || bookingId;
+    console.log('finalBookingId',finalBookingId);
+    
     if (finalBookingId) {
       fetchBookingDetails(finalBookingId);
       console.log("Using bookingId:", finalBookingId);
@@ -146,7 +152,7 @@ const bookingdetails = () => {
           {isFromSelectLocation ? (
             <TouchableOpacity
               onPress={() => {
-                // router.dismissAll(); // <-- this clears the current stack history
+                router.dismissAll(); // <-- this clears the current stack history
                 router.replace("/(tabs)/home");
               }}
               className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
@@ -155,8 +161,10 @@ const bookingdetails = () => {
             </TouchableOpacity>
           ) : message === "notify" ? <TouchableOpacity
             onPress={() => {
-              // router.dismissAll(); // <-- this clears the current stack history
-              router.replace("/(tabs)/home");
+              console.log(message);
+              
+              router.dismissAll(); // <-- this clears the current stack history
+              router.replace("/(tabs)/home"); 
             }}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
           >

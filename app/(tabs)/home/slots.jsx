@@ -373,7 +373,7 @@ const slots = () => {
         </View>
       </View>
 
-      <ScrollView className="px-4" showsVerticalScrollIndicator={false}>
+      <ScrollView className="px-4 mb-14" showsVerticalScrollIndicator={false}>
         {/* {loading ? (
           <View className="flex-1 items-center justify-center mt-20">
             <Text className="text-[#164F90] text-lg font-bold">
@@ -461,6 +461,7 @@ const slots = () => {
                 </View>
               </View>
             ))}
+           
             {formik.touched.time && formik.errors.time && (
               <Text
                 className="text-red-500 w-[90%] mx-auto"
@@ -471,7 +472,7 @@ const slots = () => {
             )}
 
             {/* Continue Button */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-28"
               onPress={() => {
                 // createNewCalendar();
@@ -487,13 +488,32 @@ const slots = () => {
                   ? Translations.eng.continue
                   : Translations.arb.continue}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
 
 
         )}
 
       </ScrollView>
+      <View className="absolute bottom-0 left-0 w-full bg-white">
+         <TouchableOpacity
+              className="my-1 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg"
+              onPress={() => {
+                // createNewCalendar();
+                formik.handleSubmit();
+                // router.push("/home/selectlocation");
+              }}
+            >
+              <Text
+                className="text-center text-[#164F90] font-bold"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.continue
+                  : Translations.arb.continue}
+              </Text>
+            </TouchableOpacity>
+      </View>
     </View>
   );
 };

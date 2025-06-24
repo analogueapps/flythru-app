@@ -300,13 +300,14 @@ const selectlocation = () => {
 
     try {
       const res = await PAYEMNT_API(values, token);
+console.log(values);
 
       console.log("Payment API Response:", res.data);
 
       const orderIdFromRes = res.data.orderId;
       const userIdFromRes = res.data.baggage?.userId;
       const baggageIdFromRes = res.data.baggage?.id;
-
+ setUserName(res.data.baggage.name)
       setPrice(res.data.price);
       setPickupdate(res.data.date);
       setPickuploaction(res.data.baggage.pickUpLocation);
@@ -360,14 +361,14 @@ const selectlocation = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchUserName = async () => {
-      const name = await getUserName();
-      setUserName(name);
-      console.log("User name set:", name);
-    };
-    fetchUserName();
-  }, []);
+  // useEffect(() => {
+  //   const fetchUserName = async () => {
+  //     const name = await getUserName();
+  //     setUserName(name);
+  //     console.log("User name set:", name);
+  //   };
+  //   fetchUserName();
+  // }, []);
 
   useEffect(() => {
     console.log("pickUpLocation updated:", formik.values.pickUpLocation);
@@ -443,7 +444,7 @@ const selectlocation = () => {
         closeOnDragDown={true}
         closeOnPressMask={true}
         draggable={true}
-        height={Dimensions.get("window").height / 1.8}
+        height={Dimensions.get("window").height / 2}
         // height={200}
         customStyles={{
           wrapper: {

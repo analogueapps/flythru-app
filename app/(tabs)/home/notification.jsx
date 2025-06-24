@@ -165,16 +165,21 @@ const notification = () => {
             <ActivityIndicator size="large" color="#164F90" />
           </View>
         ) : notifications.length > 0 ? (
-          notifications.map((notif, index) => (
-            <TouchableOpacity
+          notifications.map((notif, index) => {
+            const bookingIdFromNotif = notif.data.bookingId||notif.bookingId;
+            // console.log('notif.data.bookingId',a);
+            
+            return <TouchableOpacity
               key={notif._id || index}
               className={`flex-row justify-between px-3 w-full border-b-[1px] border-[#B1B1B1] py-6  ${notif?.isRead ? "" : "bg-blue-100"}`}
               onPress={() => {
                 UpdateNotification(notif._id)
+                console.log(notif?.data?.bookingId||notif?.bookingId);
+                
                 router.push({
-                  pathname: "/home/notificationdetail",
+                  pathname: "/activities/bookingdetails",
                   params: {
-                    notifId: notif._id,
+                    bookingId: bookingIdFromNotif, message: "notify"
                   }
                 })
               }
@@ -186,7 +191,7 @@ const notification = () => {
               </View>
               <Text style={{ fontFamily: "Lato" }}>{formatTime(notif.createdAt)}</Text>
             </TouchableOpacity>
-          ))
+})
         ) : (
           <Text className="text-center text-gray-500" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"

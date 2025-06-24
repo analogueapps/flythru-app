@@ -618,11 +618,11 @@ const selectlocation = () => {
                   setShowSuccess(true)
 
                   addressRefRBSheet.current?.close();
+                  locationrefRBSheet.current?.open();
 
-                  setTimeout(() => {
-                    // ✅ open location sheet manually
-                    locationrefRBSheet.current?.open();
-                  }, 2000);
+                  // setTimeout(() => {
+                  //   // ✅ open location sheet manually
+                  // }, 2000);
                 }
                 // setTimeout(() => {
                 //   // formik.handleSubmit();
@@ -651,7 +651,7 @@ const selectlocation = () => {
         closeOnPressMask={true}
         draggable={true}
         // height={200}
-        height={Dimensions.get("window").height / 1.8}
+        height={Dimensions.get("window").height / 2}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -778,7 +778,8 @@ const selectlocation = () => {
                 />
               </View>
             </View>
-          </ScrollView> :
+        </ScrollView> 
+          :
           <BookingSkeleton />
         }
       </RBSheet>

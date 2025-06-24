@@ -273,19 +273,28 @@ export const DELETE_ACCOUNT = async (data, token) => {
   });
 };
 
-export const VERIFY_ORDER = async (orderId, paymentId) => {
-  console.log("verify params details", orderId, paymentId);
+export const VERIFY_ORDER = async (orderId, paymentId,token) => {
+  console.log("verify params details", orderId, paymentId,token);
 
   const data = {
     orderId: orderId,
     paymentId: paymentId,
   };
-  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data);
+  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    validateStatus:()=>true
+  });
 };
 
 export const PAYMENT_VERIFICATION_API = async (data) => {
   console.log("PAYMENT API FETCHED");
-  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data);
+  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const ALL_FLIGHTS = async (data) => {
