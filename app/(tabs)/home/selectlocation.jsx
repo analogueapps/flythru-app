@@ -1029,7 +1029,7 @@ const selectlocation = () => {
         ) : (
           <View className="flex-1 justify-center items-center">
             <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text>
-          </View>// Show a placeholder while location is being fetched
+          </View>
         )}
       </View>
 

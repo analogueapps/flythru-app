@@ -819,29 +819,29 @@ const onAppleButtonPress = async () => {
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
-                  <TouchableOpacity
-                    onPress={() => onGoogleButtonPress()}
-                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
-                  >
-                    <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
-                      Login with Google
-                    </Text>
-                  </TouchableOpacity>
-                   <TouchableOpacity
-                                      onPress={() => onAppleButtonPress()}
-                                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
->
-                    <SvgApple />
-                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
-                      Signup with Apple
-                    </Text>
-                  </TouchableOpacity>
-                  {/* <TouchableOpacity>
-                    <SvgApple />
-                  </TouchableOpacity> */}
-                </View>
+                  <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
+                    <TouchableOpacity
+                      onPress={() => onGoogleButtonPress()}
+                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                    >
+                      <SvgGoogle />
+                      <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                        Login with Google
+                      </Text>
+                    </TouchableOpacity>
+                     {Platform.OS === 'ios' && (<TouchableOpacity
+                                        onPress={() => onAppleButtonPress()}
+                                        className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+  >
+                      <SvgApple />
+                      <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                        Signup with Apple
+                      </Text>
+                    </TouchableOpacity>)}
+                    {/* <TouchableOpacity>
+                      <SvgApple />
+                    </TouchableOpacity> */}
+                  </View>
                 {/* <TouchableOpacity
                   className="self-center"
                   onPress={() => router.push("/home")}
@@ -1009,7 +1009,7 @@ const onAppleButtonPress = async () => {
           }
         }}
       /> */}
-                  <TouchableOpacity
+                   {Platform.OS === 'ios' && (<TouchableOpacity
                                       onPress={() => onAppleButtonPress()}
                                       className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
 >
@@ -1017,7 +1017,7 @@ const onAppleButtonPress = async () => {
                     <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
                       Signup with Apple
                     </Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity>)}
                 </View>
                 <TouchableOpacity
                   className="self-center"

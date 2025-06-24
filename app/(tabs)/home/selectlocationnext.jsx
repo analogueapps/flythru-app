@@ -91,6 +91,7 @@ const selectlocation = () => {
   const [hasVisited, setHasVisited] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [coards, setCoards] = useState({})
+  const [isMapshow, setIsMapshow] = useState(true)
   const [markerCoards, setMarkerCoards] = useState({
     latitude: 37.78825, // or any initial value
     longitude: -122.4324,
@@ -105,6 +106,7 @@ const selectlocation = () => {
       if (value !== "true") {
         // First time visit
         locationrefRBSheet.current?.open();
+        setIsMapshow(false)
         await AsyncStorage.setItem("hasVisitedLocationSheet", "true");
       }
       setHasVisited(true); // Mark visited (used if needed elsewhere)
@@ -263,6 +265,7 @@ const selectlocation = () => {
         setShowSuccess(true)
 
         locationrefRBSheet.current?.open();
+        setIsMapshow(false)
       }
 
       // await paymentApi(requestData);
@@ -300,14 +303,14 @@ const selectlocation = () => {
 
     try {
       const res = await PAYEMNT_API(values, token);
-console.log(values);
+      console.log(values);
 
       console.log("Payment API Response:", res.data);
 
       const orderIdFromRes = res.data.orderId;
       const userIdFromRes = res.data.baggage?.userId;
       const baggageIdFromRes = res.data.baggage?.id;
- setUserName(res.data.baggage.name)
+      setUserName(res.data.baggage.name)
       setPrice(res.data.price);
       setPickupdate(res.data.date);
       setPickuploaction(res.data.baggage.pickUpLocation);
@@ -422,7 +425,8 @@ console.log(values);
               addressRefRBSheet.current?.close();
               setTimeout(() => {
                 formik.handleSubmit();
-                locationrefRBSheet.current?.open(); // ✅ open location sheet manually
+                locationrefRBSheet.current?.open();
+                setIsMapshow(false) // ✅ open location sheet manually
               }, 500); // Give time for address sheet to close smoothly
             }}
             className="bg-[#FFB648] rounded-lg w-[80%] h-11 mx-auto mt-4 flex items-center justify-center"
@@ -454,9 +458,10 @@ console.log(values);
             backgroundColor: "#000",
           },
         }}
+        onClose={() => setIsMapshow(true)}
       >
         {paymentUrl ?
-          <ScrollView>
+          <ScrollView keyboardShouldPersistTaps="handled">
             <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
               <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
                 <View className="flex flex-row ">
@@ -676,7 +681,7 @@ console.log(values);
       <View style={styles.mapContainer}>
         {!loading ? (
           <>
-            <MapView
+            {isMapshow && <MapView
               style={styles.map}
               region={region}
               onRegionChangeComplete={onRegionChangeComplete}
@@ -691,10 +696,12 @@ console.log(values);
                   longitude: markerCoards.longitude,
                 }}
               />
-            </MapView>
+            </MapView>}
           </>
         ) : (
-          <Text>Loading Map...</Text>
+          <View className="flex-1 justify-center items-center">
+            <Text style={{ fontFamily: "Lato" }}>Loading Map...</Text>
+          </View>
         )}
       </View>
     </View>
