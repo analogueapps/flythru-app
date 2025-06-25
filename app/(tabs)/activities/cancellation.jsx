@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
@@ -34,6 +35,7 @@ const cancellation = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [alertMessage, setAlertMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
 
   const formik = useFormik({
@@ -53,6 +55,7 @@ const cancellation = () => {
   });
 
   const cancellationBookingHandler = async (bookingId, values) => {
+    setIsSubmitting(true)
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
       Toast.show({
@@ -67,7 +70,7 @@ const cancellation = () => {
       console.log('resresresresresresresresresres',res);
       
       if (res.status === 200 && res.data.isbookingcancel) {
-
+setIsSubmitting(false)
         setShowSuccessPopup(true)
         setSuccessMessage(res.data.message)
         
@@ -78,16 +81,18 @@ const cancellation = () => {
         //   text2: `Your amount will be refunded within "2" days`,
         // });
       } else {
+        setIsSubmitting(false)
         setShowAlertPopup(true)
-        setAlertMessage(res.data.message)
+        setAlertMessage(res?.data?.message || 'Server issue')
       }
 
 
 
 
     } catch (error) {
-      console.log("Error sending code:", error?.response.data.message);
-      setApiErr(error?.response?.data?.message || "Invalid OTP");
+      setIsSubmitting(false)
+      // console.log("Error sending code:", error?.response.data.message);
+      setApiErr(error?.response?.data?.message|| error?.data?.message ||error?.errors || "Unknown issue");
     }
   };
 
@@ -167,16 +172,19 @@ const cancellation = () => {
         </View>
       </ScrollView>
       <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
+      disabled={isSubmitting}
         onPress={() => {
           formik.handleSubmit();
           // router.dismissAll();
         }}
       >
-        <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
+        {
+        !isSubmitting ? <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
           {
             applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit
           }
-        </Text>
+        </Text>: <ActivityIndicator size="small" color="white" />
+        }
       </TouchableOpacity>
     </View>
   );

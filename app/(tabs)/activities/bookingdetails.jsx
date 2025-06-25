@@ -439,7 +439,7 @@ const bookingdetails = () => {
             <View className="flex-1 h-[1px] border-t  border-[#00000026] relative my-5" />
 
             <View className="flex flex-col justify-left gap-5">
-              <View className="flex-row">
+              <View className="flex-row items-center">
                 <Image
                   source={call}
                   className="h-10 w-10 rounded-full mr-4"
@@ -450,7 +450,7 @@ const bookingdetails = () => {
                 } : {bookingData?.booking?.driver?.phoneNumber || "-"} </Text>
               </View>
 
-              <View className="flex-row">
+              <View className="flex-row items-center">
                 <Image
                   source={hash}
                   className="h-10 w-10 rounded-full mr-4"
@@ -487,19 +487,19 @@ const bookingdetails = () => {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                disabled={(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"}
+                disabled={(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" || bookingData?.booking?.updateStatus?.toLowerCase() === 'dropped at airport'}
                 onPress={() =>
                   router.push({
                     pathname: "/activities/cancellation",
                     params: { bookingId: bookingId },
                   })
                 }
-                className={`border-2 rounded-xl py-4 my-5 ${(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"
+                className={`border-2 rounded-xl py-4 my-5 ${((bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" ||  bookingData?.booking?.updateStatus?.toLowerCase() === 'dropped at airport')
                   ? "border-gray-400 bg-gray-200"
                   : "border-[#164F90]"
                   }`}
               >
-                <Text className={`text-center font-semibold ${(bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled"
+                <Text className={`text-center font-semibold ${((bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" || bookingData?.booking?.updateStatus?.toLowerCase() === 'dropped at airport')
                   ? "text-gray-400"
                   : "text-black"
                   }`}>

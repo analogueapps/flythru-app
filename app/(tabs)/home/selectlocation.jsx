@@ -136,6 +136,8 @@ const selectlocation = () => {
         // userLng: '',
         formik.setFieldValue("userLat", coards[0].latitude);
         formik.setFieldValue("userLng", coards[0].longitude);
+        console.log(coards);
+
         setMarkerCoords({ latitude: coards[0].latitude, longitude: coards[0].longitude })
         formik.setFieldValue("pickUpLocation", selectedItem.label);
         break;
@@ -304,7 +306,13 @@ const selectlocation = () => {
         console.log("📍 Searched Location:");
         console.log("Latitude:", latitude);
         console.log("Longitude:", longitude);
+        setInputValue(text);
+        formik.setFieldValue("userLat", latitude);
+        formik.setFieldValue("userLng", longitude);
+        // console.log(coards);
 
+        setMarkerCoords({ latitude: latitude, longitude:longitude })
+        // formik.setFieldValue("pickUpLocation", selectedItem.label);
         setMarkerCoords({ latitude, longitude });
 
         // ✅ Open RBSheet only after successful location search
@@ -778,7 +786,7 @@ const selectlocation = () => {
                 />
               </View>
             </View>
-        </ScrollView> 
+          </ScrollView>
           :
           <BookingSkeleton />
         }

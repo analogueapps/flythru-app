@@ -183,6 +183,7 @@ const selectlocation = () => {
         if (results.length > 0) {
           const { latitude, longitude } = results[0];
           setMarkerCoords({ latitude, longitude });
+
         }
       } catch (error) {
         console.error("Geocoding error:", error);

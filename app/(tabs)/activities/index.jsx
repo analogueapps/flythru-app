@@ -1,11 +1,11 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg"
 import { Calendar } from "lucide-react-native";
 import { langaugeContext } from "../../../customhooks/languageContext";
@@ -33,7 +33,11 @@ const index = () => {
     setRefreshing(false);
   };
 
-
+ useFocusEffect(
+    useCallback(() => {
+      fetchActivities()
+    }, [])
+  );
   // Simulate data loading (you'd replace this with your API call)
   useEffect(() => {
     fetchBookings(); // your actual API call
@@ -244,7 +248,7 @@ const index = () => {
                     onPress={() => {
                       console.log(booking.bookingStatus);
                       
-                      if (booking.bookingStatus.toLowerCase() !== "cancelled") {
+                      if (booking.bookingStatus.toLowerCase() !== "cancelled" || booking?.updateStatus?.toLowerCase() !== 'dropped at airport') {
                         
                         // router.push("/activities/cancellation");
                          router.push({
@@ -254,14 +258,14 @@ const index = () => {
                       }
                     }}
                     
-                    disabled={booking.bookingStatus.toLowerCase() === "cancelled"}
-                    className={`my-4 mx-2 border-2 rounded-xl py-4 px-5 w-[45%] ${booking.bookingStatus.toLowerCase() === "cancelled"
+                    disabled={booking.bookingStatus.toLowerCase() === "cancelled" || booking?.updateStatus?.toLowerCase() === 'dropped at airport'}
+                    className={`my-4 mx-2 border-2 rounded-xl py-4 px-5 w-[45%] ${(booking.bookingStatus.toLowerCase() === "cancelled" ||booking?.updateStatus?.toLowerCase() === 'dropped at airport')
                       ? "border-gray-300 bg-gray-200"
                       : "border-[#164F90]"
                       }`}
                   >
                     <Text
-                      className={`text-center font-semibold ${booking.bookingStatus.toLowerCase() === "cancelled" ? "text-gray-400" : "text-[#164F90]"
+                      className={`text-center font-semibold ${(booking.bookingStatus.toLowerCase() === "cancelled" || booking?.updateStatus?.toLowerCase() === 'dropped at airport') ? "text-gray-400" : "text-[#164F90]"
                         }`}
                       style={{ fontFamily: "Lato" }}
                     >
