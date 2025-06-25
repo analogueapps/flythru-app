@@ -90,13 +90,14 @@ export const LOGIN_API = async (data) => {
 //   return await axios.post(`${LOCAL_URL}/user/oauth`,token);
 // };
 
-export const OAUTH = async (firebaseToken) => {
+export const OAUTH = async (firebaseToken,fcmData) => {
   try {
     console.log("Firebase OAuth token from API:", firebaseToken);
 
     // Send the token to the backend
     const res = await axios.post(`${LOCAL_URL}/user/oauth`, {
       oAuthToken: firebaseToken,
+      ...fcmData
     });
 
     // Log the response from the server
@@ -127,13 +128,14 @@ export const OAUTH = async (firebaseToken) => {
   }
 };
 
-export const APPLE_OAUTH = async (appleToken) => {
+export const APPLE_OAUTH = async (appleToken,fcmData) => {
   try {
     console.log("apple OAuth token from API:", appleToken);
 
     // Send the token to the backend
     const res = await axios.post(`${LOCAL_URL}/user/apple`, {
       identityToken: appleToken,
+      ...fcmData
     });
 
     // Log the response from the server

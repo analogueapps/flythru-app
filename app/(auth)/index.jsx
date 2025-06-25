@@ -25,7 +25,7 @@ import {
   OAUTH,
   RESEND_OTP,
   SIGN_UP_API,
-} from "../../network/apiCallers"; 
+} from "../../network/apiCallers";
 import loginSchema from "../../yupschema/loginSchema";
 import { useAuth } from "../../UseContext/AuthContext";
 import { langaugeContext } from "../../customhooks/languageContext";
@@ -45,11 +45,11 @@ import Toast from "react-native-toast-message";
 // } from "@react-native-firebase/auth";
 import { useNotification } from "../../UseContext/notifications";
 
-import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
+import  registerForPushNotificationsAsync  from "../../utlis/registrationsPushNotifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signOut } from "@react-native-firebase/auth";
 import { StatusBar } from "expo-status-bar";
-import {auth} from "../../firebaseConfig"
+import { auth } from "../../firebaseConfig"
 const Index = () => {
   const [activeTab, setActiveTab] = useState("login");
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -59,6 +59,7 @@ const Index = () => {
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
   const [authPopupMessage, setAuthPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isAuthhitting, setIsAuthhitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [verifytoken, setVerifytoken] = useState("");
@@ -168,7 +169,11 @@ const Index = () => {
   //   }
   // };
 
-const onAppleButtonPress = async () => {
+  const onAppleButtonPress = async () => {
+          console.log('applefctoken' , fcm);
+const fcmData = {fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"}
+    setIsAuthhitting(true)
     try {
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
@@ -180,23 +185,29 @@ const onAppleButtonPress = async () => {
       // Handle the signed-in user's credentials
       console.log('Apple credential:', credential);
 
-       try {
-      const res = await APPLE_OAUTH(credential.identityToken);
-      console.log("Apple response:", res);
- router.replace("/home")
-      await checkLoginStatus();
-     
-      Toast.show({
-        type: "success",
-        text1: res.data.message || "Login successful",
-      });
-    } catch (error) {
-      console.log("Error signing up:", error?.response?.data);
-      Toast.show({
-        type: "error",
-        text1: error?.response?.data?.message || "Login failed",
-      });
-    }
+      try {
+        const res = await APPLE_OAUTH(credential.identityToken,fcmData);
+        console.log("Apple response:", res);
+        router.replace("/home")
+        await checkLoginStatus();
+
+        Toast.show({
+          type: "success",
+          text1: res.data.message || "Login successful",
+        });
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+      } catch (error) {
+        console.log("Error signing up:", error?.response?.data);
+        Toast.show({
+          type: "error",
+          text1: error?.response?.data?.message || "Login failed",
+        });
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+      }
 
     } catch (e) {
       if (e.code === 'ERR_REQUEST_CANCELED') {
@@ -204,11 +215,15 @@ const onAppleButtonPress = async () => {
       } else {
         console.error('Apple Sign-In Error:', e);
       }
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
     }
   };
 
 
   async function onGoogleButtonPress() {
+    setIsAuthhitting(true)
     try {
       console.log("Preessed button");
       // Check if your device supports Google Play
@@ -227,6 +242,9 @@ const onAppleButtonPress = async () => {
           type: "info",
           text1: "User cancelled Google Sign-In."
         })
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
         return;
       }
       // Try the new style of google-sign in result, from v13+ of that module
@@ -237,6 +255,9 @@ const onAppleButtonPress = async () => {
 
 
       if (!idToken) {
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
         throw new Error("No ID token found");
       }
 
@@ -246,22 +267,24 @@ const onAppleButtonPress = async () => {
       );
 
       console.log("GoogleCredentail", googleCredential);
-      
+
 
       // Sign-in the user with the credential
       const userCredential = await signInWithCredential(auth, googleCredential);
       console.log(userCredential)
-      console.log("token sending to backend",googleCredential?.token)
+      console.log("token sending to backend", googleCredential?.token)
 
       const firebaseUser = userCredential.user;
       const firebaseIdToken = await firebaseUser.getIdToken();
 
-      console.log("Firebase Token",firebaseIdToken)
+      console.log("Firebase Token", firebaseIdToken)
 
       await oauthHandler(firebaseIdToken)
       await SaveMail(userCredential?.user.email);
       await checkLoginStatus(); // 👈 Add this
-      
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
 
     } catch (error) {
       console.error("Sign-in error:", error.message);
@@ -271,6 +294,9 @@ const onAppleButtonPress = async () => {
         // text1: error.message || "Unknown error"
 
       });
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
     }
   }
 
@@ -323,6 +349,8 @@ const onAppleButtonPress = async () => {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('fctoken' , fcm);
+      
       getToken();
     }, [])
   );
@@ -520,12 +548,14 @@ const onAppleButtonPress = async () => {
   };
 
   const oauthHandler = async (oAuthToken) => {
+    const fcmData = {fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"}
     try {
-      const res = await OAUTH(oAuthToken);
+      const res = await OAUTH(oAuthToken,fcmData);
       console.log("OAuth response:", res);
- router.replace("/home")
+      router.replace("/home")
       await checkLoginStatus();
-     
+
       Toast.show({
         type: "success",
         text1: res.data.message || "OAuth successful",
@@ -702,7 +732,7 @@ const onAppleButtonPress = async () => {
             </Animated.View>
           </View>
 
-     
+
 
 
           {/* Form Container */}
@@ -774,11 +804,11 @@ const onAppleButtonPress = async () => {
                   )}
                 <View className=" w-[90%] flex flex-row justify-end">
 
-                <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold" onPress={()=> router.push("/forgotpassemail")}>
-                      {applanguage === "eng"
-                        ? Translations.eng.forgot_password
-                        : Translations.arb.forgot_password}
-                    
+                  <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold" onPress={() => router.push("/forgotpassemail")}>
+                    {applanguage === "eng"
+                      ? Translations.eng.forgot_password
+                      : Translations.arb.forgot_password}
+
                   </Text></TouchableOpacity>
                 </View>
 
@@ -819,29 +849,32 @@ const onAppleButtonPress = async () => {
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                  <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
-                    <TouchableOpacity
-                      onPress={() => onGoogleButtonPress()}
-                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
-                    >
-                      <SvgGoogle />
-                      <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
-                        Login with Google
-                      </Text>
-                    </TouchableOpacity>
-                     {Platform.OS === 'ios' && (<TouchableOpacity
-                                        onPress={() => onAppleButtonPress()}
-                                        className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
-  >
-                      <SvgApple />
-                      <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
-                        Signup with Apple
-                      </Text>
-                    </TouchableOpacity>)}
-                    {/* <TouchableOpacity>
+                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
+                  <TouchableOpacity
+                    onPress={() => onGoogleButtonPress()}
+                    disabled={isAuthhitting}
+
+                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                  >
+                    <SvgGoogle />
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Login with Google
+                    </Text>
+                  </TouchableOpacity>
+                  {Platform.OS === 'ios' && (<TouchableOpacity
+                    onPress={() => onAppleButtonPress()}
+                    disabled={isAuthhitting}
+                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                  >
+                    <SvgApple />
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Login with Apple
+                    </Text>
+                  </TouchableOpacity>)}
+                  {/* <TouchableOpacity>
                       <SvgApple />
                     </TouchableOpacity> */}
-                  </View>
+                </View>
                 {/* <TouchableOpacity
                   className="self-center"
                   onPress={() => router.push("/home")}
@@ -979,6 +1012,8 @@ const onAppleButtonPress = async () => {
                 <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
                   <TouchableOpacity
                     onPress={() => onGoogleButtonPress()}
+                    disabled={isAuthhitting}
+
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
                   >
                     <SvgGoogle />
@@ -986,7 +1021,7 @@ const onAppleButtonPress = async () => {
                       Signup with Google
                     </Text>
                   </TouchableOpacity>
-                   {/* <AppleAuthentication.AppleAuthenticationButton
+                  {/* <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
         buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.Transparent}
         cornerRadius={5}
@@ -1009,10 +1044,12 @@ const onAppleButtonPress = async () => {
           }
         }}
       /> */}
-                   {Platform.OS === 'ios' && (<TouchableOpacity
-                                      onPress={() => onAppleButtonPress()}
-                                      className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
->
+                  {Platform.OS === 'ios' && (<TouchableOpacity
+                    onPress={() => onAppleButtonPress()}
+                    disabled={isAuthhitting}
+
+                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                  >
                     <SvgApple />
                     <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
                       Signup with Apple
@@ -1058,7 +1095,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-   borderColor: '#D1D5DB',     // gray-300
+    borderColor: '#D1D5DB',     // gray-300
     borderWidth: 5,
     borderRadius: 12,           // rounded-xl
     width: '80%',
