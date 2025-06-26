@@ -338,7 +338,7 @@ export const PAYMENT_VERIFICATION_API = async (data) => {
 
 export const ALL_FLIGHTS = async (data) => {
   console.log("Fetched All flights", data);
-  return await axios.post(`${LOCAL_URL}/allflights`, data);
+  return await axios.post(`${LOCAL_URL}/allflights`, data,{validateStatus:()=>true});
 };
 
 export const ADD_FLIGHTS = async (data, token) => {

@@ -45,7 +45,7 @@ import Toast from "react-native-toast-message";
 // } from "@react-native-firebase/auth";
 import { useNotification } from "../../UseContext/notifications";
 
-import  registerForPushNotificationsAsync  from "../../utlis/registrationsPushNotifications";
+import registerForPushNotificationsAsync from "../../utlis/registrationsPushNotifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signOut } from "@react-native-firebase/auth";
 import { StatusBar } from "expo-status-bar";
@@ -170,9 +170,11 @@ const Index = () => {
   // };
 
   const onAppleButtonPress = async () => {
-          console.log('applefctoken' , fcm);
-const fcmData = {fcmToken: fcm,
-      fcmTokenType: Platform.OS === "android" ? "android" : "ios"}
+    console.log('applefctoken', fcm);
+    const fcmData = {
+      fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"
+    }
     setIsAuthhitting(true)
     try {
       const credential = await AppleAuthentication.signInAsync({
@@ -186,7 +188,7 @@ const fcmData = {fcmToken: fcm,
       console.log('Apple credential:', credential);
 
       try {
-        const res = await APPLE_OAUTH(credential.identityToken,fcmData);
+        const res = await APPLE_OAUTH(credential.identityToken, fcmData);
         console.log("Apple response:", res);
         router.replace("/home")
         await checkLoginStatus();
@@ -349,8 +351,8 @@ const fcmData = {fcmToken: fcm,
 
   useFocusEffect(
     useCallback(() => {
-      console.log('fctoken' , fcm);
-      
+      console.log('fctoken', fcm);
+
       getToken();
     }, [])
   );
@@ -548,10 +550,12 @@ const fcmData = {fcmToken: fcm,
   };
 
   const oauthHandler = async (oAuthToken) => {
-    const fcmData = {fcmToken: fcm,
-      fcmTokenType: Platform.OS === "android" ? "android" : "ios"}
+    const fcmData = {
+      fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"
+    }
     try {
-      const res = await OAUTH(oAuthToken,fcmData);
+      const res = await OAUTH(oAuthToken, fcmData);
       console.log("OAuth response:", res);
       router.replace("/home")
       await checkLoginStatus();

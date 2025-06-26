@@ -123,7 +123,7 @@ const notification = () => {
     <View className="flex-1">
       {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
 
-      <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={() => { router.push('/(auth)'); setAlertShow(false) }} />
+      <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={() => { router.replace('/(auth)'); setAlertShow(false) }} />
 
       {/* Header Background Image */}
       <View>

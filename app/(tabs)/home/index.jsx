@@ -100,7 +100,7 @@ const Index = () => {
       departureDate: "",
       departureTime: "",
       flightNumber: "",
-      from: "kwi",
+      from: "",
       to: "",
     },
     validationSchema: AllflightSchema(applanguage),

@@ -672,7 +672,7 @@ const selectlocation = () => {
         {paymentUrl ?
           <ScrollView>
 
-            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] max-w-[400px] m-auto">
               <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
                 <View className="flex flex-row ">
                   {/* <Image
@@ -839,6 +839,7 @@ const selectlocation = () => {
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
+             keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
           // onClose={()=>setIsDropdownVisible(false)}
           >
             <View className="relative flex-row my-2 items-center border-2 border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
@@ -879,7 +880,7 @@ const selectlocation = () => {
                 onBlur={() => {
                   setTimeout(() => setIsDropdownVisible(false), 100);
                 }}
-                pointerEvents="none"
+                // pointerEvents="none"
               />
 
               <TouchableOpacity onPress={searchLocation}>

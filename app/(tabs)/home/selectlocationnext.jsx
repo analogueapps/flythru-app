@@ -463,7 +463,7 @@ const selectlocation = () => {
       >
         {paymentUrl ?
           <ScrollView keyboardShouldPersistTaps="handled">
-            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] m-auto">
+            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] max-w-[400px] m-auto">
               <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
                 <View className="flex flex-row ">
                   {/* <Image

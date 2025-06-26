@@ -356,25 +356,29 @@ const Search = () => {
         departureDate,
         departureTime
       );
-
-      if (res?.data?.allFlights) {
-        let transformedFlights = res.data.allFlights.map((flight) => ({
-          _id: flight._id,
-          airline: { name: flight.flightName || "Unknown Airline" },
-          flight: { number: flight.flightNumber || "N/A" },
-          departure: {
-            scheduled: flight.departureDateTime || null,
-            airport: flight.startingFrom || "Unknown Airport",
-            iata: flight.startingCode || "",
-          },
-          arrival: {
-            scheduled: flight.arrivalDateTime || null,
-            airport: flight.ending || "Unknown Airport",
-            iata: flight.endingCode || "",
-          },
-          timing: flight.timing || "N/A",
-        }));
-        return transformedFlights;
+      if (res.status === 200 && res.data) {
+        if (res?.data?.allFlights) {
+          let transformedFlights = res.data.allFlights.map((flight) => ({
+            _id: flight._id,
+            airline: { name: flight.flightName || "Unknown Airline" },
+            flight: { number: flight.flightNumber || "N/A" },
+            departure: {
+              scheduled: flight.departureDateTime || null,
+              airport: flight.startingFrom || "Unknown Airport",
+              iata: flight.startingCode || "",
+            },
+            arrival: {
+              scheduled: flight.arrivalDateTime || null,
+              airport: flight.ending || "Unknown Airport",
+              iata: flight.endingCode || "",
+            },
+            timing: flight.timing || "N/A",
+          }));
+          return transformedFlights;
+        }
+      } else {
+        setErrorMessage(res?.data?.message || res?.errors || 'Unknown error')
+        setIsModalShow(true)
       }
     } catch (error) {
       console.log("Fetch error:////////////////////////", error.response.data);
@@ -667,81 +671,81 @@ const Search = () => {
               );
 
               return (
-                flight.arrival.scheduled ? 
-                <TouchableOpacity
-                  key={`special-${index}`}
-                  // onPress={() => {
-                  //   if (!loginChecked) return; 
-                  //   if (isLoggedIn) {
-                  //   router.push({
-                  //     pathname: "/home/baggage",
-                  //     params: { flightData: JSON.stringify(flight) },
-                  //   })}
-                  //   else{
-                  //     setShowLoginPopup(true)
+                flight.arrival.scheduled ?
+                  <TouchableOpacity
+                    key={`special-${index}`}
+                    // onPress={() => {
+                    //   if (!loginChecked) return; 
+                    //   if (isLoggedIn) {
+                    //   router.push({
+                    //     pathname: "/home/baggage",
+                    //     params: { flightData: JSON.stringify(flight) },
+                    //   })}
+                    //   else{
+                    //     setShowLoginPopup(true)
 
-                  //   }
-                  // }}
-                  onPress={() => {
-                    if (isLoggedIn) {
-                      console.log("Navigating to baggage...");
-                      router.push({
-                        pathname: "/home/baggage",
-                        params: {
-                          flightData: JSON.stringify(flight),
-                          departureDate: departureDate,
-                          departureTime: departureTime,
-                        },
-                      });
-                    } else {
-                      setShowLoginPopup(true);
-                    }
-                  }}
-                  className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
-                >
-                  {/* Flight Header */}
-
-                  {/* Divider */}
-                  {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
-
-                  <View className="w-full px-2">
-                    <Image
-                      source={jazeera}
-                      className="h-11 self-center mt-3"
-                      resizeMode="contain"
-                    />
-                  </View>
-
-                  {/* Flight Details */}
-                  <View
-                    className="flex-row justify-between items-center pt-1 pb-6 px-5 "
-                    style={{ fontFamily: "lato" }}
+                    //   }
+                    // }}
+                    onPress={() => {
+                      if (isLoggedIn) {
+                        console.log("Navigating to baggage...");
+                        router.push({
+                          pathname: "/home/baggage",
+                          params: {
+                            flightData: JSON.stringify(flight),
+                            departureDate: departureDate,
+                            departureTime: departureTime,
+                          },
+                        });
+                      } else {
+                        setShowLoginPopup(true);
+                      }
+                    }}
+                    className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
                   >
-                    {/* Departure */}
-                    <View className="items-start w-24 ">
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        className="text-[#003C71] font-bold text-center text-[18px] "
-                      >
-                        {flight.departure?.iata.toUpperCase() || "N/A"}
-                      </Text>
-                      <Text className="text-[20px]  ">
-                        {flight.departure?.scheduled?.includes("T")
-                          ? flight.departure?.scheduled
-                            .split("T")[1]
-                            .slice(0, 5)
-                          : flight.departure?.scheduled || "N/A"}
-                      </Text>
-                      <Text className="text-gray-400 text-start text-[13px] ">
-                        {flight.departure?.scheduled?.includes("T")
-                          ? formatDate(flight.departure?.scheduled)
-                          : formatDate(flight.departure?.scheduled) || "N/A"}
-                      </Text>
+                    {/* Flight Header */}
+
+                    {/* Divider */}
+                    {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
+
+                    <View className="w-full px-2">
+                      <Image
+                        source={jazeera}
+                        className="h-11 self-center mt-3"
+                        resizeMode="contain"
+                      />
                     </View>
 
-                    {/* Flight Duration */}
-                    {/* <View className="flex-1 items-center">
+                    {/* Flight Details */}
+                    <View
+                      className="flex-row justify-between items-center pt-1 pb-6 px-5 "
+                      style={{ fontFamily: "lato" }}
+                    >
+                      {/* Departure */}
+                      <View className="items-start w-24 ">
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="text-[#003C71] font-bold text-center text-[18px] "
+                        >
+                          {flight.departure?.iata.toUpperCase() || "N/A"}
+                        </Text>
+                        <Text className="text-[20px]  ">
+                          {flight.departure?.scheduled?.includes("T")
+                            ? flight.departure?.scheduled
+                              .split("T")[1]
+                              .slice(0, 5)
+                            : flight.departure?.scheduled || "N/A"}
+                        </Text>
+                        <Text className="text-gray-400 text-start text-[13px] ">
+                          {flight.departure?.scheduled?.includes("T")
+                            ? formatDate(flight.departure?.scheduled)
+                            : formatDate(flight.departure?.scheduled) || "N/A"}
+                        </Text>
+                      </View>
+
+                      {/* Flight Duration */}
+                      {/* <View className="flex-1 items-center">
                     <View className="w-full flex-row items-center justify-center mt-2">
                       <View className="flex-1 h-[1px] border-t border-dashed border-[#164F90] relative">
                         <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-white px-2">
@@ -751,156 +755,156 @@ const Search = () => {
                     </View>
                   </View> */}
 
-                    <View
-                      className="flex-1 items-center h-full mt-8"
-                      style={{ fontFamily: "lato" }}
-                    >
-                      <Text className="text-[#000000] text-[14px] font-bold">
-                        {flight.flight?.number || "N/A"}
-                      </Text>
-                      <View className="w-full flex-row items-center justify-center mt-2">
-                        <View className="relative flex-row items-center w-full px-1">
-                          {/* Plane icon at start */}
-                          <FontAwesome5
-                            name="plane"
-                            size={16}
-                            color="#164F90"
-                            className="z-10"
-                          />
-
-                          {/* Grey line */}
-                          <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
-
-                          {/* Small grey circle at end */}
-                          <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
-                        </View>
-                      </View>
-
-                      {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
-                    </View>
-
-                    {/* Arrival */}
-                    <View
-                      className="items-end w-24"
-                      style={{ fontFamily: "lato" }}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        className="text-[#003C71] font-bold  text-[18px] "
+                      <View
+                        className="flex-1 items-center h-full mt-8"
+                        style={{ fontFamily: "lato" }}
                       >
-                        {flight.arrival?.iata.toUpperCase() || "N/A"}
-                      </Text>
-                      <Text className="text-[20px]  ">
-                        {flight.arrival?.scheduled?.includes("T")
-                          ? flight.arrival.scheduled.split("T")[1].slice(0, 5)
-                          : flight.arrival?.scheduled || "N/A"}
-                      </Text>
-                      <View className="">
-                        <Text className="text-gray-400 text-right text-[13px] ">
-                          {flight.arrival?.scheduled?.includes("T")
-                            ? formatDate(flight.arrival?.scheduled)
-                            : formatDate(flight.arrival?.scheduled) || "N/A"}
+                        <Text className="text-[#000000] text-[14px] font-bold">
+                          {flight.flight?.number || "N/A"}
                         </Text>
+                        <View className="w-full flex-row items-center justify-center mt-2">
+                          <View className="relative flex-row items-center w-full px-1">
+                            {/* Plane icon at start */}
+                            <FontAwesome5
+                              name="plane"
+                              size={16}
+                              color="#164F90"
+                              className="z-10"
+                            />
+
+                            {/* Grey line */}
+                            <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+                            {/* Small grey circle at end */}
+                            <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                          </View>
+                        </View>
+
+                        {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
                       </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                :
-                <TouchableOpacity
-                  key={`special-${index}`}
-                 
-                  onPress={() => {
-                    if (isLoggedIn) {
-                      console.log("Navigating to baggage...");
-                      router.push({
-                        pathname: "/home/baggage",
-                        params: {
-                          flightData: JSON.stringify(flight),
-                          departureDate: departureDate,
-                          departureTime: departureTime,
-                        },
-                      });
-                    } else {
-                      setShowLoginPopup(true);
-                    }
-                  }}
-                  className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
-                >
-                  {/* Flight Header */}
 
-                  {/* Divider */}
-                  {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
-
-                  <View className="w-full px-2">
-                    <Image
-                      source={jazeera}
-                      className="h-11 self-center mt-3"
-                      resizeMode="contain"
-                    />
-                  </View>
-
-                  {/* Flight Details */}
-                  <View
-                    className="flex-row justify-between items-center pt-1 pb-6 px-5 "
-                    style={{ fontFamily: "lato" }}
-                  >
-                    {/* Departure */}
-                    <View className="items-start w-24 ">
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        className="text-[#003C71] font-bold text-center text-[18px] "
+                      {/* Arrival */}
+                      <View
+                        className="items-end w-24"
+                        style={{ fontFamily: "lato" }}
                       >
-                        {flight.departure?.iata.toUpperCase() || "N/A"}
-                      </Text>
-                      
-                    </View>
-
-                    <View
-                      className="flex-1 items-center h-full mt-"
-                      style={{ fontFamily: "lato" }}
-                    >
-                      <Text className="text-[#000000] text-[14px] font-bold">
-                        {flight.flight?.number || "N/A"}
-                      </Text>
-                      <View className="w-full flex-row items-center justify-center mt-2">
-                        <View className="relative flex-row items-center w-full px-1">
-                          {/* Plane icon at start */}
-                          <FontAwesome5
-                            name="plane"
-                            size={16}
-                            color="#164F90"
-                            className="z-10"
-                          />
-
-                          {/* Grey line */}
-                          <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
-
-                          {/* Small grey circle at end */}
-                          <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="text-[#003C71] font-bold  text-[18px] "
+                        >
+                          {flight.arrival?.iata.toUpperCase() || "N/A"}
+                        </Text>
+                        <Text className="text-[20px]  ">
+                          {flight.arrival?.scheduled?.includes("T")
+                            ? flight.arrival.scheduled.split("T")[1].slice(0, 5)
+                            : flight.arrival?.scheduled || "N/A"}
+                        </Text>
+                        <View className="">
+                          <Text className="text-gray-400 text-right text-[13px] ">
+                            {flight.arrival?.scheduled?.includes("T")
+                              ? formatDate(flight.arrival?.scheduled)
+                              : formatDate(flight.arrival?.scheduled) || "N/A"}
+                          </Text>
                         </View>
                       </View>
+                    </View>
+                  </TouchableOpacity>
+                  :
+                  <TouchableOpacity
+                    key={`special-${index}`}
 
-                      {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
+                    onPress={() => {
+                      if (isLoggedIn) {
+                        console.log("Navigating to baggage...");
+                        router.push({
+                          pathname: "/home/baggage",
+                          params: {
+                            flightData: JSON.stringify(flight),
+                            departureDate: departureDate,
+                            departureTime: departureTime,
+                          },
+                        });
+                      } else {
+                        setShowLoginPopup(true);
+                      }
+                    }}
+                    className="bg-white w-full rounded-xl shadow-md border border-gray-100 mb-3"
+                  >
+                    {/* Flight Header */}
+
+                    {/* Divider */}
+                    {/* <View className="h-[1px] border-t border-dashed border-[#cdcdcd]" /> */}
+
+                    <View className="w-full px-2">
+                      <Image
+                        source={jazeera}
+                        className="h-11 self-center mt-3"
+                        resizeMode="contain"
+                      />
                     </View>
 
-                    {/* Arrival */}
+                    {/* Flight Details */}
                     <View
-                      className="items-end w-24"
+                      className="flex-row justify-between items-center pt-1 pb-6 px-5 "
                       style={{ fontFamily: "lato" }}
                     >
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        className="text-[#003C71] font-bold  text-[18px] "
+                      {/* Departure */}
+                      <View className="items-start w-24 ">
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="text-[#003C71] font-bold text-center text-[18px] "
+                        >
+                          {flight.departure?.iata.toUpperCase() || "N/A"}
+                        </Text>
+
+                      </View>
+
+                      <View
+                        className="flex-1 items-center h-full mt-"
+                        style={{ fontFamily: "lato" }}
                       >
-                        {flight.arrival?.iata.toUpperCase() || "N/A"}
-                      </Text>
-                      
+                        <Text className="text-[#000000] text-[14px] font-bold">
+                          {flight.flight?.number || "N/A"}
+                        </Text>
+                        <View className="w-full flex-row items-center justify-center mt-2">
+                          <View className="relative flex-row items-center w-full px-1">
+                            {/* Plane icon at start */}
+                            <FontAwesome5
+                              name="plane"
+                              size={16}
+                              color="#164F90"
+                              className="z-10"
+                            />
+
+                            {/* Grey line */}
+                            <View className="flex-1 h-[1px] border-t border-[#B9B9B9] relative" />
+
+                            {/* Small grey circle at end */}
+                            <View className="w-2 h-2 rounded-full bg-[#B9B9B9]" />
+                          </View>
+                        </View>
+
+                        {/* <Text className="text-[#000000] text-[10px] font-bold mt-3">{getFlightDuration(flight.departure?.scheduled, flight.arrival?.scheduled) || "N/A"}</Text> */}
+                      </View>
+
+                      {/* Arrival */}
+                      <View
+                        className="items-end w-24"
+                        style={{ fontFamily: "lato" }}
+                      >
+                        <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                          className="text-[#003C71] font-bold  text-[18px] "
+                        >
+                          {flight.arrival?.iata.toUpperCase() || "N/A"}
+                        </Text>
+
+                      </View>
                     </View>
-                  </View>
-                </TouchableOpacity>
+                  </TouchableOpacity>
               );
             })}
 
