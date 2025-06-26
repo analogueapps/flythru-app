@@ -7,6 +7,9 @@ import {
   TextInput,
   Animated,
   Easing,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import images from "../../../constants/images";
@@ -26,11 +29,14 @@ import editprofileSchema from "../../../yupschema/editProfileSchema";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
+import AlertModal from "../../alertmodal";
 
 const editpro = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('')
+const [isModalShow, setIsModalShow] = useState(false)
   const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
     useAuth();
 
@@ -90,10 +96,9 @@ const editpro = () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) {
-        Toast.show({
-          type: "info",
-          text1: "Please login again",
-        });
+        
+        setErrorMessage('Please login again')
+        setIsModalShow(true)
         return;
       }
 
@@ -113,10 +118,12 @@ const editpro = () => {
       if (userDetails.email) SaveMail(userDetails.email);
     } catch (error) {
       console.log("Error fetching profile:", error);
-      Toast.show({
-        type: "info",
-        text1: "Failed to load profile data",
-      });
+      // Toast.show({
+      //   type: "info",
+      //   text1: "Failed to load profile data",
+      // });
+      setErrorMessage('Failed to load profile data')
+        setIsModalShow(true)
     }
   };
 
@@ -124,17 +131,21 @@ const editpro = () => {
     setLoading(true);
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
-      Toast.show("No token found. Please log in.");
+      // Toast.show("No token found. Please log in.");
+      setErrorMessage('No token found. Please log in')
+        setIsModalShow(true)
       return;
     }
 
     try {
       const res = await EDIT_PROFILE(values, token);
       console.log(res.data.message);
-      Toast.show({
-        type: "success",
-        text1: res.data.message,
-      });
+      // Toast.show({
+      //   type: "success",
+      //   text1: res.data.message,
+      // });
+      setErrorMessage(res.data.message)
+        setIsModalShow(true)
 
       // Update context with new values
       await SaveName(values.name);
@@ -149,18 +160,31 @@ const editpro = () => {
       router.back();
     } catch (error) {
       console.log("Error updating profile:", error?.response);
-      Toast.show({
-        type: "info",
-        text1: error.response?.data?.message || "Failed to update profile",
-      });
+      // Toast.show({
+      //   type: "info",
+      //   text1: error.response?.data?.message || "Failed to update profile",
+      // });
+      setErrorMessage( error.response?.data?.message || "Failed to update profile")
+        setIsModalShow(true)
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    const onFocus =  () => {
+      Keyboard.dismiss();
+    }
+    const unsubscribe = router.addListener("focus",onFocus);
+
+    return () => unsubscribe();
+  }, [router]);
+
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+            {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+
       <View>
         <Image
           source={images.HeaderImg}
@@ -195,7 +219,12 @@ const editpro = () => {
           </View>
         </View>
       </View>
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
+       <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust for iOS and Android
+    >
+      <View className="flex-1">
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}  keyboardShouldPersistTaps="handled">
         <View className="px-7 flex-col gap-y-4">
           <View className="mb-2">
             <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
@@ -279,7 +308,8 @@ const editpro = () => {
           </View>
         </View>
       </ScrollView>
-
+      </View>
+</KeyboardAvoidingView>
       <TouchableOpacity
         disabled={loading}
         style={{

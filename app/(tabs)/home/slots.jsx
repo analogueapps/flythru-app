@@ -1,4 +1,12 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,11 +22,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { TextInput } from "react-native";
 import { useFormik } from "formik";
 import { SelectList } from "react-native-dropdown-select-list";
-import { ALL_TIME_SLOTS } from "../../../network/apiCallers";
+import { ALL_SLOTS, ALL_TIME_SLOTS } from "../../../network/apiCallers";
 import { langaugeContext } from "../../../customhooks/languageContext";
 import Translations from "../../../language";
 import slotsSchema from "../../../yupschema/slotsSchema";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AlertModal from "../../alertmodal";
 // import { useFlightContext } from "../../../UseContext/useFlightContext";
 
 const slots = () => {
@@ -28,30 +38,36 @@ const slots = () => {
   const [selected, setSelected] = React.useState("");
   const [filteredSlotTimes, setFilteredSlotTimes] = useState([]);
   const [timeslot, setTimeslots] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [filterTimeSlot, setFilterTimeSlot] = useState([]);
-  const { flightData, departureDate } = useLocalSearchParams();
-
+  const { flightData, departureDate, departureTime } = useLocalSearchParams();
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isModalShow, setIsModalShow] = useState(false)
   const flight = JSON.parse(flightData);
   // const { departureDate } = useFlightContext();
   // const time=flight?.departure?.scheduled
-  console.log("departureDate", departureDate, flight);
-  const time =
-    flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
-      ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
-      } `
-      : flight.departure.scheduled;
-  console.log("flight  timeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", time);
+
+
+  // const time =
+  //   flight?.departure?.scheduled && flight.departure.scheduled.includes("T")
+  //     ? `${flight.departure.scheduled.split("T")[1].split(":")[0]}:${
+  //         flight.departure.scheduled.split("T")[1].split(":")[1].split(".")[0]
+  //       } `
+  //     : flight.departure.scheduled;
+
+
+
   const [depDate, setdepDate] = useState("");
   const { applanguage } = langaugeContext();
+  const { personsCount, baggageCount } = useLocalSearchParams();
 
-  const { personsCount, baggageCount, baggagePictures } =
-    useLocalSearchParams();
+  useEffect(() => {
+    console.log(flight, "flight data in slots page");
+
+  }, [])
 
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
-  const parsedBaggagePictures = baggagePictures
-    ? JSON.parse(decodeURIComponent(baggagePictures))
-    : [];
 
   useEffect(() => {
     if (departureDate) {
@@ -64,73 +80,161 @@ const slots = () => {
     }
   }, [departureDate]);
 
-  const alltimeslots = async () => {
+
+  const formik = useFormik({
+    initialValues: {
+      departureDate: "",
+      departureTime: "",
+    },
+    // validationSchema: slotsSchema(applanguage),
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      console.log('values.departureTime', values.departureTime);
+
+      if (values.departureTime == '') {
+        setErrorMessage('Please select slot time')
+        setIsModalShow(true)
+      } else {
+        setErrorMessage('')
+        setIsModalShow(false)
+        router.push({
+          pathname: "/home/selectlocation",
+          params: {
+            date: values.departureDate,
+            time: values.departureTime,
+            personsCount,
+            baggageCount,
+          },
+        });
+      }
+
+    },
+  });
+
+  const alltimeslots = async (departureDate, departureTime) => {
+    setLoading(true);
+
     try {
-      console.log("Fetching all time slots...", selectedDate, time);
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) {
+        console.warn("No auth token found.");
+        return;
+      }
+      console.log("/////////////", departureDate, departureTime);
 
-      const res = await ALL_TIME_SLOTS();
-      console.log("res", res);
+      // ✅ Pass correct data to API
+      const data = { departureDate, departureTime }
+      const res = await ALL_SLOTS(data, token);
 
-      // if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
-      if (res?.data?.allTimeSlots) {
-        let filteredSlots = res.data.allTimeSlots;
-        setTimeslots(filteredSlots);
+      const rawSlots = res?.data?.slots;
 
-        const formattedSlotsdata = filteredSlots.map((slot) => ({
-          key: slot._id,
-          value: slot.timeSlot,
+      if (rawSlots && typeof rawSlots === "object") {
+
+        const formattedSlots = Object.entries(rawSlots).map(([date, times]) => ({
+          date,
+          times: times.map((slot) => ({
+            time: slot.Time,
+            available: slot.available,
+          })),
         }));
 
-        setFilterTimeSlot([]);
+
+        setFilterTimeSlot(formattedSlots);
       } else {
-        setTimeslots([]);
         setFilterTimeSlot([]);
       }
     } catch (error) {
-      console.log("Error fetching timeslots:", error);
-      setTimeslots([]);
+      console.log(
+        "Error fetching timeslots:",
+        error?.response || error.message
+      );
       setFilterTimeSlot([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    alltimeslots();
-  }, []);
+    if (departureDate && departureTime) {
+      alltimeslots(departureDate, departureTime);
+      console.log(departureTime, "departureTime//////////////slots/////");
+      console.log(departureDate, "departureDate////////////");
+    }
+  }, [departureDate, departureTime]); // <== Add them as dependencies
 
-  const baggaevalues = { personsCount, baggagePictures, baggageCount };
 
-  const formik = useFormik({
-    initialValues: {
-      date: "",
-      time: "",
-    },
-    validationSchema: slotsSchema(applanguage),
-    validateOnChange: true,
-    validateOnBlur: true,
-    onSubmit: async (values) => {
-      console.log("values", values);
-      console.log("baggssaaaaa", baggaevalues);
-      router.push({
-        pathname: "/home/selectlocation",
-        params: {
-          date: values.date,
-          time: values.time,
-          personsCount: personsCount,
-          baggagePictures: baggagePictures,
-          baggageCount: baggageCount,
-        },
-      });
-    },
-  });
+  // const alltimeslots = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await ALL_TIME_SLOTS();
 
-  useEffect(() => {
-    console.log(
-      "baggage details valuessaaaaaaa",
-      parsedBaggagePictures,
-      parsedBaggageCount,
-      parsedPersonsCount
-    );
-  }, [parsedBaggagePictures, parsedBaggageCount, parsedPersonsCount]);
+  //     if (res?.data?.allTimeSlots) {
+  //       const slotData = res.data.allTimeSlots;
+
+  //       // Group by createdAt date
+  //       const grouped = slotData.reduce((acc, curr) => {
+  //         const date = new Date(curr.createdAt).toLocaleDateString("en-CA"); // e.g., "2025-05-29"
+
+  //         if (!acc[date]) {
+  //           acc[date] = [];
+  //         }
+  //         acc[date].push(curr.timeSlot);
+  //         return acc;
+  //       }, {}); // removed TypeScript type assertion here ✅
+
+  //       const formattedSlots = Object.keys(grouped).map((date) => ({
+  //         date,
+  //         times: grouped[date],
+  //       }));
+
+  //       setFilterTimeSlot(formattedSlots);
+  //     } else {
+  //       setFilterTimeSlot([]);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching timeslots:", error);
+  //     setFilterTimeSlot([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  //  const alltimeslots = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const res = await ALL_SLOTS();
+
+  //       if (res?.data?.allTimeSlots) {
+  //         const slotData = res.data.allTimeSlots;
+
+  //         // Group by createdAt date
+  //         const grouped = slotData.reduce((acc, curr) => {
+  //           const date = new Date(curr.createdAt).toLocaleDateString("en-CA"); // e.g., "2025-05-29"
+
+  //           if (!acc[date]) {
+  //             acc[date] = [];
+  //           }
+  //           acc[date].push(curr.timeSlot);
+  //           return acc;
+  //         }, {}); // removed TypeScript type assertion here ✅
+
+  //         const formattedSlots = Object.keys(grouped).map((date) => ({
+  //           date,
+  //           times: grouped[date],
+  //         }));
+
+  //         setFilterTimeSlot(formattedSlots);
+  //       } else {
+  //         setFilterTimeSlot([]);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching timeslots:", error);
+  //       setFilterTimeSlot([]);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
   useEffect(() => {
     (async () => {
@@ -156,29 +260,9 @@ const slots = () => {
     }
   };
 
-  const createNewCalendar = async () => {
-    try {
-      const defaultCalendarSource =
-        Platform.OS === "ios"
-          ? await Calendarpicker.getDefaultCalendarAsync()
-          : { isLocalAccount: true, name: "Expo Calendar" };
+  //  calender component here
 
-      const newCalendarID = await Calendarpicker.createCalendarAsync({
-        title: "Flight Schedules",
-        color: "#FFB800",
-        entityType: Calendarpicker.EntityTypes.EVENT,
-        sourceId: defaultCalendarSource.id,
-        source: defaultCalendarSource,
-        name: "Flight Schedules",
-        ownerAccount: "personal",
-        accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
-      });
-
-      // console.log("New calendar ID:", newCalendarID);
-    } catch (error) {
-      console.log("Error creating calendar:", error);
-    }
-  };
+  //  calender component ends here
 
   // Inside your component:
 
@@ -203,10 +287,13 @@ const slots = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
+
+      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
       <View>
         <Image
           source={images.HeaderImg2}
-          className={`w-full ${Platform.OS === "android" ? "h-auto" : "h-[250px]"} relative`}
+          className={`w-full ${Platform.OS === "android" ? "h-auto" : "h-[250px]"
+            } relative`}
           style={{ resizeMode: "cover" }}
         />
       </View>
@@ -217,7 +304,7 @@ const slots = () => {
         }}
         className="p-6 absolute w-full"
       >
-        <View className="flex-row  items-center">
+        <View className="flex-row items-center mt-5">
           <TouchableOpacity
             onPress={() => router.back()}
             className="bg-[rgba(255,255,255,0.8)] rounded-full p-1"
@@ -233,155 +320,283 @@ const slots = () => {
               : Translations.arb.select_slots}
           </Text>
         </View>
-        <View className="flex-row items-center justify-between px-4 mt-8">
-          <View className="flex-col items-center">
+        <View className="flex-row items-center justify-between px-4">
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {" "}
-              {flight?.departure?.iata ?? "--"}
+              {flight?.departure?.iata || flight?.flight_from}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>
-              Departure
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                fontFamily: "Lato",
+              }}
+            >
+              {/* {flight.departure.airport} */}Departure
             </Text>
           </View>
 
-          <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center">
-              <View className="flex-1 relative justify-center">
+          <View className="flex-1 items-center ">
+            <View className="w-full flex-row items-center overflow-hidden h-full justify-center">
+              <View className="flex-1 relative justify-center ">
                 <DashedLine dashColor="white" />
-                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 z-10 ">
+                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2 bg-transparent z-10">
                   <PlaneIcon />
                 </View>
               </View>
             </View>
           </View>
-          <View className="flex-col items-center">
+
+          <View className="flex-col items-center min-w-20">
             <Text
               className="text-2xl font-bold text-white"
               style={{ fontFamily: "Lato" }}
             >
-              {" "}
-              {flight?.arrival?.iata ?? "--"}
+              {flight?.arrival?.iata || flight?.flight_to}
             </Text>
-            <Text className="text-white" style={{ fontFamily: "Lato" }}>
+            <Text
+              className="text-white "
+              style={{
+                flexWrap: "wrap",
+                wordBreak: "break-word",
+                fontFamily: "Lato",
+              }}
+            >
+              {/* {flight.arrival.airport} */}
               Arrival
             </Text>
           </View>
         </View>
-        {/* <Text className="text-white text-center mt-4">Date : 05/05/2025</Text> */}
       </View>
 
-      <View
-        className="bg-white self-center absolute top-[190px] p-6 z-10 rounded-xl w-[90%] shadow-lg"
-        style={{
-          maxHeight: "79%",
-        }}
-      >
-        <ScrollView className="" showsVerticalScrollIndicator={false}>
-          <Text
-            className="font-bold text-xl text-[#164F90]"
-            style={{ fontFamily: "CenturyGothic" }}
-          >
-            {applanguage === "eng"
-              ? Translations.eng.pick_up_date
-              : Translations.arb.pick_up_date}
-          </Text>
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            className=" flex-row my-4 justify-between items-center border border-[#F2F2F2] rounded-xl px-4 py-3 bg-[#FBFBFB]"
-          >
-                  {showDatePicker ?
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              onConfirm={async (selectedDate) => {
-                if (!selectedDate) return;
-
-                const formattedDate = selectedDate.toISOString().split("T")[0];
-                setSelectedDate(formattedDate);
-                formik.setFieldValue("date", formattedDate);
-
-                const filteredTimeSlots = timeslot.filter((item) => {
-                  if (!item.date) return false;
-                  const itemDate = new Date(item.date).toISOString().split("T")[0];
-                  return itemDate === formattedDate && item.isActive;
-                });
-
-                const flightScheduledDateTime = flight.departure.scheduled.includes('T')
-                  ? new Date(flight.departure.scheduled)
-                  : new Date(`${departureDate}T${flight.departure.scheduled}:00`);
-
-                const givenDepartureDate = new Date(departureDate);
-                const dateformate = new Date(formattedDate);
-
-                const filterTimeSlotsBefore6Hours = filteredTimeSlots.filter((slot) => {
-                  const slotDateStr = `${formattedDate}T${slot.timeSlot}:00.000Z`;
-                  const slotDateTime = new Date(slotDateStr);
-
-                  // If selected date is before flight date, return all slots
-                  if (dateformate > givenDepartureDate) {
-                    return true;
-                  }
-
-                  const diffMs = flightScheduledDateTime - slotDateTime;
-                  const diffHours = diffMs / (1000 * 60 * 60);
-                  return diffHours >= 6;
-                });
-
-                const data = filterTimeSlotsBefore6Hours.map((item) => ({
-                  key: item._id,
-                  value: item.timeSlot,
-                }));
-
-                console.log("Filtered time slots: ", data);
-                setFilterTimeSlot(data);
-                setShowDatePicker(false);
-              }}
-
-              onCancel={() => setShowDatePicker(false)}
-              minimumDate={new Date()}
-            />
-            :
-            <TouchableOpacity className="bg-gray-200 p-3 rounded-lg" onPress={() => setShowDatePicker(true)}>
-
-              <Text>{selectedDate || "yyyy-mm-dd"}</Text>
-            </TouchableOpacity>
-          }
-            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-              <View
-                style={{
-                  backgroundColor: "#194F901A",
-                  padding: 8,
-                  borderRadius: 12,
-                }}
-              >
-                <AntDesign name="calendar" size={26} color="#194F90" />
-              </View>
-            </TouchableOpacity>
-          </TouchableOpacity>
-
-   
-
-          {formik.touched.date && formik.errors.date && (
-            <Text
-              className="text-red-500 w-[90%] mx-auto mb-2"
-              style={{ fontFamily: "Lato" }}
-            >
-              {formik.errors.date}
+      <ScrollView className="px-4 mb-14" showsVerticalScrollIndicator={false}>
+        {/* {loading ? (
+          <View className="flex-1 items-center justify-center mt-20">
+            <Text className="text-[#164F90] text-lg font-bold">
+              <ActivityIndicator size="large" color="#164F90" />
             </Text>
-          )}
-          <Text
-            className="font-bold text-xl text-[#164F90]"
-            style={{ fontFamily: "CenturyGothic" }}
-          >
-            {applanguage === "eng"
-              ? Translations.eng.pick_up_time
-              : Translations.arb.pick_up_time}
-          </Text>
+          </View>
+        ) : (
+          <>
+            {filterTimeSlot.map((item, index) => (
+              <View key={index} className="mt-4">
+                <Text className="text-[#164F90] text-lg mb-2 font-bold">
+                  {item.date}
+                </Text>
+                <View className="flex flex-row flex-wrap gap-4 justify-start my-4">
+                  {item.times.map((timeslot, i) => {
+                    const slotKey = `${item.date}-${timeslot}`;
+                    return (
+                      <TouchableOpacity
+                        key={i}
+                        onPress={() => {
+                          setSelected(slotKey);
+                          formik.setFieldValue("date", item.date);
+                          formik.setFieldValue("time", timeslot);
+                        }}
+                        className={`${
+                          selected === slotKey
+                            ? "bg-[#164F90] border border-[#FFB648]"
+                            : "border"
+                        } rounded-xl p-2 px-5`}
+                      >
+                        <Text
+                          className={selected === slotKey ? "text-white" : ""}
+                        >
+                          {timeslot}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+          </>
+        )} */}
 
-          <SelectList
+        {loading ? (
+          <View className="flex-1 items-center justify-center mt-20">
+            <ActivityIndicator size="large" color="#164F90" />
+          </View>
+        ) : (
+
+          <>
+            {filterTimeSlot.map((item, index) => (
+              <View key={index} className="mt-4">
+                <Text className="text-[#164F90] text-lg mb-2 font-bold">{item.date}</Text>
+
+                <View className="flex flex-row flex-wrap gap-4 justify-start my-4">
+                  {item.times.map((slot, i) => {
+                    const slotKey = `${item.date}-${slot.time}`;
+                    const isSelected = selected === slotKey;
+                    const isDisabled = !slot.available;
+
+                    return (
+                      <TouchableOpacity
+                        key={i}
+                        onPress={() => {
+                          if (isDisabled) return; // prevent clicking
+                          setSelected(slotKey);
+                          formik.setFieldValue("departureDate", item.date);
+                          formik.setFieldValue("departureTime", slot.time);
+                        }}
+                        disabled={isDisabled}
+                        className={`rounded-xl p-2 px-5 border border-[#696969]
+                ${isSelected ? "bg-[#164F90] border-[#FFB648]" : ""}
+                ${isDisabled ? "opacity-40" : ""}`}
+                      >
+                        <Text
+                          className={`  ${isSelected ? "text-white" : "text-[#696969]"
+                            } ${isDisabled ? "text-gray-500" : ""}`}
+                        >
+                          {slot.time}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+           
+            {formik.touched.time && formik.errors.time && (
+              <Text
+                className="text-red-500 w-[90%] mx-auto"
+                style={{ fontFamily: "Lato" }}
+              >
+                {formik.errors.time}
+              </Text>
+            )}
+
+            {/* Continue Button */}
+            {/* <TouchableOpacity
+              className="mb-8 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-28"
+              onPress={() => {
+                // createNewCalendar();
+                formik.handleSubmit();
+                // router.push("/home/selectlocation");
+              }}
+            >
+              <Text
+                className="text-center text-[#164F90] font-bold"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.continue
+                  : Translations.arb.continue}
+              </Text>
+            </TouchableOpacity> */}
+          </>
+
+
+        )}
+
+      </ScrollView>
+      <View className="absolute bottom-0 left-0 w-full bg-white">
+         <TouchableOpacity
+              className="my-1 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg"
+              onPress={() => {
+                // createNewCalendar();
+                formik.handleSubmit();
+                // router.push("/home/selectlocation");
+              }}
+            >
+              <Text
+                className="text-center text-[#164F90] font-bold"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.continue
+                  : Translations.arb.continue}
+              </Text>
+            </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default slots;
+
+// all time slots function commented out for now as it is not being used in the current implementation
+
+// const alltimeslots = async () => {
+//   try {
+//     console.log("Fetching all time slots...", selectedDate, time);
+
+//     const res = await ALL_TIME_SLOTS();
+//     console.log("res", res);
+
+//     // if (res?.data?.allTimeSlots && Array.isArray(res.data.allTimeSlots)) {
+//     if (res?.data?.allTimeSlots) {
+//       let filteredSlots = res.data.allTimeSlots;
+//       setTimeslots(filteredSlots);
+
+//       const formattedSlotsdata = filteredSlots.map((slot) => ({
+//         key: slot._id,
+//         value: slot.timeSlot,
+//       }));
+
+//       setFilterTimeSlot([]);
+//     } else {
+//       setTimeslots([]);
+//       setFilterTimeSlot([]);
+//     }
+//   } catch (error) {
+//     console.log("Error fetching timeslots:", error);
+//     setTimeslots([]);
+//     setFilterTimeSlot([]);
+//   }
+// };
+
+// useEffect(() => {
+//   alltimeslots();
+// }, []);
+
+// const baggaevalues = { personsCount, baggagePictures, baggageCount };
+
+// calender component here
+
+// const createNewCalendar = async () => {
+//   try {
+//     const defaultCalendarSource =
+//       Platform.OS === "ios"
+//         ? await Calendarpicker.getDefaultCalendarAsync()
+//         : { isLocalAccount: true, name: "Expo Calendar" };
+
+//     const newCalendarID = await Calendarpicker.createCalendarAsync({
+//       title: "Flight Schedules",
+//       color: "#FFB800",
+//       entityType: Calendarpicker.EntityTypes.EVENT,
+//       sourceId: defaultCalendarSource.id,
+//       source: defaultCalendarSource,
+//       name: "Flight Schedules",
+//       ownerAccount: "personal",
+//       accessLevel: Calendarpicker.CalendarAccessLevel.OWNER,
+//     });
+
+//     // console.log("New calendar ID:", newCalendarID);
+//   } catch (error) {
+//     console.log("Error creating calendar:", error);
+//   }
+// };
+
+{
+  /* <View className="flex-1 items-center px-2">
+            <View className="w-full flex-row items-center justify-center ">
+              <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
+                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
+                  <PlaneIcon />
+                </View>
+              </View>
+            </View>
+          </View> */
+}
+
+{
+  /* <SelectList
             setSelected={(val) => formik.setFieldValue("time", val)} // ✅ Bind to formik state
             value={formik.values.time}
             data={filterTimeSlot}
@@ -412,50 +627,5 @@ const slots = () => {
               fontSize: 16,
               color: "#333",
             }}
-          />
-
-          {formik.touched.time && formik.errors.time && (
-            <Text
-              className="text-red-500 w-[90%] mx-auto"
-              style={{ fontFamily: "Lato" }}
-            >
-              {formik.errors.time}
-            </Text>
-          )}
-
-          {/* Continue Button */}
-          <TouchableOpacity
-            className=" my-4 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg mt-48"
-            onPress={() => {
-              createNewCalendar();
-              formik.handleSubmit();
-            }}
-          >
-            <Text
-              className="text-center text-[#164F90] font-bold"
-              style={{ fontFamily: "Lato" }}
-            >
-              {applanguage === "eng"
-                ? Translations.eng.continue
-                : Translations.arb.continue}
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    </View>
-  );
-};
-
-export default slots;
-
-{
-  /* <View className="flex-1 items-center px-2">
-            <View className="w-full flex-row items-center justify-center ">
-              <View className="flex-1 h-[1px] border-t border-dashed border-white relative">
-                <View className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 px-2">
-                  <PlaneIcon />
-                </View>
-              </View>
-            </View>
-          </View> */
+          /> */
 }

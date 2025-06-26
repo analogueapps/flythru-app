@@ -19,7 +19,9 @@ const _layout = () => {
     "/home/notification",
     "/home/notificationdetail",
     "/home/selectlocation",
+    "/home/selectlocationnext",
     "/home/slots",
+    "/home/locaddress",
     "/home/payment",
     "/home/bookingd",
     "/home/editpro",
@@ -56,6 +58,7 @@ const _layout = () => {
         tabBarStyle: shouldHideTabs
           ? { display: "none" }
           : {
+             lazy: false,
               height: 70,
               paddingBottom: 10,
               paddingTop: 5,
@@ -89,19 +92,38 @@ const _layout = () => {
         }}
       />
 
-      <Tabs.Screen
-        name="activities"
-        options={{
-          headerShown: false,
-          tabBarLabel:
-            applanguage === "eng"
-              ? Translations.eng.activities
-              : Translations.arb.activities,
-          tabBarIcon: ({ color }) => <SvgActivities color={color} />,
-          // tabBarButton:(props) => (
-          //   <TouchableOpacity {...props} onPress={()=>props.onPress()}/>)
-        }}
-      />
+     // Simple and effective solution
+<Tabs.Screen
+  name="activities"
+  options={{
+    headerShown: false,
+    tabBarLabel:
+      applanguage === "eng"
+        ? Translations.eng.activities
+        : Translations.arb.activities,
+    tabBarIcon: ({ color }) => <SvgActivities color={color} />,
+    tabBarButton: (props) => {
+      // const router = useRouter();
+      
+      return (
+        <TouchableOpacity 
+          {...props} 
+          onPress={() => {
+            // Call original onPress for tab state
+            props.onPress?.();
+            
+            // Force navigation to activities index
+            // This will reset the activities stack
+            router.navigate('/(tabs)/activities');
+            
+            // Alternative: Use replace for cleaner navigation
+            // router.replace('/(tabs)/activities');
+          }}
+        />
+      );
+    }
+  }}
+/>
 
       <Tabs.Screen
         name="profile"

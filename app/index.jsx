@@ -27,7 +27,7 @@ export default function Index() {
     const handleNavigation = async () => {
       if (!isConnected) return; // Modal will show automatically, don't navigate
 
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setShowFlash(false);
 
       try {
@@ -36,6 +36,8 @@ export default function Index() {
           router.replace("/home");
         } else {
           router.replace("/(auth)");
+          //  router.replace("/forgotpassemail");
+
         }
       } catch (error) {
         console.error("Navigation error:", error);
@@ -65,13 +67,13 @@ export default function Index() {
 
         <View className="w-[90%] mt-16  pt-7">
           <Text className="text-[#164F90] font-bold text-5xl text-left pt-2" style={{ fontFamily: "Lato" }}>
-          {applanguage === "eng" ? Translations.eng.book_services : Translations.arb.book_services}
+          {applanguage === "eng" ? Translations.eng.book_now : Translations.book_now}
           </Text>
           <Text className="text-[#164F90] font-bold text-4xl text-left mt-1 pt-2" style={{ fontFamily: "Lato" }}>
-          {applanguage === "eng" ? Translations.eng.for_hassle_free_trip : Translations.arb.for_hassle_free_trip}
+          {applanguage === "eng" ? Translations.eng.Your_Journey_Upgraded : Translations.arb.Your_Journey_Upgraded}
           </Text>
           <Text className="text-[#3E3E3E] text-2xl text-left mt-2" style={{ fontFamily: "Lato" }}>
-          {applanguage === "eng" ? Translations.eng.find_flight_to_book_services : Translations.arb.find_flight_to_book_services}  
+          {applanguage === "eng" ? Translations.eng.find_your_flight : Translations.arb.find_your_flight}  
                   </Text>
         </View>
 

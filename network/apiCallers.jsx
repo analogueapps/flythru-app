@@ -90,13 +90,14 @@ export const LOGIN_API = async (data) => {
 //   return await axios.post(`${LOCAL_URL}/user/oauth`,token);
 // };
 
-export const OAUTH = async (firebaseToken) => {
+export const OAUTH = async (firebaseToken,fcmData) => {
   try {
     console.log("Firebase OAuth token from API:", firebaseToken);
 
     // Send the token to the backend
     const res = await axios.post(`${LOCAL_URL}/user/oauth`, {
       oAuthToken: firebaseToken,
+      ...fcmData
     });
 
     // Log the response from the server
@@ -127,6 +128,44 @@ export const OAUTH = async (firebaseToken) => {
   }
 };
 
+export const APPLE_OAUTH = async (appleToken,fcmData) => {
+  try {
+    console.log("apple OAuth token from API:", appleToken);
+
+    // Send the token to the backend
+    const res = await axios.post(`${LOCAL_URL}/user/apple`, {
+      identityToken: appleToken,
+      ...fcmData
+    });
+
+    // Log the response from the server
+    console.log("Response from OAuth API:", res);
+
+    // Extract the token and userId from the response
+    const authToken = res?.data?.token;
+    const userId = res?.data?.user._id;
+
+    // Check if the token and userId are available
+    if (authToken) {
+      console.log("Saving token and userId...");
+      console.log("Token:349875896589649656", authToken);
+      await saveToken(authToken);
+      await saveUserId(userId);
+
+      // Debug to ensure the token is saved correctly
+      const savedToken = await AsyncStorage.getItem("authToken");
+      console.log("Saved Token after saving:", savedToken); // Verify the token in AsyncStorage
+    } else {
+      console.log("No token or userId in response.");
+    }
+
+    return res;
+  } catch (error) {
+    console.log("apple Login Error:", error);
+    throw error;
+  }
+};
+
 export const VERIFY_OTP = async (data, token) => {
   console.log();
   return await axios.post(`${LOCAL_URL}/user/verifyotp`, data, {
@@ -135,6 +174,35 @@ export const VERIFY_OTP = async (data, token) => {
     },
   });
 };
+
+export const FORGOT_PASSWORD_EMAIL = async (data) => {
+  console.log("FORGOT PASSWORD EMAIL API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/forgot-password`, data, {
+
+  });
+};
+
+export const FORGOT_PASSWORD_OTP = async (data) => {
+  console.log("FORGOT PASSWORD OTP API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/verify-otp`, data, {
+
+  });
+};
+
+export const FORGOT_PASS_RESEND_OTP = async (data) => {
+  console.log("FORGOT PASSWORD resend otp fetched", data);
+  return await axios.post(`${LOCAL_URL}/user/resend-otp`, data, {
+
+  });
+};
+
+export const RESET_PASSWORD = async (data) => {
+  console.log("FORGOT PASSWORD RESET API FETCHED", data);
+  return await axios.post(`${LOCAL_URL}/user/reset-password`, data, {
+
+  });
+};
+
 
 export const LOGOUT = async (token) => {
   console.log("LOGGED OUT SUCCESSFULLY");
@@ -161,6 +229,8 @@ export const RESEND_OTP = async (token) => {
 };
 
 export const CANCELLATION = async (data, token, bookingId) => {
+  console.log(data, token, bookingId);
+  
   return await axios.post(
     `${LOCAL_URL}/payment/cancelbooking`,
     { ...data, bookingId }, // 👈 Combine data and bookingId in the body
@@ -168,6 +238,7 @@ export const CANCELLATION = async (data, token, bookingId) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      validateStatus:()=>true
     }
   );
 };
@@ -241,24 +312,44 @@ export const DELETE_ACCOUNT = async (data, token) => {
   });
 };
 
-export const VERIFY_ORDER = async (orderId, paymentId) => {
-  console.log("verify params details", orderId, paymentId);
+export const VERIFY_ORDER = async (orderId, paymentId,token) => {
+  console.log("verify params details", orderId, paymentId,token);
 
   const data = {
     orderId: orderId,
     paymentId: paymentId,
   };
-  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data);
+  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    validateStatus:()=>true
+  });
 };
 
 export const PAYMENT_VERIFICATION_API = async (data) => {
   console.log("PAYMENT API FETCHED");
-  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data);
+  return await axios.post(`${LOCAL_URL}/payment/bipassed-verifyOrder`, data,{
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 export const ALL_FLIGHTS = async (data) => {
-  console.log("Fetched All flights");
-  return await axios.post(`${LOCAL_URL}/allflights`, data);
+  console.log("Fetched All flights", data);
+  return await axios.post(`${LOCAL_URL}/allflights`, data,{validateStatus:()=>true});
+};
+
+export const ADD_FLIGHTS = async (data, token) => {
+  console.log("Adding flight data fetched:", data);
+  return await axios.post(`${LOCAL_URL}/user/add-flight`, data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
 
 export const ALL_FLIGHTS_CLIENT = async (data) => {
@@ -288,6 +379,12 @@ export const ALL_FAQS = async () => {
   console.log("faqs fetched");
 
   return await axios.get(`${LOCAL_URL}/allfaqs`, {});
+};
+
+export const FOLLOW_LINKS = async () => {
+  console.log("FOLLOW LINKS FETCHED");
+
+  return await axios.get(`${LOCAL_URL}/follow_links`, {});
 };
 
 export const ALL_USERS = async () => {
@@ -323,7 +420,7 @@ export const GET_PROFILE = async (token) => {
 
 export const STATUS = async (token) => {
   console.log("Fetched All address");
-  return await axios.post(`${LOCAL_URL}/user/profile`,{}, {
+  return await axios.post(`${LOCAL_URL}/user/profile`, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -333,6 +430,36 @@ export const STATUS = async (token) => {
 export const ALL_TIME_SLOTS = async () => {
   console.log("Fetched All time slots");
   return await axios.get(`${LOCAL_URL}/user/timeslots`);
+};
+
+// all slots
+export const ALL_SLOTS = async (data, token) => {
+  try {
+    console.log("all slots fetched", data);
+    return await axios.post(`${LOCAL_URL}/user/slots`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error in ALL_SLOTS:", error);
+    throw error; // rethrow so it’s still caught outside
+  }
+};
+
+// select slots
+export const SELECT_SLOTS = async (data, token) => {
+  try {
+    console.log("all slots fetched", data);
+    return await axios.post(`${LOCAL_URL}/user/select-slots`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error in ALL_SLOTS:", error);
+    throw error; // rethrow so it’s still caught outside
+  }
 };
 
 export const FEEDBACK = async (data, token) => {
@@ -353,13 +480,20 @@ export const ADD_ADDRESS = async (data, token) => {
     },
   });
 };
-export const UPDATE_ADDRESS = async (data,id, token) => {
-  console.log("data",data,id);
-  
+export const UPDATE_ADDRESS = async (data, id, token) => {
+  console.log("data", data, id);
+
   return await axios.post(`${LOCAL_URL}/user/update-address/${id}`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
       // 'Content-Type': 'multipart/form-data',
     },
+  });
+};
+export const UpdateNotify = async (id) => {
+  console.log("data", id);
+
+  return await axios.post(`${LOCAL_URL}/driver/read-notification`, {
+    notificationId: id,
   });
 };

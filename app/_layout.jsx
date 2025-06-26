@@ -16,7 +16,7 @@ import { FlightProvider } from "../UseContext/useFlightContext";
 import Toast from "react-native-toast-message";
 import { NetworkProvider } from "../UseContext/NetworkContext";
 import { NetworkErrorModal } from "./networkmodel";
-
+import GlobalErrorProvider from "../UseContext/globalErrorContext";
 
 SplashScreen.preventAutoHideAsync(); // Prevent splash from hiding immediately
 
@@ -61,8 +61,6 @@ const _layout = () => {
       }
 
      
-
-
       const token = (await Notifications.getExpoPushTokenAsync()).data;
       console.log("Expo Push Token:", token);
       return token;
@@ -89,6 +87,7 @@ const _layout = () => {
   return (
     <>
       <NetworkProvider>
+        <GlobalErrorProvider>
         <NotificationProvider>
           <LanguageContext>
             <AuthProvider>
@@ -118,6 +117,7 @@ const _layout = () => {
           </LanguageContext>
         </NotificationProvider>
         <NetworkErrorModal />
+        </GlobalErrorProvider>
       </NetworkProvider>
     </>
   );

@@ -190,7 +190,7 @@ const [selectedId, setSelectedId] = useState(null);
             addresses.map((address, index) => (
               <View key={address?.id || index} className="w-full flex-col gap-5">
                 <View className="bg-white p-3 w-[90%] m-auto rounded-lg my-3 flex flex-row justify-between items-center">
-                  <View className="flex-row items-center justify-between gap-3">
+                  <View className="flex-row items-center w-full justify-between gap-3">
 
                     <View>
                       {/* <Text className="text-[#164F90] font-bold" style={{ fontFamily: "Lato" }}>Home</Text> */}

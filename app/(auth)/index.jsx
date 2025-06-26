@@ -1,6 +1,7 @@
 import {
   View,
   Text,
+  StyleSheet,
   Pressable,
   Animated,
   Easing,
@@ -10,6 +11,7 @@ import {
   Image,
   ScrollView,
 } from "react-native";
+import * as AppleAuthentication from 'expo-apple-authentication';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SvgGoogle from "../../assets/svgs/GoogleIcon";
@@ -18,6 +20,7 @@ import images from "../../constants/images";
 import { router, useFocusEffect } from "expo-router";
 import { useFormik } from "formik";
 import {
+  APPLE_OAUTH,
   LOGIN_API,
   OAUTH,
   RESEND_OTP,
@@ -41,14 +44,14 @@ import Toast from "react-native-toast-message";
 //   signInWithCredential,
 // } from "@react-native-firebase/auth";
 import { useNotification } from "../../UseContext/notifications";
-import { getApp } from "@react-native-firebase/app";
-import { registerForPushNotificationsAsync } from "../../utlis/registrationsPushNotifications";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getAuth, GoogleAuthProvider, signInWithCredential } from "@react-native-firebase/auth";
-import { StatusBar } from "expo-status-bar";
 
+import registerForPushNotificationsAsync from "../../utlis/registrationsPushNotifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithCredential, signOut } from "@react-native-firebase/auth";
+import { StatusBar } from "expo-status-bar";
+import { auth } from "../../firebaseConfig"
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("signup");
+  const [activeTab, setActiveTab] = useState("login");
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const widthAnim = useRef(new Animated.Value(1)).current;
@@ -56,6 +59,7 @@ const Index = () => {
   const [authPopupVisible, setAuthPopupVisible] = useState(false);
   const [authPopupMessage, setAuthPopupMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isAuthhitting, setIsAuthhitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [verifytoken, setVerifytoken] = useState("");
@@ -66,6 +70,19 @@ const Index = () => {
   // const { expoPushToken } = useNotification();
 
   const translateX = useRef(new Animated.Value(0)).current;
+
+  //google configuration 
+  GoogleSignin.configure({
+    webClientId:
+      "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
+
+    scopes: [
+      "profile",
+      "email",
+      "https://www.googleapis.com/auth/userinfo.profile"
+    ]
+
+  });
 
   const startAnimation = () => {
     translateX.setValue(-30); // Reset position
@@ -90,75 +107,202 @@ const Index = () => {
     }
   }, [loading]);
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      // androidClientId: '1027382214254-k2j4vam8jgadk8d478a13eghq6lc0rqp.apps.googleusercontent.com',
 
-      webClientId:
-        "1027382214254-igq7ghhgc2o3o2hs8085npci8ruka5fd.apps.googleusercontent.com",
-        
-    });
-  }, []);
 
-  const signInWithGoogle = async () => {
+  // const signInWithGoogle = async () => {
+  //   try {
+  //     // Ensure Google Play Services is available
+  //     await GoogleSignin.hasPlayServices();
+
+  //     // Sign in to Google
+  //     const userInfo = await GoogleSignin.signIn();
+  //     console.log(userInfo);
+
+  //     // Check if ID Token is present
+  //     // if (!userInfo.data.idToken) {  // Changed from userInfo.data.idToken
+  //     //   throw new Error('Google ID token is missing');
+  //     // }
+
+  //     // Get the Firebase Auth instance
+  //     const app = getApp();
+  //     const auth = getAuth(app);
+
+  //     // Create a Google credential with the ID token
+  //     const googleCredential = GoogleAuthProvider.credential(
+  //       userInfo.data.idToken
+
+  //     );
+  //     console.log("user id token", userInfo.data.idToken);
+  //     // Sign in with Firebase using the Google credential
+  //     const userCredential = await signInWithCredential(auth, googleCredential);
+
+  //     console.log("Firebase User:", userCredential.user);
+
+  //     const firebaseUser = userCredential.user;
+  //     const firebaseIdToken = await firebaseUser.getIdToken();
+  //     console.log("Firebase ID Token:", firebaseIdToken);
+
+  //     // await oauthHandler({ oAuthToken: firebaseIdToken });
+  //     await oauthHandler(firebaseIdToken);
+
+  //     router.push("/home");
+  //     // Handle successful sign-in
+  //     const user = userCredential.user;
+  //     console.log("Signed in as:", user.email);
+
+  //     // Optionally save user email or perform further actions
+  //     // setUserEmail(user.email);
+  //     await SaveMail(user.email);
+  //     await checkLoginStatus(); // 👈 Add this
+
+  //     // Redirect to the home screen
+  //     router.push("/home");
+  //   } catch (error) {
+  //     // console.error("Google Sign-In Error:", error);
+  //     Toast.show({
+  //       type: "info",
+  //       text1: "Google Sign-In failed",
+  //       // text1: error.message || "Unknown error"
+
+  //     });
+  //     console.log("Google Sign-In Error:", error);
+  //   }
+  // };
+
+  const onAppleButtonPress = async () => {
+    console.log('applefctoken', fcm);
+    const fcmData = {
+      fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"
+    }
+    setIsAuthhitting(true)
     try {
-      // Ensure Google Play Services is available
-      await GoogleSignin.hasPlayServices();
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
 
-      // Sign in to Google
-      const userInfo = await GoogleSignin.signIn();
-      console.log(userInfo);
+      // Handle the signed-in user's credentials
+      console.log('Apple credential:', credential);
 
-      // Check if ID Token is present
-      // if (!userInfo.data.idToken) {  // Changed from userInfo.data.idToken
-      //   throw new Error('Google ID token is missing');
-      // }
+      try {
+        const res = await APPLE_OAUTH(credential.identityToken, fcmData);
+        console.log("Apple response:", res);
+        router.replace("/home")
+        await checkLoginStatus();
 
-      // Get the Firebase Auth instance
-      const app = getApp();
-      const auth = getAuth(app);
+        Toast.show({
+          type: "success",
+          text1: res.data.message || "Login successful",
+        });
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+      } catch (error) {
+        console.log("Error signing up:", error?.response?.data);
+        Toast.show({
+          type: "error",
+          text1: error?.response?.data?.message || "Login failed",
+        });
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+      }
 
-      // Create a Google credential with the ID token
+    } catch (e) {
+      if (e.code === 'ERR_REQUEST_CANCELED') {
+        console.log('User canceled Apple Sign-In');
+      } else {
+        console.error('Apple Sign-In Error:', e);
+      }
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
+    }
+  };
+
+
+  async function onGoogleButtonPress() {
+    setIsAuthhitting(true)
+    try {
+      console.log("Preessed button");
+      // Check if your device supports Google Play
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      // Get the users ID token
+
+      console.log("Step 1");
+      const signInResult = await GoogleSignin.signIn();
+
+      console.log("step2");
+      console.log("signInResult", signInResult);
+
+      if (signInResult.type === 'cancelled' || !signInResult.data) {
+        console.warn("User cancelled Google Sign-In.");
+        Toast.show({
+          type: "info",
+          text1: "User cancelled Google Sign-In."
+        })
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+        return;
+      }
+      // Try the new style of google-sign in result, from v13+ of that module
+
+      let idToken = signInResult.idToken || signInResult.data?.idToken;
+
+
+
+
+      if (!idToken) {
+        setTimeout(() => {
+          setIsAuthhitting(false)
+        }, 2000)
+        throw new Error("No ID token found");
+      }
+
+      // Create a Google credential with the token
       const googleCredential = GoogleAuthProvider.credential(
-        userInfo.data.idToken
-        
+        signInResult.data?.idToken || signInResult.idToken
       );
-      console.log("user id token", userInfo.data.idToken);
-      // Sign in with Firebase using the Google credential
-      const userCredential = await signInWithCredential(auth, googleCredential);
 
-      console.log("Firebase User:", userCredential.user);
+      console.log("GoogleCredentail", googleCredential);
+
+
+      // Sign-in the user with the credential
+      const userCredential = await signInWithCredential(auth, googleCredential);
+      console.log(userCredential)
+      console.log("token sending to backend", googleCredential?.token)
 
       const firebaseUser = userCredential.user;
       const firebaseIdToken = await firebaseUser.getIdToken();
-      console.log("Firebase ID Token:", firebaseIdToken);
 
-      // await oauthHandler({ oAuthToken: firebaseIdToken });
-      await oauthHandler(firebaseIdToken);
+      console.log("Firebase Token", firebaseIdToken)
 
-      router.push("/home");
-      // Handle successful sign-in
-      const user = userCredential.user;
-      console.log("Signed in as:", user.email);
-
-      // Optionally save user email or perform further actions
-      // setUserEmail(user.email);
-      await SaveMail(user.email);
+      await oauthHandler(firebaseIdToken)
+      await SaveMail(userCredential?.user.email);
       await checkLoginStatus(); // 👈 Add this
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
 
-      // Redirect to the home screen
-      router.push("/home");
     } catch (error) {
-      // console.error("Google Sign-In Error:", error);
+      console.error("Sign-in error:", error.message);
       Toast.show({
         type: "info",
-        text1:  "Google Sign-In failed",
+        text1: "Google Sign-In failed",
         // text1: error.message || "Unknown error"
 
       });
-      console.log("Google Sign-In Error:", error);
+      setTimeout(() => {
+        setIsAuthhitting(false)
+      }, 2000)
     }
-  };
+  }
+
+
 
   useEffect(() => {
     if (activeTab === "login") {
@@ -207,6 +351,8 @@ const Index = () => {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('fctoken', fcm);
+
       getToken();
     }, [])
   );
@@ -228,9 +374,9 @@ const Index = () => {
       password: "",
 
 
-//  email: "tarunaaatej.2002@gmail.com",
-//       password: "Tarun@12",
-    
+      //  email: "tarunaaatej.2002@gmail.com",
+      //       password: "Tarun@12",
+
     },
     validationSchema: signupSchema(applanguage),
     validateOnChange: true,
@@ -253,8 +399,8 @@ const Index = () => {
       Toast.show({
         type: "success",
         text1: res.data.message || "Verification code sent",
-      }); 
-      
+      });
+
       router.push({
         pathname: "/verifyotp",
         params: { token: res.data.token },
@@ -285,7 +431,7 @@ const Index = () => {
 
       // email: "twinkley2002@gmail.com",
       // password:"Twinkle@123",
- 
+
     },
     validationSchema: loginSchema(applanguage),
     validateOnChange: true,
@@ -309,7 +455,7 @@ const Index = () => {
       password: values.password,
       fcmToken: fcm,
       fcmTokenType: Platform.OS === "android" ? "android" : "ios"
-      
+
     };
 
     if (values.email) await AsyncStorage.setItem("user_email", values.email);
@@ -362,7 +508,7 @@ const Index = () => {
                 ? error.response.data.errors
                 : "Something went wrong. Please try again."),
           });
-          
+
         }
       }
     } finally {
@@ -378,7 +524,7 @@ const Index = () => {
       Toast.show({ type: "error", text1: "No token found. Please log in." });
       return;
     }
-  
+
     try {
       const res = await RESEND_OTP(verifytoken); // Only one API call here
       console.log("OTP resend success:", res.data);
@@ -389,27 +535,30 @@ const Index = () => {
     }
   };
 
-  
-  
+
+
 
   const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem("authToken");
     if (token) {
       // Navigate to home directly if token exists
-      router.replace("/home");
-    
-  };
+      // router.replace("/home");
+
+    };
     console.log("Token in checkLoginStatus:", token); // Ensure the token is saved
     setIsLoggedIn(!!token); // Update the login status
   };
 
   const oauthHandler = async (oAuthToken) => {
+    const fcmData = {
+      fcmToken: fcm,
+      fcmTokenType: Platform.OS === "android" ? "android" : "ios"
+    }
     try {
-      const res = await OAUTH(oAuthToken);
+      const res = await OAUTH(oAuthToken, fcmData);
       console.log("OAuth response:", res);
-
-
-      await checkLoginStatus(); 
+      router.replace("/home")
+      await checkLoginStatus();
 
       Toast.show({
         type: "success",
@@ -428,7 +577,7 @@ const Index = () => {
 
   return (
     <SafeAreaView className="flex-1">
-      <StatusBar style="dark"/>
+      <StatusBar style="dark" />
       {/* {authPopupVisible && (
   <View className="absolute top-10 left-5 right-5 bg-white px-4 py-3 rounded-xl shadow-lg border border-[#FFB648] z-50">
     <Text className="text-black text-center font-medium">
@@ -529,7 +678,7 @@ const Index = () => {
             </Animated.View>
           </View> */}
 
-           <View className="flex-row mx-8 relative rounded-full my-4 ">
+          <View className="flex-row mx-8 relative rounded-full my-4 ">
             <Animated.View
               style={{
                 flex: widthAnim.interpolate({
@@ -547,10 +696,9 @@ const Index = () => {
                 className={`items-center py-3 rounded-full border-2 ${activeTab === "signup" ? "border-[#164E8D]" : "border-[#164E8D]"}`}
               >
                 <Text
-                style={{ fontFamily: "Lato" }}
-                  className={`text-lg font-semibold ${
-                    activeTab === "login" ? "text-white " : "text-[#164E8D]"
-                  }`}
+                  style={{ fontFamily: "Lato" }}
+                  className={`text-lg font-semibold ${activeTab === "login" ? "text-white " : "text-[#164E8D]"
+                    }`}
                 >
                   {applanguage === "eng"
                     ? Translations.eng.log_in
@@ -576,10 +724,9 @@ const Index = () => {
                 className={`items-center py-3 rounded-full border-2 ${activeTab === "signup" ? "border-[#164E8D]" : "border-[#164E8D]"}`}
               >
                 <Text
-                 style={{ fontFamily: "Lato" }}
-                  className={`text-lg font-semibold ${
-                    activeTab === "signup" ? "text-white" : "text-[#164E8D]"
-                  }`}
+                  style={{ fontFamily: "Lato" }}
+                  className={`text-lg font-semibold ${activeTab === "signup" ? "text-white" : "text-[#164E8D]"
+                    }`}
                 >
                   {applanguage === "eng"
                     ? Translations.eng.sign_up
@@ -589,9 +736,12 @@ const Index = () => {
             </Animated.View>
           </View>
 
+
+
+
           {/* Form Container */}
           <Animated.View
-            className="w-full px-4 pt-4"
+            className="w-full max-w-[500px] px-4 pt-4"
             style={{ opacity: fadeAnim }}
           >
             {activeTab === "login" ? (
@@ -620,7 +770,7 @@ const Index = () => {
 
                 {loginFormik.touched.email && loginFormik.errors.email && (
                   <Text className="text-red-500 w-[90%] mx-auto"
-                  style={{ fontFamily: "Lato" }}>
+                    style={{ fontFamily: "Lato" }}>
                     {loginFormik.errors.email}
                   </Text>
                 )}
@@ -652,10 +802,19 @@ const Index = () => {
 
                 {loginFormik.touched.password &&
                   loginFormik.errors.password && (
-                    <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
+                    <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
                       {loginFormik.errors.password}
                     </Text>
                   )}
+                <View className=" w-[90%] flex flex-row justify-end">
+
+                  <TouchableOpacity className=""><Text className="  text-[#164F90] font-bold" onPress={() => router.push("/forgotpassemail")}>
+                    {applanguage === "eng"
+                      ? Translations.eng.forgot_password
+                      : Translations.arb.forgot_password}
+
+                  </Text></TouchableOpacity>
+                </View>
 
                 <TouchableOpacity
                   onPress={loginFormik.handleSubmit}
@@ -687,26 +846,38 @@ const Index = () => {
                 </TouchableOpacity>
                 <View className="flex flex-row items-center justify-evenly mt-12 px-3">
                   <View className="flex-1 h-[1px] bg-black" />
-                  <Text className="mx-2"  style={{ fontFamily: "Lato" }}>
+                  <Text className="mx-2" style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.or
                       : Translations.arb.or}
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                <View className="flex flex-row items-center justify-center gap-x-8 py-10">
+                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
                   <TouchableOpacity
-                    onPress={() => signInWithGoogle()}
+                    onPress={() => onGoogleButtonPress()}
+                    disabled={isAuthhitting}
+
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
                   >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10"  style={{ fontFamily: "Lato" }}>
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
                       Login with Google
                     </Text>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity>
+                  {Platform.OS === 'ios' && (<TouchableOpacity
+                    onPress={() => onAppleButtonPress()}
+                    disabled={isAuthhitting}
+                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                  >
                     <SvgApple />
-                  </TouchableOpacity> */}
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Login with Apple
+                    </Text>
+                  </TouchableOpacity>)}
+                  {/* <TouchableOpacity>
+                      <SvgApple />
+                    </TouchableOpacity> */}
                 </View>
                 {/* <TouchableOpacity
                   className="self-center"
@@ -730,10 +901,10 @@ const Index = () => {
                     await AsyncStorage.setItem("skippedLogin", "true");
 
                     // Navigate to home
-                    router.push("/home");
+                    router.replace("/home");
                   }}
                 >
-                  <Text className="text-[#0F7BE6] text-lg"  style={{ fontFamily: "Lato" }}>
+                  <Text className="text-[#0F7BE6] text-lg" style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.skip_login
                       : Translations.arb.skip_login}
@@ -764,7 +935,7 @@ const Index = () => {
                   }
                 />
                 {formik.touched.email && formik.errors.email && (
-                  <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
+                  <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
                     {formik.errors.email}
                   </Text>
                 )}
@@ -799,7 +970,7 @@ const Index = () => {
                 </View>
 
                 {formik.touched.password && formik.errors.password && (
-                  <Text className="text-red-500 w-[90%] mx-auto"  style={{ fontFamily: "Lato" }}>
+                  <Text className="text-red-500 w-[90%] mx-auto" style={{ fontFamily: "Lato" }}>
                     {formik.errors.password}
                   </Text>
                 )}
@@ -825,7 +996,7 @@ const Index = () => {
                       />
                     </Animated.View>
                   ) : (
-                    <Text className="text-[#164F90] font-bold text-lg "  style={{ fontFamily: "Lato" }}>
+                    <Text className="text-[#164F90] font-bold text-lg " style={{ fontFamily: "Lato" }}>
                       {applanguage === "eng"
                         ? Translations.eng.sign_up
                         : Translations.arb.sign_up}
@@ -842,19 +1013,52 @@ const Index = () => {
                   </Text>
                   <View className="flex-1 h-[1px] bg-black" />
                 </View>
-                <View className="flex flex-row items-center justify-center gap-x-8 py-10">
+                <View className="flex flex-col items-center justify-center gap-x-8 gap-y-2 py-10">
                   <TouchableOpacity
-                    onPress={() => signInWithGoogle()}
+                    onPress={() => onGoogleButtonPress()}
+                    disabled={isAuthhitting}
+
                     className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
                   >
                     <SvgGoogle />
-                    <Text className="font-bold text-lg mr-10"  style={{ fontFamily: "Lato" }}>
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
                       Signup with Google
                     </Text>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity>
+                  {/* <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.Transparent}
+        cornerRadius={5}
+        style={styles.button}
+        onPress={async () => {
+          try {
+            const credential = await AppleAuthentication.signInAsync({
+              requestedScopes: [
+                AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                AppleAuthentication.AppleAuthenticationScope.EMAIL,
+              ],
+            });
+            // signed in
+          } catch (e) {
+            if (e.code === 'ERR_REQUEST_CANCELED') {
+              // handle that the user canceled the sign-in flow
+            } else {
+              // handle other errors
+            }
+          }
+        }}
+      /> */}
+                  {Platform.OS === 'ios' && (<TouchableOpacity
+                    onPress={() => onAppleButtonPress()}
+                    disabled={isAuthhitting}
+
+                    className=" border-gray-300 border-[2px] rounded-xl w-[80%] p-2 py-3 flex flex-row items-center justify-center gap-x-5  "
+                  >
                     <SvgApple />
-                  </TouchableOpacity> */}
+                    <Text className="font-bold text-lg mr-10" style={{ fontFamily: "Lato" }}>
+                      Signup with Apple
+                    </Text>
+                  </TouchableOpacity>)}
                 </View>
                 <TouchableOpacity
                   className="self-center"
@@ -868,10 +1072,10 @@ const Index = () => {
                     await AsyncStorage.setItem("skippedLogin", "true");
 
                     // Navigate to home
-                    router.push("/home");
+                    router.replace("/home");
                   }}
                 >
-                  <Text className="text-[#0F7BE6] text-lg"  style={{ fontFamily: "Lato" }}>
+                  <Text className="text-[#0F7BE6] text-lg" style={{ fontFamily: "Lato" }}>
                     {applanguage === "eng"
                       ? Translations.eng.skip_signin
                       : Translations.arb.skip_signin}
@@ -887,3 +1091,24 @@ const Index = () => {
 };
 
 export default Index;
+//////////////////////////////////
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    borderColor: '#D1D5DB',     // gray-300
+    borderWidth: 5,
+    borderRadius: 12,           // rounded-xl
+    width: '80%',
+    paddingHorizontal: 8,       // p-2 (left & right)
+    paddingTop: 30,             // py-3
+    paddingBottom: 12,
+    flexDirection: 'row',       // flex-row
+    alignItems: 'center',       // items-center
+    justifyContent: 'center',   // justify-center
+    columnGap: 20,
+  },
+});

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import images from "../../../constants/images";
@@ -22,29 +23,39 @@ import { langaugeContext } from "../../../customhooks/languageContext";
 import cancellationSchema from "../../../yupschema/cancellationSchema";
 import Translations from "../../../language";
 import Toast from "react-native-toast-message";
+import AlertModal from "../../alertmodal";
+import SuccessModal from "../../successmodal";
 
 const cancellation = () => {
   const insets = useSafeAreaInsets();
-  const {bookingId} = useLocalSearchParams()
-    const [apiErr, setApiErr] = useState("");
-    const { applanguage } = langaugeContext()
+  const { bookingId } = useLocalSearchParams()
+  const [apiErr, setApiErr] = useState("");
+  const { applanguage } = langaugeContext()
+  const [showAlertPopup, setShowAlertPopup] = useState(false)
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [alertMessage, setAlertMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  
 
   const formik = useFormik({
     initialValues: {
-      reasonForCancellation: "", 
-    }, 
+      reasonForCancellation: "",
+    },
     validationSchema: cancellationSchema(applanguage),
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: async ( values) => {
-      await cancellationBookingHandler(bookingId , values);
-      router.push("/home");
+    onSubmit: async (values) => {
+      const res = await cancellationBookingHandler(bookingId, values);
+
+
+      // router.push(-1);
+      // router.push("/home");
     },
   });
 
-  const cancellationBookingHandler = async (bookingId , values) => {
+  const cancellationBookingHandler = async (bookingId, values) => {
+    setIsSubmitting(true)
     const token = await AsyncStorage.getItem("authToken");
     if (!token) {
       Toast.show({
@@ -55,29 +66,42 @@ const cancellation = () => {
     }
 
     try {
-      const res = await CANCELLATION(values, token , bookingId);
-      Toast.show({
-        type: "success",
-        text1:"Booking cancelled successfully",
-        text2: `Your amount will be refunded within "2" days`,
-      });
-      console.log("booking details" , bookingId);
-      console.log("cancelllllllaaaaaaaaaaaaaaaaaa", res.data.message);
-
+      const res = await CANCELLATION(values, token, bookingId);
+      console.log('resresresresresresresresresres',res);
       
+      if (res.status === 200 && res.data.isbookingcancel) {
+setIsSubmitting(false)
+        setShowSuccessPopup(true)
+        setSuccessMessage(res.data.message)
+        
+        // router.push(-1);
+        // Toast.show({
+        //   type: "success",
+        //   text1:"Booking cancelled successfully",
+        //   text2: `Your amount will be refunded within "2" days`,
+        // });
+      } else {
+        setIsSubmitting(false)
+        setShowAlertPopup(true)
+        setAlertMessage(res?.data?.message || 'Server issue')
+      }
+
+
+
+
     } catch (error) {
-      console.log("Error sending code:", error?.response);
-      setApiErr(error?.response?.data?.message || "Invalid OTP");
+      setIsSubmitting(false)
+      // console.log("Error sending code:", error?.response.data.message);
+      setApiErr(error?.response?.data?.message|| error?.data?.message ||error?.errors || "Unknown issue");
     }
   };
 
-  useEffect(()=>{
-    console.log("booking details" , bookingId);
-      
-  },[])
+
 
   return (
     <View className="flex-1">
+      {showAlertPopup && <AlertModal message={alertMessage} onClose={() => setShowAlertPopup(false)} />}
+      {showSuccessPopup && <SuccessModal message={successMessage} onClose={() => {setShowSuccessPopup(false);router.back()}} />}
       {/* Header Background Image */}
       <View>
         <Image
@@ -106,7 +130,7 @@ const cancellation = () => {
               style={{ fontFamily: "CenturyGothic" }}
             >
               {
-                applanguage==="eng"?Translations.eng.cancellation:Translations.arb.cancellation
+                applanguage === "eng" ? Translations.eng.cancellation : Translations.arb.cancellation
               }
             </Text>
           </View>
@@ -115,9 +139,9 @@ const cancellation = () => {
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="px-7 flex-col gap-2">
           <Text className="text-[#40464C] text-lg" style={{ fontFamily: "Lato" }}>
-          {
-                applanguage==="eng"?Translations.eng.specify_reason_for_cancellation:Translations.arb.specify_reason_for_cancellation
-              }
+            {
+              applanguage === "eng" ? Translations.eng.specify_reason_for_cancellation : Translations.arb.specify_reason_for_cancellation
+            }
           </Text>
           <TextInput
             numberOfLines={10}
@@ -126,7 +150,7 @@ const cancellation = () => {
               applanguage === "eng"
                 ? Translations.eng.type_here
                 : Translations.arb.type_here
-            }   
+            }
             onChangeText={formik.handleChange("reasonForCancellation")}
             onBlur={formik.handleBlur("reasonForCancellation")}
             value={formik.values.reasonForCancellation}
@@ -141,22 +165,26 @@ const cancellation = () => {
           )}
 
           <Text className="text-sm" style={{ fontFamily: "Lato" }}>
-          {
-                applanguage==="eng"?Translations.eng.cancellation_note:Translations.arb.cancellation_note
-              }
+            {
+              applanguage === "eng" ? Translations.eng.cancellation_note : Translations.arb.cancellation_note
+            }
           </Text>
         </View>
       </ScrollView>
       <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
-      onPress={()=> {formik.handleSubmit();
-        router.dismissAll();
-      }}
+      disabled={isSubmitting}
+        onPress={() => {
+          formik.handleSubmit();
+          // router.dismissAll();
+        }}
       >
-        <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
         {
-                applanguage==="eng"?Translations.eng.submit:Translations.arb.submit
-              }
-        </Text>
+        !isSubmitting ? <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
+          {
+            applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit
+          }
+        </Text>: <ActivityIndicator size="small" color="white" />
+        }
       </TouchableOpacity>
     </View>
   );

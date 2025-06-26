@@ -21,6 +21,7 @@ import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg";
+import sorry from "../../../assets/images/sorry.png";
 import { Calendar } from "lucide-react-native";
 import Editprofile from "../../../assets/svgs/editprofile";
 import Rightarrow from "../../../assets/svgs/rightarrow";
@@ -41,7 +42,7 @@ import RadioButtonGroup, { RadioButtonItem } from "expo-radio-button";
 import Translations from "../../../language";
 import { langaugeContext } from "../../../customhooks/languageContext";
 // import {  signOut } from "firebase/auth";
-import auth, {
+import {
   firebase,
   getAuth,
   GoogleAuthProvider,
@@ -61,6 +62,10 @@ import Cut from "../../../assets/svgs/cut";
 import flightloader from "../../../assets/images/flightloader.gif";
 import Toast from "react-native-toast-message";
 import Constants from "expo-constants";
+import ChangePassword from "../../../assets/svgs/changePass";
+import Followus from "../../../assets/svgs/followus";
+import Aboutus from "../../../assets/svgs/aboutus";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 // import { Alert, Button } from "react-native";
 
@@ -85,8 +90,8 @@ import Constants from "expo-constants";
 
 const handleSignOut = async () => {
   try {
-    const app = getApp();
-    const auth = getAuth(app);
+    // const app = getApp();
+    // const auth = getAuth(app);
 
     const currentUser = auth.currentUser;
 
@@ -112,6 +117,7 @@ const index = () => {
   const insets = useSafeAreaInsets();
   const drefRBSheet = useRef();
   const logoutrefRBSheet = useRef();
+  const sorryrefRBSheet = useRef();
   const [current, setCurrent] = useState("1");
   const [loading, setLoading] = useState(false);
   const [shouldOpenSheet, setShouldOpenSheet] = useState(false);
@@ -234,7 +240,7 @@ const index = () => {
     try {
       await handleSignOut();
       // Redirect to login/sign-in screen
-      router.replace("/(auth)");
+      // router.replace("/(auth)");
     } catch (error) {
       console.log("Error", error.message); // or toast.show(...)
     }
@@ -295,7 +301,7 @@ const index = () => {
           </View>
 
           <View className="flex flex-row justify-center">
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className=" my-4 mx-4 border-2 border-[#164F90] rounded-xl py-4 px-10 "
               onPress={() => logoutrefRBSheet.current.close()}
             >
@@ -306,7 +312,7 @@ const index = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
               onPress={() => {
                 onSignOut();
@@ -331,6 +337,79 @@ const index = () => {
     );
   };
 
+  const sorryRbSheet = () => {
+    return (
+      <RBSheet
+        ref={sorryrefRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        height={Dimensions.get("window").height / 2}
+        customStyles={{
+          wrapper: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+          },
+          container: {
+            backgroundColor: "#fff",
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: -3,
+            },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            elevation: 5,
+          },
+          draggableIcon: {
+            backgroundColor: "#ccc",
+            width: 40,
+            height: 5,
+            borderRadius: 10,
+          },
+        }}
+        onClose={()=>
+        router.replace("/(auth)")}
+      >
+        <View className="rounded-2xl flex-col ">
+
+          <TouchableOpacity
+            className="absolute top-2 right-3  rounded-full p-1"
+            onPress={() => sorryrefRBSheet.current.close()}
+          >
+            <AntDesign name="closecircleo" size={24} color="black" />
+          </TouchableOpacity>
+        <View className=" flex-col p-5 gap-y-5 ">
+
+          {/* Image */}
+          <Image
+            source={sorry}
+            className="w-28 h-28  relative self-center"
+            style={{ resizeMode: "contain" }}
+          />
+
+          {/* Heading */}
+          <Text className="text-center text-[22px] font-bold text-[#164F90]" style={{ fontFamily: "Lato" }}>
+            {applanguage === "eng"
+              ? Translations.eng.sorry_heading
+              : Translations.arb.sorry_heading}
+          </Text>
+
+          {/* Message */}
+          <View className="mx-6 flex flex-col gap-3">
+            <Text className="text-[#164F90] text-[14px] text-center" style={{ fontFamily: "Lato" }}>
+              {applanguage === "eng"
+                ? Translations.eng.sorry_msg
+                : Translations.arb.sorry_msg}
+            </Text>
+          </View>
+          </View>
+
+        </View>
+      </RBSheet>
+    );
+  };
+
   const deleteaccount = async (values) => {
     const finalReason = formik.values.reasonForDeleteAccount;
 
@@ -345,11 +424,14 @@ const index = () => {
 
     try {
       const res = await DELETE_ACCOUNT(values, token);
-      console.log(res);
       setAccountDeleted(true); // prevent reuse
       drefRBSheet.current?.close();
-      router.push("/(auth)");
-      // Toast.show(res.data.message);
+      
+      sorryrefRBSheet.current.open(); 
+      // setTimeout(() => {
+      //   sorryrefRBSheet.current.close(); // Close after 30 seconds
+      //   router.replace("/(auth)"); // Redirect to auth screen
+      // }, 10000); 
       Toast.show({
         type: "success",
         text1: res.data.message,
@@ -374,7 +456,7 @@ const index = () => {
         ref={drefRBSheet}
         closeOnDragDown={true}
         closeOnPressMask={true}
-        height={Platform.OS==="android"?Dimensions.get("window").height / 1.35:Dimensions.get("window").height / 1.65}
+        height={Platform.OS === "android" ? Dimensions.get("window").height / 1.35 : Dimensions.get("window").height / 1.65}
         customStyles={{
           wrapper: {
             backgroundColor: "rgba(0,0,0,0.2)",
@@ -408,7 +490,7 @@ const index = () => {
                 ? Translations.eng.delete_account
                 : Translations.arb.delete_account}
             </Text>
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               onPress={() => drefRBSheet.current.close()}
               className="absolute right-4 top-1/2 -translate-y-1/2"
             >
@@ -434,19 +516,19 @@ const index = () => {
                   setSelectedRadioReason(value);
 
                   const reasonMap = {
-                    1: Translations.eng. reason_I_no_longer_need_this_service_or_app,
-                    2: Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues,
-                   
+                    1: Translations.eng.reason_I_no_longer_need_this_service_or_app,
+                    2: Translations.eng.reason_I_had_a_poor_experience_or_encountered_issues,
+
                   };
 
                   const selectedReason =
                     applanguage === "eng"
                       ? reasonMap[value]
                       : {
-                          1: Translations.arb. reason_I_no_longer_need_this_service_or_app,
-                          2: Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues,
-                         
-                        }[value];
+                        1: Translations.arb.reason_I_no_longer_need_this_service_or_app,
+                        2: Translations.arb.reason_I_had_a_poor_experience_or_encountered_issues,
+
+                      }[value];
 
                   // ✅ Set in Formik but don't show in the input
                   formik.setFieldValue(
@@ -468,8 +550,8 @@ const index = () => {
                       }}
                     >
                       {applanguage === "eng"
-                        ? Translations.eng. reason_I_no_longer_need_this_service_or_app
-                        : Translations.arb. reason_I_no_longer_need_this_service_or_app}
+                        ? Translations.eng.reason_I_no_longer_need_this_service_or_app
+                        : Translations.arb.reason_I_no_longer_need_this_service_or_app}
                     </Text>
                   }
                 />
@@ -492,8 +574,8 @@ const index = () => {
                         }}
                       >
                         {applanguage === "eng"
-                          ? Translations.eng. reason_I_had_a_poor_experience_or_encountered_issues
-                          : Translations.arb. reason_I_had_a_poor_experience_or_encountered_issues}
+                          ? Translations.eng.reason_I_had_a_poor_experience_or_encountered_issues
+                          : Translations.arb.reason_I_had_a_poor_experience_or_encountered_issues}
                       </Text>
                     </View>
                   }
@@ -551,7 +633,7 @@ const index = () => {
               </Text>
 
               <TextInput
-              style={{ height: 170 }}
+                style={{ height: 170 }}
                 multiline={true}
                 numberOfLines={7}
                 onChangeText={(text) => {
@@ -583,7 +665,7 @@ const index = () => {
                 )}
             </View>
 
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               disabled={loading}
               onPress={formik.handleSubmit}
               style={{
@@ -642,6 +724,7 @@ const index = () => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState !== "active") {
         logoutrefRBSheet.current?.close(); // ✅ close sheet when app goes background
+
         setShouldOpenSheet(false); // ✅ also reset the open flag
       }
     });
@@ -656,6 +739,7 @@ const index = () => {
       {/* Header Background Image */}
       {handleDelete()}
       {handleLogout()}
+      {sorryRbSheet()}
       <View>
         <Image
           source={images.HeaderImg}
@@ -683,7 +767,7 @@ const index = () => {
       </View>
       <ScrollView className="flex-1" contentContainerStyle={{ padding: 15 }}>
         <View className="px-4">
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/editprofile")}
           >
@@ -698,7 +782,22 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+          onPress={() => router.push("/profile/changepassword")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <ChangePassword />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.change_password
+                  : Translations.arb.change_password}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity> */}
+
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/address")}
           >
@@ -713,7 +812,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/language")}
           >
@@ -728,7 +827,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/contactus")}
           >
@@ -743,7 +842,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          {/* <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/chat")}
           >
@@ -758,7 +857,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity> */}
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/faq")}
           >
@@ -773,7 +872,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/feedback")}
           >
@@ -788,7 +887,37 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+            onPress={() => router.push("/profile/followus")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <Followus />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.follow_us
+                  : Translations.arb.follow_us}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.6}
+            className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
+            onPress={() => router.push("/profile/aboutus")}
+          >
+            <View className="flex-row gap-3 items-center">
+              <Aboutus />
+              <Text className="text-[#515151] text-xl" style={{ fontFamily: "Lato" }}>
+                {applanguage === "eng"
+                  ? Translations.eng.about_us
+                  : Translations.arb.about_us}
+              </Text>
+            </View>
+            <Rightarrow />
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/termsandconditions")}
           >
@@ -803,7 +932,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/privacypolicy")}
           >
@@ -818,7 +947,7 @@ const index = () => {
             <Rightarrow />
           </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          {/* <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/cancellationpolicy")}
           >
@@ -831,9 +960,9 @@ const index = () => {
               </Text>
             </View>
             <Rightarrow />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => router.push("/profile/refundpolicy")}
           >
@@ -849,7 +978,7 @@ const index = () => {
           </TouchableOpacity> */}
 
           {isLoggedIn && (
-            <TouchableOpacity
+            <TouchableOpacity activeOpacity={0.6}
               className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
               onPress={() => drefRBSheet.current.open()}
             >
@@ -865,11 +994,12 @@ const index = () => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             className="flex-row justify-between items-center py-6 border-b-[1px] border-[#CBCBCB]"
             onPress={() => {
               if (isLoggedIn) {
                 logoutrefRBSheet.current.open(); // open sheet only if logged in
+                //  sorryrefRBSheet.current.open();
               } else {
                 router.replace("/(auth)"); // go to auth screen if not logged in
               }
@@ -883,22 +1013,22 @@ const index = () => {
                     ? Translations.eng.logout
                     : Translations.arb.logout
                   : applanguage === "eng"
-                  ? Translations.eng.log_in
-                  : Translations.arb.log_in}
+                    ? Translations.eng.log_in
+                    : Translations.arb.log_in}
               </Text>
             </View>
             <Rightarrow />
           </TouchableOpacity>
         </View>
 
-        <View className="">
+        {/* <View className="">
           <Text className="text-center text-[#A0A0A0] text-[12px] mt-4 mb-4" style={{ fontFamily: "Lato" }}>
             {applanguage === "eng"
               ? Translations.eng.app_version
               : Translations.arb.app_version}{" "}
             -{Constants.expoConfig.version}
           </Text>
-          <TouchableOpacity
+          <TouchableOpacity activeOpacity={0.6}
             onPress={() => Linking.openURL("https://analogueitsolutions.com/")}
             className=" "
           >
@@ -906,7 +1036,7 @@ const index = () => {
               © Analogue IT Solutions
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );

@@ -17,18 +17,18 @@ export const baggageSchema = (applanguage) =>
     ).min(1, applanguage === "eng"
         ? "Minimum baggage count should be 1"
         : "يجب أن يكون الحد الأدنى لعدد الحقائب 1"),
-    baggagePictures: Yup.array()
-      .of(Yup.string())
-      // .min(
-      //   1,
-      //   applanguage === "eng"
-      //     ? "At least one image is required"
-      //     : "مطلوب صورة واحدة على الأقل"
-      // )
-      .max(
-        10,
-        applanguage === "eng"
-          ? "You can upload up to 10 images"
-          : "يمكنك رفع ما يصل إلى 10 صور"
-      ),
+    // baggagePictures: Yup.array()
+    //   .of(Yup.string())
+    //   // .min(
+    //   //   1,
+    //   //   applanguage === "eng"
+    //   //     ? "At least one image is required"
+    //   //     : "مطلوب صورة واحدة على الأقل"
+    //   // )
+    //   .max(
+    //     10,
+    //     applanguage === "eng"
+    //       ? "You can upload up to 10 images"
+    //       : "يمكنك رفع ما يصل إلى 10 صور"
+    //   ),
   });
