@@ -23,7 +23,7 @@ const Payment = () => {
   const router = useRouter();
 
   const extractPaymentId = (url) => {
-    const match = url.match(/[?&]PaymentID=([^&]+)/);
+    const match = url.match(/[?&]PaymentID=([^&#]+)/);
     return match ? match[1] : null;
   };
 
@@ -63,9 +63,10 @@ const Payment = () => {
     // Extract and store PaymentId if found
     if (url.includes("PaymentID=")) {
       const paymentId = extractPaymentId(url);
+      
       if (paymentId) {
-        console.log("Extracted PaymentId:", paymentId);
         paymentIdRef.current = paymentId;
+        console.log("Extracted PaymentId:", paymentId);
       }
     }
 
@@ -74,7 +75,7 @@ const Payment = () => {
       if (!verificationAttemptedRef.current) {
         router.replace("/home/paymentfailed");
       }
-      return false;
+      return;
     }
 
     // Handle success cases
@@ -108,10 +109,15 @@ const Payment = () => {
         source={{ uri: paymentUrl }}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
+      //    onNavigationStateChange={(navState) => {
+      //   handleUrlChange(navState.url);
+      // }}
         onShouldStartLoadWithRequest={({ url }) => handleUrlChange(url)}
         javaScriptEnabled
-        domStorageEnabled
-        startInLoadingState
+  domStorageEnabled
+  sharedCookiesEnabled={true}
+  thirdPartyCookiesEnabled={true}
+  startInLoadingState
       // onNavigationStateChange={(navState) => {
       //   // Additional safeguard for navigation changes
       //   handleUrlChange(navState.url);

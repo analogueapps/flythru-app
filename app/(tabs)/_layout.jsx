@@ -58,12 +58,12 @@ const _layout = () => {
         tabBarStyle: shouldHideTabs
           ? { display: "none" }
           : {
-             lazy: false,
-              height: 70,
-              paddingBottom: 10,
-              paddingTop: 5,
-              backgroundColor: "#FFFFFF",
-            },
+            lazy: false,
+            height: 70,
+            paddingBottom: 10,
+            paddingTop: 5,
+            backgroundColor: "#FFFFFF",
+          },
       }}
     >
       <Tabs.Screen
@@ -92,38 +92,37 @@ const _layout = () => {
         }}
       />
 
-     // Simple and effective solution
-<Tabs.Screen
-  name="activities"
-  options={{
-    headerShown: false,
-    tabBarLabel:
-      applanguage === "eng"
-        ? Translations.eng.activities
-        : Translations.arb.activities,
-    tabBarIcon: ({ color }) => <SvgActivities color={color} />,
-    tabBarButton: (props) => {
-      // const router = useRouter();
-      
-      return (
-        <TouchableOpacity 
-          {...props} 
-          onPress={() => {
-            // Call original onPress for tab state
-            props.onPress?.();
-            
-            // Force navigation to activities index
-            // This will reset the activities stack
-            router.navigate('/(tabs)/activities');
-            
-            // Alternative: Use replace for cleaner navigation
-            // router.replace('/(tabs)/activities');
-          }}
-        />
-      );
-    }
-  }}
-/>
+      <Tabs.Screen
+        name="activities"
+        options={{
+          headerShown: false,
+          tabBarLabel:
+            applanguage === "eng"
+              ? Translations.eng.activities
+              : Translations.arb.activities,
+          tabBarIcon: ({ color }) => <SvgActivities color={color} />,
+          tabBarButton: (props) => {
+            // const router = useRouter();
+
+            return (
+              <TouchableOpacity
+                {...props}
+                onPress={() => {
+                  // Call original onPress for tab state
+                  props.onPress?.();
+
+                  // Force navigation to activities index
+                  // This will reset the activities stack
+                  router.navigate('/(tabs)/activities');
+
+                  // Alternative: Use replace for cleaner navigation
+                  // router.replace('/(tabs)/activities');
+                }}
+              />
+            );
+          }
+        }}
+      />
 
       <Tabs.Screen
         name="profile"
@@ -134,6 +133,26 @@ const _layout = () => {
               ? Translations.eng.profile
               : Translations.arb.profile,
           tabBarIcon: ({ color }) => <SvgProfile color={color} />,
+           tabBarButton: (props) => {
+            // const router = useRouter();
+
+            return (
+              <TouchableOpacity
+                {...props}
+                onPress={() => {
+                  // Call original onPress for tab state
+                  props.onPress?.();
+
+                  // Force navigation to activities index
+                  // This will reset the activities stack
+                  router.navigate('/(tabs)/profile');
+
+                  // Alternative: Use replace for cleaner navigation
+                  // router.replace('/(tabs)/activities');
+                }}
+              />
+            );
+          }
         }}
       />
     </Tabs>

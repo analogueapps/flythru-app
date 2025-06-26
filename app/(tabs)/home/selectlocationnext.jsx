@@ -14,6 +14,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -69,6 +70,7 @@ const selectlocation = () => {
   const [pickupdate, setPickupdate] = useState([]);
   const [pickuploaction, setPickuploaction] = useState([]);
   const [paymentUrl, setPaymentUrl] = useState(null);
+  const [isSwiping, setIsSwiping] = useState(false);
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
   const parsedBaggagePictures = baggagePictures
@@ -462,9 +464,11 @@ const selectlocation = () => {
         onClose={() => setIsMapshow(true)}
       >
         {paymentUrl ?
-          <ScrollView keyboardShouldPersistTaps="handled">
-            <View className="p-3 rounded-2xl flex-col gap-y-6  w-[90%] max-w-[400px] m-auto">
-              <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
+          <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={!isSwiping} contentContainerStyle={{
+            flexGrow: 1,
+          }}>
+            <View className="p-3 rounded-2xl flex-col justify-center items-center   gap-y-6  w-[90%] max-w-[400px] m-auto">
+              <View className="flex flex-row w-full  justify-between items-center mb-5 mt-7 gap-2">
                 <View className="flex flex-row ">
                   {/* <Image
                 source={dp}
@@ -499,14 +503,14 @@ const selectlocation = () => {
                 </View>
               </View>
 
-              <View className="flex flex-row justify-start gap-x-5 items-start w-[90%] m-auto">
+              <View className="flex flex-row  justify-start gap-x-5 items-start w-[90%] m-auto">
                 <Image
                   source={verticalline}
                   className="h-24 mt-3" // add negative margin-top
                   resizeMode="contain"
                 />
 
-                <View className="flex-col gap-5">
+                <View className="flex-col flex-1 gap-5">
                   <View className="flex-col gap-1">
                     <Text
                       className="text-[#164F90] text-[18px] font-bold"
@@ -516,7 +520,7 @@ const selectlocation = () => {
                         ? Translations.eng.pick_up
                         : Translations.arb.pick_up}{" "}
                     </Text>
-                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                    <Text className="text-[15px]" style={{ fontFamily: "Lato" }}>
                       {pickuploaction}
                     </Text>
                   </View>
@@ -530,16 +534,16 @@ const selectlocation = () => {
                         ? Translations.eng.drop_off
                         : Translations.arb.drop_off}{" "}
                     </Text>
-                    <Text className="text-[16px]" style={{ fontFamily: "Lato" }}>
+                    <Text className="text-[15px]" numberOfLines={2} ellipsizeMode="tail" style={{ fontFamily: "Lato" }}>
                       Airport
                     </Text>
                   </View>
                 </View>
               </View>
 
-              <View className="flex-1 h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
+              <View className=" h-[1px] w-[75%] mx-auto border-t  border-[#00000026] relative" />
 
-              <View className="flex flex-row justify-center">
+              <View className="flex  flex-row justify-center">
                 <SwipeButton
                   title="Swipe Right to Book"
                   thumbIconBackgroundColor="#FFB648"
@@ -558,9 +562,17 @@ const selectlocation = () => {
                     width: "95%", // Ensure the button is wide enough
                     alignSelf: "center", // Center it horizontally
                   }}
+                  onSwipeStart={() => {
+                    console.log("Swipe started");
+                    setIsSwiping(true);
+                  }}
+                  onSwipeFail={() => {
+                    console.log("Swipe failed");
+                    setIsSwiping(false);
+                  }}
                   onSwipeSuccess={() => {
                     console.log("Booking Confirmed!");
-
+                    setIsSwiping(false);
                     if (locationrefRBSheet.current) {
                       locationrefRBSheet.current.close();
                     }
@@ -666,7 +678,29 @@ const selectlocation = () => {
         )}
 
         <TouchableOpacity
-          onPress={() => addressRefRBSheet.current?.open()}
+          onPress={() => {
+            const text = formik.values.pickUpLocation;
+
+            if (text.length <= 2) {
+              Alert.alert(
+                "Address is Required",
+                "Please select a valid pickup location.",
+                [
+                  {
+                    text: "OK",
+                    onPress: () => {
+                      // Do NOT open the RBSheet here
+                    },
+                  },
+                ]
+              );
+              return;
+            } else {
+
+              addressRefRBSheet.current?.open()
+            }
+          }
+          }
           disabled={loading}
           className="bg-[#FFB648] rounded-lg w-[45%] h-11 mx-auto mt-4 flex items-center justify-center"
         >

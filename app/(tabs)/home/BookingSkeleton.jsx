@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const BookingSkeleton = () => {
   return (
-    <View className="p-3 rounded-2xl flex-col gap-y-6 w-[90%] m-auto">
+    <View className="p-3 rounded-2xl flex-col gap-y-6 w-[90%] max-w-[400px] m-auto">
       {/* Header Row */}
       <View className="flex flex-row justify-between items-center mb-5 mt-7 gap-2">
         <View className="flex flex-row items-center gap-4">

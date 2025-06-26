@@ -24,6 +24,7 @@ import {
   ADD_FLIGHTS,
   ALL_FLIGHTS,
   ALL_FLIGHTS_CLIENT,
+  GET_PROFILE,
 } from "../../../network/apiCallers";
 import ShimmerPlaceHolder, {
   createShimmerPlaceholder,
@@ -47,6 +48,7 @@ import addFlightSchema from "../../../yupschema/addFlight";
 import AddFlightForm from "../../../components/addflightform";
 import SuccessModal from "../../successmodal";
 import AlertModal from "../../alertmodal";
+import { useAuth } from "../../../UseContext/AuthContext";
 
 const Search = () => {
   const insets = useSafeAreaInsets();
@@ -67,7 +69,9 @@ const Search = () => {
   const [isModalShow, setIsModalShow] = useState(false)
   const [isSuccessModalShow, setIsSuccessModalShow] = useState(false)
   const [manualSubmitData, setManualSubmitData] = useState(false)
-
+  const [showProfilePopup, setShowProfilePopup] = useState(false)
+  const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
+    useAuth();
   const DashedLine = ({ dashCount = 20, dashColor = "#164F90" }) => (
     <View className="flex-row flex-1 justify-between items-center">
       {Array.from({ length: dashCount }).map((_, index) => (
@@ -84,16 +88,8 @@ const Search = () => {
     </View>
   );
 
-  useEffect(() => {
-    // Check if the user is logged in when the component mounts
-    console.log(
-      departureDate,
-      flightNumber,
-      "useEffect called with params:",
-      flightNumber,
-      departureTime
-    );
-  }, []);
+
+
 
   const handleTime = (time) => {
     const formattedTime = time.toLocaleTimeString([], {
@@ -312,7 +308,23 @@ const Search = () => {
     setIsLoggedIn(!!token);
     setLoginChecked(true); // ✅ ensure login state is ready
   };
+  const fetchProfileData = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    try {
+      const response = await GET_PROFILE(token);
+      const { userDetails } = response?.data;
 
+
+      await SaveName(userDetails?.name || "");
+      await SavePhone(userDetails?.phoneNumber?.toString() || "");
+      await SaveMail(userDetails?.email);
+
+    } catch (error) {
+      console.log("Error fetching profile:", error);
+
+    }
+
+  };
   // useEffect(() => {
   //   console.log("yayayayayayaya",departureDate)
   // },[])
@@ -321,6 +333,7 @@ const Search = () => {
   useFocusEffect(
     useCallback(() => {
       checkLoginStatus();
+      fetchProfileData()
     }, [])
   );
 
@@ -479,13 +492,17 @@ const Search = () => {
                 className="text-xl font-bold text-center mb-2"
                 style={{ fontFamily: "Lato" }}
               >
-                You're not logged in
+                {applanguage === "eng"
+                  ? Translations.eng.login_popup_message1
+                  : Translations.arb.login_popup_message1}
               </Text>
               <Text
                 className="text-base text-center text-gray-700 mb-5"
                 style={{ fontFamily: "Lato" }}
               >
-                Would you like to log in now?
+                {applanguage === "eng"
+                  ? Translations.eng.login_popup_message2
+                  : Translations.arb.login_popup_message2}
               </Text>
 
               <View className="flex-row justify-between gap-x-4">
@@ -497,7 +514,9 @@ const Search = () => {
                     className="text-gray-800 font-bold text-center"
                     style={{ fontFamily: "Lato" }}
                   >
-                    Cancel
+                    {applanguage === "eng"
+                      ? Translations.eng.cancel
+                      : Translations.arb.cancel}
                   </Text>
                 </TouchableOpacity>
 
@@ -519,7 +538,77 @@ const Search = () => {
                     className="text-black font-bold text-center"
                     style={{ fontFamily: "Lato" }}
                   >
-                    Login
+                    {applanguage === "eng"
+                      ? Translations.eng.log_in
+                      : Translations.arb.log_in}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          visible={showProfilePopup}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowProfilePopup(false)}
+        >
+          <View className="flex-1 bg-black/40 justify-center items-center px-4">
+            <View className="w-[90%] bg-white rounded-2xl p-6 shadow-xl">
+              <Text
+                className="text-xl font-bold text-center mb-2"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.profile_popup_message1
+                  : Translations.arb.profile_popup_message1}
+              </Text>
+              <Text
+                className="text-base text-center text-gray-700 mb-5"
+                style={{ fontFamily: "Lato" }}
+              >
+                {applanguage === "eng"
+                  ? Translations.eng.profile_popup_message2
+                  : Translations.arb.profile_popup_message2}
+              </Text>
+
+              <View className="flex-row justify-between gap-x-4">
+                <TouchableOpacity
+                  className="flex-1 bg-gray-200 py-3 rounded-xl"
+                  onPress={() => setShowProfilePopup(false)}
+                >
+                  <Text
+                    className="text-gray-800 font-bold text-center"
+                    style={{ fontFamily: "Lato" }}
+                  >
+                    {applanguage === "eng"
+                      ? Translations.eng.cancel
+                      : Translations.arb.cancel}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="flex-1 bg-[#FFB648] py-3 rounded-xl"
+                  style={{
+                    elevation: 5,
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.5,
+                    shadowRadius: 3.84,
+                  }}
+                  onPress={() => {
+                    setShowProfilePopup(false);
+                    router.replace("/(tabs)/profile/editprofile");
+                  }}
+                >
+                  <Text
+                    className="text-black font-bold text-center"
+                    style={{ fontFamily: "Lato" }}
+                  >
+                    {applanguage === "eng"
+                      ? Translations.eng.ok
+                      : Translations.arb.ok}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -688,6 +777,11 @@ const Search = () => {
                     // }}
                     onPress={() => {
                       if (isLoggedIn) {
+                        if (!userEmail || !userName || !userPhone) {
+                          setShowProfilePopup(true)
+                          return
+
+                        }
                         console.log("Navigating to baggage...");
                         router.push({
                           pathname: "/home/baggage",

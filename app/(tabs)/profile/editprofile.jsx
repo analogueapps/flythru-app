@@ -35,12 +35,12 @@ const editprofile = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext();
   const [loading, setLoading] = useState(false);
-const [alertShow,setAlertShow] = useState(false)
+  const [alertShow, setAlertShow] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true); // 👈 for page loader
-   const [modalVisible, setModalVisible] = useState(false);
-const [modalMessage, setModalMessage] = useState("");
-const [successVisible, setSuccessVisible] = useState(false);
-const [successMessage, setSuccessMessage] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [successVisible, setSuccessVisible] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
 
   const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
@@ -90,7 +90,7 @@ const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetchProfileData();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (userEmail) {
@@ -102,7 +102,7 @@ const [successMessage, setSuccessMessage] = useState("");
     setInitialLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
-      
+
       if (!token) {
         // Clear form values
         formik.setValues({
@@ -110,7 +110,7 @@ const [successMessage, setSuccessMessage] = useState("");
           email: userEmail || "",
           phoneNumber: "",
         });
-      
+
         // Clear context values
         await SaveName("");
         await SavePhone("");
@@ -123,17 +123,17 @@ const [successMessage, setSuccessMessage] = useState("");
         // );
         // Toast.show({
         //   type: "info",
-      
+
         //   text1: "Please login",
         // });
         setInitialLoading(false); // 👈 prevent loader from hanging
-        return ;
+        return;
       }
-      
+
 
       const response = await GET_PROFILE(token);
       const { userDetails } = response.data;
-       
+
       // Update form values with fetched data
       formik.setValues({
         name: userDetails.name || "",
@@ -150,16 +150,16 @@ const [successMessage, setSuccessMessage] = useState("");
       console.log("Error fetching profile:", error);
       // Toast.show({
       //   type: "info",
-  
+
       //   text1: "Failed to load profile data",
       // });
-setErrormessage(error?.response?.data?.message || "Failed to load profile data");
-setModalMessage(error?.response?.data?.message || "Failed to load profile data");
-setModalVisible(true);
-    } 
+      setErrormessage(error?.response?.data?.message || "Failed to load profile data");
+      setModalMessage(error?.response?.data?.message || "Failed to load profile data");
+      setModalVisible(true);
+    }
     finally {
       setInitialLoading(false);
-    } 
+    }
   };
 
   const editprofilehandler = async (values) => {
@@ -168,7 +168,7 @@ setModalVisible(true);
     if (!token) {
       Toast.show({
         type: "info",
-     
+
         text1: "Failed to load profile data",
       });
       return;
@@ -181,20 +181,20 @@ setModalVisible(true);
         type: "success",
         text1: res.data.message,
       });
-      
+
       // Update context with new values
       await SaveName(values.name);
       await SavePhone(values.phoneNumber);
-      
+
       // Optionally refresh profile data
       await fetchProfileData();
-      
-      router.push("/profile");
+      router.back()
+      // router.push("/profile");
     } catch (error) {
       console.log("Error updating profile:", error?.response);
       Toast.show({
         type: "info",
-    
+
         text1: error.response?.data?.message || "Failed to update profile",
       });
     } finally {
@@ -209,11 +209,11 @@ setModalVisible(true);
   //     </View>
   //   );
   // }
-  
+
 
   return (
     <View className="flex-1">
-      <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={()=> {router.replace('/(auth)'); setAlertShow(false)}}/>
+      <CustomAlert visible={alertShow} title='Please login or signup' message='Login with your account or signup' onClose={() => { router.replace('/(auth)'); setAlertShow(false) }} />
       {/* Header Background Image */}
       <View>
         <Image
@@ -250,140 +250,140 @@ setModalVisible(true);
         </View>
       </View>
       {initialLoading ?
-      (
+        (
 
-        <View className="flex-1 justify-center items-center bg-white">
-       <ActivityIndicator size="large" color="#164F90" />
-     </View>
-      ):(
-     
-      <ScrollView className="flex-1 " contentContainerStyle={{ padding: 15 , display:"flex" , justifyContent:"space-between", height:"100%"}}>
-        <View className=" flex-col gap-y-4">
-          <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
-              {" "}
-              {applanguage === "eng"
-                ? Translations.eng.name
-                : Translations.arb.name}
-            </Text>
-            <TextInput
-              className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-              placeholder={
-                applanguage === "eng"
-                  ? Translations.eng.name_placeholder
-                  : Translations.arb.name_placeholder
-              }
-              onChangeText={(text) => {
-                const cleanedText = text.replace(/\s{2,}/g, " ");
-                formik.setFieldValue("name", cleanedText);
-              }}
-              onBlur={formik.handleBlur("name")}
-              value={formik.values.name.trimStart()}
-              placeholderTextColor={"#1A1C1E"}
-            />
-            {formik.touched.name && formik.errors.name && (
-              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.name}</Text>
-            )}
+          <View className="flex-1 justify-center items-center bg-white">
+            <ActivityIndicator size="large" color="#164F90" />
           </View>
-
-          <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
-              {" "}
-              {applanguage === "eng"
-                ? Translations.eng.email_id
-                : Translations.arb.email_id}
-            </Text>
-            <TextInput
-              className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-              placeholder={
-                applanguage === "eng"
-                  ? Translations.eng.email_placeholder
-                  : Translations.arb.email_placeholder
-              }
-              onChangeText={formik.handleChange("email")}
-              onBlur={formik.handleBlur("email")}
-              placeholderTextColor={"#1A1C1E"}
-              value={formik.values.email}
-              editable={false}
-            />
-            {formik.touched.email && formik.errors.email && (
-              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.email}</Text>
-            )}
-          </View>
-
-          <View className="mb-2">
-            <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
-              {" "}
-              {applanguage === "eng"
-                ? Translations.eng.phone_number
-                : Translations.arb.phone_number}
-            </Text>
-            <TextInput
-              maxLength={8}
-              keyboardType="number-pad"
-              className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
-              placeholder={
-                applanguage === "eng"
-                  ? Translations.eng.phone_placeholder
-                  : Translations.arb.phone_placeholder
-              }
-              onChangeText={(text) => {
-                const cleanedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-                formik.setFieldValue("phoneNumber", cleanedText);
-              }}
-              onBlur={formik.handleBlur("phoneNumber")}
-              value={formik.values.phoneNumber}
-              placeholderTextColor={"#1A1C1E"}
-            />
-            {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-              <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.phoneNumber}</Text>
-            )}
-          </View>
-        </View>
-
-      <TouchableOpacity
-        disabled={loading}
-        className="bg-[#FFB648] rounded-lg w-full h-14 mx-auto mt-4 flex items-center justify-center mb-10"
-        style={{
-          elevation: 5,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.50,
-          shadowRadius: 3.84,
-        }}
-        onPress={formik.handleSubmit}
-        >
-        {loading ? (
-          <Animated.View
-          style={{
-            transform: [{ translateX }],
-            width: 100,
-            height: 100,
-            alignSelf: "center",
-          }}
-          >
-            <Image
-              source={flightloader}
-              style={{ width: 100, height: 100 }}
-              resizeMode="contain"
-              />
-          </Animated.View>
         ) : (
-          <Text className="font-bold text-center text-[#164F90] " style={{ fontFamily: "Lato" }}>
-            {" "}
-            {applanguage === "eng" ? Translations.eng.save : Translations.arb.save}
-          </Text>
+
+          <ScrollView className="flex-1 " contentContainerStyle={{ padding: 15, display: "flex", justifyContent: "space-between", height: "100%" }}>
+            <View className=" flex-col gap-y-4">
+              <View className="mb-2">
+                <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
+                  {" "}
+                  {applanguage === "eng"
+                    ? Translations.eng.name
+                    : Translations.arb.name}
+                </Text>
+                <TextInput
+                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  placeholder={
+                    applanguage === "eng"
+                      ? Translations.eng.name_placeholder
+                      : Translations.arb.name_placeholder
+                  }
+                  onChangeText={(text) => {
+                    const cleanedText = text.replace(/\s{2,}/g, " ");
+                    formik.setFieldValue("name", cleanedText);
+                  }}
+                  onBlur={formik.handleBlur("name")}
+                  value={formik.values.name.trimStart()}
+                  placeholderTextColor={"#1A1C1E"}
+                />
+                {formik.touched.name && formik.errors.name && (
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.name}</Text>
+                )}
+              </View>
+
+              <View className="mb-2">
+                <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
+                  {" "}
+                  {applanguage === "eng"
+                    ? Translations.eng.email_id
+                    : Translations.arb.email_id}
+                </Text>
+                <TextInput
+                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  placeholder={
+                    applanguage === "eng"
+                      ? Translations.eng.email_placeholder
+                      : Translations.arb.email_placeholder
+                  }
+                  onChangeText={formik.handleChange("email")}
+                  onBlur={formik.handleBlur("email")}
+                  placeholderTextColor={"#1A1C1E"}
+                  value={formik.values.email}
+                  editable={false}
+                />
+                {formik.touched.email && formik.errors.email && (
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.email}</Text>
+                )}
+              </View>
+
+              <View className="mb-2">
+                <Text className="text-[#40464C] text-lg font-bold" style={{ fontFamily: "Lato" }}>
+                  {" "}
+                  {applanguage === "eng"
+                    ? Translations.eng.phone_number
+                    : Translations.arb.phone_number}
+                </Text>
+                <TextInput
+                  maxLength={8}
+                  keyboardType="number-pad"
+                  className=" rounded-lg p-3 border-2 border-[#8B8B8B]"
+                  placeholder={
+                    applanguage === "eng"
+                      ? Translations.eng.phone_placeholder
+                      : Translations.arb.phone_placeholder
+                  }
+                  onChangeText={(text) => {
+                    const cleanedText = text.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+                    formik.setFieldValue("phoneNumber", cleanedText);
+                  }}
+                  onBlur={formik.handleBlur("phoneNumber")}
+                  value={formik.values.phoneNumber}
+                  placeholderTextColor={"#1A1C1E"}
+                />
+                {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+                  <Text className="text-red-500" style={{ fontFamily: "Lato" }}>{formik.errors.phoneNumber}</Text>
+                )}
+              </View>
+            </View>
+
+            <TouchableOpacity
+              disabled={loading}
+              className="bg-[#FFB648] rounded-lg w-full h-14 mx-auto mt-4 flex items-center justify-center mb-10"
+              style={{
+                elevation: 5,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.50,
+                shadowRadius: 3.84,
+              }}
+              onPress={formik.handleSubmit}
+            >
+              {loading ? (
+                <Animated.View
+                  style={{
+                    transform: [{ translateX }],
+                    width: 100,
+                    height: 100,
+                    alignSelf: "center",
+                  }}
+                >
+                  <Image
+                    source={flightloader}
+                    style={{ width: 100, height: 100 }}
+                    resizeMode="contain"
+                  />
+                </Animated.View>
+              ) : (
+                <Text className="font-bold text-center text-[#164F90] " style={{ fontFamily: "Lato" }}>
+                  {" "}
+                  {applanguage === "eng" ? Translations.eng.save : Translations.arb.save}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </ScrollView>
         )}
-      </TouchableOpacity>
-      </ScrollView>
-        )}
-         {modalVisible && (
-  <AlertModal
-    message={modalMessage}
-    heading={applanguage === "eng" ? "Alert" : "تنبيه"}
-    onClose={() => setModalVisible(false)}
-  />
-)}
+      {modalVisible && (
+        <AlertModal
+          message={modalMessage}
+          heading={applanguage === "eng" ? "Alert" : "تنبيه"}
+          onClose={() => setModalVisible(false)}
+        />
+      )}
     </View>
   );
 };

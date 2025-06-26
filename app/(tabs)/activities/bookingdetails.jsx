@@ -413,15 +413,15 @@ const bookingdetails = () => {
                 resizeMode="contain"
               />
 
-              <View className="flex-col gap-5">
-                <View className="flex-col gap-3">
+              <View className="flex-col gap-5 flex-1">
+                <View className="flex-col gap-1">
                   <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{
                     applanguage === "eng" ? Translations.eng.pick_up : Translations.arb.pick_up
                   }</Text>
-                  <Text className="text-lg" style={{ fontFamily: "Lato" }}>{bookingData?.booking?.pickUpLocation || "-"}</Text>
+                  <Text className="" style={{ fontFamily: "Lato" }}>{bookingData?.booking?.pickUpLocation || "-"}</Text>
                 </View>
 
-                <View className="flex-col gap-3">
+                <View className="flex-col gap-1">
                   <Text className="text-[#164F90] text-xl font-bold" style={{ fontFamily: "Lato" }}>{
                     applanguage === "eng" ? Translations.eng.drop_off : Translations.arb.drop_off
                   }</Text>
