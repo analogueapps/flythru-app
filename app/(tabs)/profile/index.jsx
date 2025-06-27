@@ -66,6 +66,7 @@ import ChangePassword from "../../../assets/svgs/changePass";
 import Followus from "../../../assets/svgs/followus";
 import Aboutus from "../../../assets/svgs/aboutus";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../../UseContext/AuthContext";
 
 // import { Alert, Button } from "react-native";
 
@@ -123,7 +124,8 @@ const index = () => {
   const [shouldOpenSheet, setShouldOpenSheet] = useState(false);
   const [accountDeleted, setAccountDeleted] = useState(false);
   const [selectedRadioReason, setSelectedRadioReason] = useState("");
-
+ const { userEmail, userName, userPhone, SaveMail, SaveName, SavePhone } =
+    useAuth();
   const { applanguage } = langaugeContext();
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -315,6 +317,7 @@ const index = () => {
             <TouchableOpacity activeOpacity={0.6}
               className="my-4 mx-4 bg-[#FFB800] rounded-xl py-4 px-10 shadow-lg items-center"
               onPress={() => {
+                SaveMail(""); SaveName(""); SavePhone("");
                 onSignOut();
                 logoutapi();
               }}

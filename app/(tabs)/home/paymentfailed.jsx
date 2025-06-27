@@ -9,13 +9,13 @@ import Translations from "../../../language";
 const Paymentfailed = () => {
   const insets = useSafeAreaInsets();
   const { applanguage } = langaugeContext()
-
+ const timeoutRef = useRef(null);
     useEffect(() => {
-      const timeout = setTimeout(() => {
+       timeoutRef.current  = setTimeout(() => {
         router.replace("/home");
       }, 6000); // 3 seconds
   
-      return () => clearTimeout(timeout); // cleanup on unmount
+      return () => clearTimeout(timeoutRef.current ); // cleanup on unmount
     }, []);
 
   return (

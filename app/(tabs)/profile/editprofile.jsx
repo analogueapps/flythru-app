@@ -171,6 +171,8 @@ const editprofile = () => {
 
         text1: "Failed to load profile data",
       });
+      await SaveMail("");
+
       return;
     }
 
