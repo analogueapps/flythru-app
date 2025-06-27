@@ -1,16 +1,19 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import paysuccess from "../../../assets/images/paymentfailed.gif";
 import { router } from "expo-router";
+import { langaugeContext } from "../../../customhooks/languageContext";
+import Translations from "../../../language";
 
-const paymentfailed = () => {
+const Paymentfailed = () => {
   const insets = useSafeAreaInsets();
+  const { applanguage } = langaugeContext()
 
     useEffect(() => {
       const timeout = setTimeout(() => {
         router.replace("/home");
-      }, 3000); // 3 seconds
+      }, 6000); // 3 seconds
   
       return () => clearTimeout(timeout); // cleanup on unmount
     }, []);
@@ -36,7 +39,8 @@ const paymentfailed = () => {
           color: "#000000", // green tone for success
         }}
       >
-        Payment Failed
+                { applanguage === "eng" ? Translations.eng.paymentfail_message1 : Translations.arb.paymentfail_message1}
+
       </Text>
 
       <Image
@@ -47,8 +51,20 @@ const paymentfailed = () => {
         }}
         resizeMode="contain"
       />
+
+      <View className="text-center">
+        <Text className="self-center font-semibold">{
+                    applanguage === "eng" ? Translations.eng.paymentfail_message2 : Translations.arb.paymentfail_message2
+                  }</Text>
+        <TouchableOpacity onPress={()=>router.replace('profile/contactus')}>
+
+        <Text className="self-center text-blue-800 font-bold">{
+                    applanguage === "eng" ? Translations.eng.contact_us2 : Translations.arb.contact_us2
+                  }</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-export default paymentfailed;
+export default Paymentfailed;

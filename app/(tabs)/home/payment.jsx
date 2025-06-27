@@ -83,6 +83,8 @@ const Payment = () => {
     //                     url.includes("PayInvoice/Result");
     const isSuccessUrl = url.includes("/payment/success") ||
       url.includes("PayInvoice");
+      console.log('..........................................',isSuccessUrl,!verificationAttemptedRef.current,paymentIdRef.current);
+      
 
     if (isSuccessUrl && paymentIdRef.current && !verificationAttemptedRef.current) {
       verifyOrder(paymentIdRef.current);

@@ -7,13 +7,13 @@ import {
   TextInput,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import images from "../../../constants/images";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChevronLeft } from "lucide-react-native";
 import TempAirWaysLogo from "../../../assets/svgs/tempAirways";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import dp from "../../../assets/images/dpfluthru.jpg";
 import { Calendar } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -67,13 +67,13 @@ const cancellation = () => {
 
     try {
       const res = await CANCELLATION(values, token, bookingId);
-      console.log('resresresresresresresresresres',res);
-      
+      console.log('resresresresresresresresresres', res);
+
       if (res.status === 200 && res.data.isbookingcancel) {
-setIsSubmitting(false)
+        setIsSubmitting(false)
         setShowSuccessPopup(true)
         setSuccessMessage(res.data.message)
-        
+
         // router.push(-1);
         // Toast.show({
         //   type: "success",
@@ -92,16 +92,24 @@ setIsSubmitting(false)
     } catch (error) {
       setIsSubmitting(false)
       // console.log("Error sending code:", error?.response.data.message);
-      setApiErr(error?.response?.data?.message|| error?.data?.message ||error?.errors || "Unknown issue");
+      setApiErr(error?.response?.data?.message || error?.data?.message || error?.errors || "Unknown issue");
     }
   };
 
 
-
+  useFocusEffect(
+    useCallback(() => {
+      // Reset the popup states when the screen loses focus (navigating away)
+      return () => {
+        setShowAlertPopup(false);
+        setShowSuccessPopup(false);
+      };
+    }, [])
+  );
   return (
     <View className="flex-1">
       {showAlertPopup && <AlertModal message={alertMessage} onClose={() => setShowAlertPopup(false)} />}
-      {showSuccessPopup && <SuccessModal message={successMessage} onClose={() => {setShowSuccessPopup(false);router.back()}} />}
+      {showSuccessPopup && <SuccessModal message={successMessage} onClose={() => { setShowSuccessPopup(false); router.back() }} />}
       {/* Header Background Image */}
       <View>
         <Image
@@ -172,18 +180,18 @@ setIsSubmitting(false)
         </View>
       </ScrollView>
       <TouchableOpacity className=" my-4  mx-12 bg-[#FFB800] rounded-xl py-4 mb-14"
-      disabled={isSubmitting}
+        disabled={isSubmitting}
         onPress={() => {
           formik.handleSubmit();
           // router.dismissAll();
         }}
       >
         {
-        !isSubmitting ? <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
-          {
-            applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit
-          }
-        </Text>: <ActivityIndicator size="small" color="white" />
+          !isSubmitting ? <Text className="font-bold text-center text-black " style={{ fontFamily: "Lato" }}>
+            {
+              applanguage === "eng" ? Translations.eng.submit : Translations.arb.submit
+            }
+          </Text> : <ActivityIndicator size="small" color="white" />
         }
       </TouchableOpacity>
     </View>

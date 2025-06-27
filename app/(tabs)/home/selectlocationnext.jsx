@@ -638,20 +638,28 @@ const selectlocation = () => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
         >
-          <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4 py-2 bg-gray-50">
-            <TextInput
-              placeholder={
-                applanguage === "eng"
-                  ? Translations.eng.select_location
-                  : Translations.arb.select_location
-              }
-              className="flex-1 h-[30px] text-black"
-              placeholderTextColor="#2D2A29"
-              value={formik.values.pickUpLocation}
-              onChangeText={handleLocationInput}
-              editable={false}
-            />
-
+          <View className="flex-row my-2 items-center border border-gray-300 rounded-xl px-4  bg-gray-50">
+             <ScrollView
+    style={{ flex: 1 }}  // Ensures the ScrollView takes full available width
+    horizontal={false}  // Ensures vertical scrolling
+    showsVerticalScrollIndicator={false}  // Optional: hides scroll indicator
+  >
+    <TextInput
+      placeholder={
+        applanguage === "eng"
+          ? Translations.eng.select_location
+          : Translations.arb.select_location
+      }
+      className="flex-1 min-h-[30px] text-black"
+      placeholderTextColor="#2D2A29"
+      value={formik.values.pickUpLocation}
+      onChangeText={handleLocationInput}
+      editable={false}  // Disable editing
+      multiline={true}  // Allow for multiple lines
+      numberOfLines={3}  // Limit the number of lines to 3 (or set it to your preference)
+      scrollEnabled={true}  // Enable scrolling
+    />
+  </ScrollView>
             <TouchableOpacity onPress={searchLocation}>
               <Ionicons
                 name="search-outline"

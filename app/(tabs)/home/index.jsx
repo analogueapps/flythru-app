@@ -244,7 +244,7 @@ const Index = () => {
           )}
 
           {/* Your existing colored boxes */}
-          <View className="w-full mx-4 mb-3 rounded-xl">
+          <View className=" w-[96%] mb-3 rounded-xl">
             {Array.isArray(banners) && banners.length > 0 ? (
               banners.map((banner, index) => (
                 <TouchableOpacity
