@@ -28,7 +28,7 @@ const Payment = () => {
   };
 
   const verifyOrder = async (paymentId) => {
-      const token = await AsyncStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem("authToken");
     if (verificationAttemptedRef.current || verificationInProgressRef.current) {
       return;
     }
@@ -63,7 +63,7 @@ const Payment = () => {
     // Extract and store PaymentId if found
     if (url.includes("PaymentID=")) {
       const paymentId = extractPaymentId(url);
-      
+
       if (paymentId) {
         paymentIdRef.current = paymentId;
         console.log("Extracted PaymentId:", paymentId);
@@ -83,8 +83,8 @@ const Payment = () => {
     //                     url.includes("PayInvoice/Result");
     const isSuccessUrl = url.includes("/payment/success") ||
       url.includes("PayInvoice");
-      console.log('..........................................',isSuccessUrl,!verificationAttemptedRef.current,paymentIdRef.current);
-      
+    console.log('..........................................', isSuccessUrl, !verificationAttemptedRef.current, paymentIdRef.current);
+
 
     if (isSuccessUrl && paymentIdRef.current && !verificationAttemptedRef.current) {
       verifyOrder(paymentIdRef.current);
@@ -111,15 +111,15 @@ const Payment = () => {
         source={{ uri: paymentUrl }}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
-      //    onNavigationStateChange={(navState) => {
-      //   handleUrlChange(navState.url);
-      // }}
+        //    onNavigationStateChange={(navState) => {
+        //   handleUrlChange(navState.url);
+        // }}
         onShouldStartLoadWithRequest={({ url }) => handleUrlChange(url)}
         javaScriptEnabled
-  domStorageEnabled
-  sharedCookiesEnabled={true}
-  thirdPartyCookiesEnabled={true}
-  startInLoadingState
+        domStorageEnabled
+        sharedCookiesEnabled={false}
+        thirdPartyCookiesEnabled={false}
+        startInLoadingState
       // onNavigationStateChange={(navState) => {
       //   // Additional safeguard for navigation changes
       //   handleUrlChange(navState.url);
