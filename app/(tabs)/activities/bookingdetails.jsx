@@ -25,7 +25,7 @@ const bookingdetails = () => {
   const insets = useSafeAreaInsets();
   const { fromSelectLocation = "false" } = useLocalSearchParams();
   const { userId, orderId, baggageId, bookingId, paymentId, message } = useLocalSearchParams();
-  console.log("mmmmmmmmmmmmmmmmmmmmmm",message,bookingId)
+  console.log("mmmmmmmmmmmmmmmmmmmmmm", message, bookingId)
   const isFromSelectLocation = JSON.parse(fromSelectLocation.toLowerCase());
   const [bookingData, setBookingData] = useState()
   // const { bookingId } = useLocalSearchParams(); 
@@ -494,7 +494,7 @@ const bookingdetails = () => {
                     params: { bookingId: bookingId },
                   })
                 }
-                className={`border-2 rounded-xl py-4 my-5 ${((bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" ||  bookingData?.booking?.updateStatus?.toLowerCase() === 'dropped at airport')
+                className={`border-2 rounded-xl py-4 my-5 ${((bookingData?.booking?.bookingStatus || "").toLowerCase() === "cancelled" || bookingData?.booking?.updateStatus?.toLowerCase() === 'dropped at airport')
                   ? "border-gray-400 bg-gray-200"
                   : "border-[#164F90]"
                   }`}
