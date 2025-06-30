@@ -73,6 +73,7 @@ const selectlocation = () => {
   const [pickuploaction, setPickuploaction] = useState([]);
   const [paymentUrl, setPaymentUrl] = useState(null);
   const [isSwiping, setIsSwiping] = useState(false);
+  const mapRef = useRef(null);
   const parsedPersonsCount = personsCount ? parseInt(personsCount) : 0;
   const parsedBaggageCount = baggageCount ? parseInt(baggageCount) : 0;
   const parsedBaggagePictures = baggagePictures
@@ -103,7 +104,7 @@ const selectlocation = () => {
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-const debounceTimer = useRef(null);
+  const debounceTimer = useRef(null);
   useEffect(() => {
     const checkVisit = async () => {
       const value = await AsyncStorage.getItem("hasVisitedLocationSheet");
@@ -370,14 +371,32 @@ const debounceTimer = useRef(null);
   };
 
   const centerMapOnUser = async () => {
-    let location = await Location.getCurrentPositionAsync({});
-    setRegion({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
+    try {
+      let location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      setRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+
+      mapRef.current?.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        400 // duration in ms
+      );
+    } catch (error) {
+      console.error("Error getting user location", error);
+      Alert.alert("Location Error", "Unable to fetch your location. Please check GPS permissions.");
+    }
   };
+
 
   // useEffect(() => {
   //   const fetchUserName = async () => {
@@ -739,11 +758,14 @@ const debounceTimer = useRef(null);
             {isMapshow ? (<>
 
               <MapView
+                ref={mapRef}
                 style={styles.map}
-                region={region}
+                // region={region}
+                initialRegion={region}
                 onRegionChangeComplete={onRegionChangeComplete}
                 showsUserLocation={true}
                 showsMyLocationButton={true}
+                loadingEnabled={true}
               // zoomEnabled={true}
               // showsCompass={true}
               // scrollEnabled={true}
@@ -792,8 +814,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "50%",
     left: "50%",
-    marginLeft: -16, // half of icon width
-    marginTop: -32, // adjust based on icon height
+    marginLeft: -15, // half of icon width
+    marginTop: -30, // adjust based on icon height
     zIndex: 10,
   },
   myLocationButton: {
