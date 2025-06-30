@@ -50,8 +50,8 @@ const Index = () => {
   const [banners, setBanners] = useState([]);
   const [bannerPicture, setbannerPicture] = useState("");
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('')
-  const [isModalShow, setIsModalShow] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isModalShow, setIsModalShow] = useState(false);
   const { loadToken } = useAuth();
   // const [showDatePicker,setshowDatePicker]
   // Swap function
@@ -116,8 +116,8 @@ const Index = () => {
         //   type: "error",
         //   text1: "Please fill all fields",
         // });
-        setErrorMessage('Please fill all fields')
-        setIsModalShow(true)
+        setErrorMessage("Please fill all fields");
+        setIsModalShow(true);
         return;
       }
 
@@ -181,7 +181,12 @@ const Index = () => {
   return (
     <View className="flex-1">
       {/* Header Background Image */}
-      {isModalShow && <AlertModal message={errorMessage} onClose={() => setIsModalShow(false)} />}
+      {isModalShow && (
+        <AlertModal
+          message={errorMessage}
+          onClose={() => setIsModalShow(false)}
+        />
+      )}
 
       <View>
         <Image
@@ -220,8 +225,9 @@ const Index = () => {
         </TouchableOpacity>
       </View>
       <View
-        className={`bg-white self-center absolute ${Platform.OS === "android" ? "top-36" : "top-44"
-          } z-10  p-6 rounded-2xl w-[90%] shadow-lg`}
+        className={`bg-white self-center absolute ${
+          Platform.OS === "android" ? "top-36" : "top-44"
+        } z-10  p-6 rounded-2xl w-[90%] shadow-lg`}
       >
         <View>
           <Text className="text-[#164E8D] font-semibold mb-2">Search By</Text>
