@@ -650,7 +650,7 @@ const selectlocation = () => {
                     ? Translations.eng.select_location
                     : Translations.arb.select_location
                 }
-                className="flex-1 min-h-[30px] md:py-2 text-black"
+                className="flex-1 min-h-[30px] md:py-4 text-black"
                 placeholderTextColor="#2D2A29"
                 value={formik.values.pickUpLocation}
                 onChangeText={handleLocationInput}

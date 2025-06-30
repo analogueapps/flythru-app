@@ -18,8 +18,7 @@ const Payment = () => {
   const paymentIdRef = useRef(null);
   const verificationAttemptedRef = useRef(false);
   const verificationInProgressRef = useRef(false);
- const successUrl = 'https://admin.flythru.net/payment/success';
-  const errorUrl = 'https://admin.flythru.net/payment/failure';
+
   const { paymentUrl, orderId } = useLocalSearchParams();
   const router = useRouter();
 
@@ -29,7 +28,7 @@ const Payment = () => {
   };
 
   const verifyOrder = async (paymentId) => {
-      const token = await AsyncStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem("authToken");
     if (verificationAttemptedRef.current || verificationInProgressRef.current) {
       return;
     }
@@ -61,21 +60,36 @@ const Payment = () => {
   const handleUrlChange = (url) => {
     console.log("Current URL:", url);
 
-  if (url.includes(successUrl)) {
-      
-      router.replace("/home/paymentsuccess");
-      return false;
-      
+    // Extract and store PaymentId if found
+    if (url.includes("PaymentID=")) {
+      const paymentId = extractPaymentId(url);
+
+      if (paymentId) {
+        paymentIdRef.current = paymentId;
+        console.log("Extracted PaymentId:", paymentId);
+      }
     }
 
- if (url.includes(errorUrl)) {     
+    // Handle failure case
+    if (url.includes("/payment/failure")) {
+      if (!verificationAttemptedRef.current) {
         router.replace("/home/paymentfailed");
-   
-      return false;
+      }
+      return;
     }
 
-   
-    
+    // Handle success cases
+    // const isSuccessUrl =url.includes("/payment/success") || 
+    //                     url.includes("PayInvoice/Result");
+    const isSuccessUrl = url.includes("/payment/success") ||
+      url.includes("PayInvoice");
+    console.log('..........................................', isSuccessUrl, !verificationAttemptedRef.current, paymentIdRef.current);
+
+
+    if (isSuccessUrl && paymentIdRef.current && !verificationAttemptedRef.current) {
+      verifyOrder(paymentIdRef.current);
+      return false;
+    }
 
     return true;
   };
@@ -97,15 +111,15 @@ const Payment = () => {
         source={{ uri: paymentUrl }}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
-      //    onNavigationStateChange={(navState) => {
-      //   handleUrlChange(navState.url);
-      // }}
+        //    onNavigationStateChange={(navState) => {
+        //   handleUrlChange(navState.url);
+        // }}
         onShouldStartLoadWithRequest={({ url }) => handleUrlChange(url)}
         javaScriptEnabled
-  domStorageEnabled
-  sharedCookiesEnabled={true}
-  thirdPartyCookiesEnabled={true}
-  startInLoadingState
+        domStorageEnabled
+        sharedCookiesEnabled={false}
+        thirdPartyCookiesEnabled={false}
+        startInLoadingState
       // onNavigationStateChange={(navState) => {
       //   // Additional safeguard for navigation changes
       //   handleUrlChange(navState.url);

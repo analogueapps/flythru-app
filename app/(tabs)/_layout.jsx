@@ -89,6 +89,19 @@ const _layout = () => {
               ? Translations.eng.services
               : Translations.arb.services,
           tabBarIcon: ({ color }) => <SvgServices color={color} />,
+          tabBarButton: (props) => {
+            // const router = useRouter();
+
+            return (
+              <TouchableOpacity
+                {...props}
+                onPress={() => {              
+                  props.onPress?.();                 
+                  router.navigate('/(tabs)/home');                 
+                }}
+              />
+            );
+          }
         }}
       />
 
