@@ -21,8 +21,6 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import images from "../../../constants/images";
 import { StatusBar } from "expo-status-bar";
 import SwipeButton from "rn-swipe-button";
@@ -103,7 +101,7 @@ const selectlocation = () => {
 
   const [isMapReady, setIsMapReady] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-const debounceTimer = useRef(null);
+
   useEffect(() => {
     const checkVisit = async () => {
       const value = await AsyncStorage.getItem("hasVisitedLocationSheet");
@@ -367,16 +365,6 @@ const debounceTimer = useRef(null);
       console.error("Failed to retrieve the user name:", error);
       return "";
     }
-  };
-
-  const centerMapOnUser = async () => {
-    let location = await Location.getCurrentPositionAsync({});
-    setRegion({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
   };
 
   // useEffect(() => {
@@ -736,31 +724,22 @@ const debounceTimer = useRef(null);
       <View style={styles.mapContainer}>
         {!loading ? (
           <>
-            {isMapshow ? (<>
+            {isMapshow && <MapView
+              style={styles.map}
+              region={region}
+              onRegionChangeComplete={onRegionChangeComplete}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+              zoomEnabled={true}
 
-              <MapView
-                style={styles.map}
-                region={region}
-                onRegionChangeComplete={onRegionChangeComplete}
-                showsUserLocation={true}
-                showsMyLocationButton={true}
-              // zoomEnabled={true}
-              // showsCompass={true}
-              // scrollEnabled={true}
-
-              >
-                {/* <Marker
+            >
+              <Marker
                 coordinate={{
                   latitude: markerCoards.latitude,
                   longitude: markerCoards.longitude,
-                  }}
-                  /> */}
-              </MapView>
-              <View pointerEvents="none" style={styles.centerMarker}>
-                <FontAwesome name="map-pin" size={30} color="#FF4C4C" />
-              </View>
-            </>
-            ) : ''}
+                }}
+              />
+            </MapView>}
           </>
         ) : (
           <View className="flex-1 justify-center items-center">
@@ -768,9 +747,6 @@ const debounceTimer = useRef(null);
           </View>
         )}
       </View>
-      <TouchableOpacity style={styles.myLocationButton} onPress={centerMapOnUser}>
-        <MaterialIcons name="my-location" size={24} color="#ffffff" />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -795,15 +771,6 @@ const styles = StyleSheet.create({
     marginLeft: -16, // half of icon width
     marginTop: -32, // adjust based on icon height
     zIndex: 10,
-  },
-  myLocationButton: {
-    position: 'absolute',
-    bottom: 40,
-    right: 20,
-    backgroundColor: '#007AFF',
-    borderRadius: 30,
-    padding: 5,
-    elevation: 5,
   },
 });
 

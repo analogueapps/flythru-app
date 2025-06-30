@@ -97,11 +97,11 @@ const Index = () => {
 
   const formik = useFormik({
     initialValues: {
-      departureDate: "",
-      departureTime: "",
-      flightNumber: "",
-      from: "kwi",
-      to: "",
+      departureDate: "16-10-2025",
+      departureTime: "04:05",
+      flightNumber: "wy644",
+      from: "KWI",
+      to: "MCT",
     },
     validationSchema: AllflightSchema(applanguage),
     validateOnChange: false, // Disable auto-validation on change
