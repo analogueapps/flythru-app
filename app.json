@@ -30,6 +30,7 @@
         "UIBackgroundModes": [
           "remote-notification"
         ],
+        "NSCalendarsUsageDescription": "This app needs access to your calendar to pick a date and time.",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help assign a nearby driver and manage pickup for your booked service.",
         "CFBundleURLTypes": [
           {
