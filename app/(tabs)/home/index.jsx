@@ -11,7 +11,6 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import * as Calendarpicker from "expo-calendar";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,

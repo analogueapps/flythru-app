@@ -30,7 +30,6 @@
         "UIBackgroundModes": [
           "remote-notification"
         ],
-        "NSCalendarsUsageDescription": "This app needs access to your calendar to pick a date and time.",
         "NSLocationWhenInUseUsageDescription": "This app uses your location to help assign a nearby driver and manage pickup for your booked service.",
         "CFBundleURLTypes": [
           {
@@ -112,21 +111,19 @@
           }
         }
       ],
-      [
-        "expo-calendar",
-        {
-          "calendarPermission": "The app needs to access your calendar."
-        }
-      ],
-      [
+        [
         "expo-build-properties",
         {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "minSdkVersion": 26
+          },
           "ios": {
+            "deploymentTarget": "15.1",
             "useModularHeaders": true,
             "useFrameworks": "static"
-          },
-          "android": {
-            "minSdkVersion": 26
           }
         }
       ]

@@ -495,7 +495,7 @@ const slots = () => {
         )}
 
       </ScrollView>
-      <View className="absolute bottom-0 left-0 w-full bg-white">
+      <View className="absolute bottom-10 left-0 w-full bg-white">
          <TouchableOpacity
               className="my-1 mx-4 bg-[#FFB800] rounded-xl py-4 shadow-lg"
               onPress={() => {
